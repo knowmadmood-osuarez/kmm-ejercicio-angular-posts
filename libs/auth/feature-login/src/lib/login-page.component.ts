@@ -1,0 +1,41 @@
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
+
+import { AuthService } from '@app/core';
+import { LanguageSwitcherComponent } from '@app/shared/ui';
+
+import { LoginFormComponent, type LoginCredentials } from './login-form.component';
+
+@Component({
+  selector: 'app-login-page',
+  imports: [TranslocoPipe, LanguageSwitcherComponent, LoginFormComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './login-page.component.html',
+  styles: `
+    :host {
+      display: block;
+    }
+  `,
+})
+export class LoginPageComponent {
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
+  readonly loading = signal(false);
+  readonly error = signal<unknown>(null);
+
+  async onLogin(credentials: LoginCredentials): Promise<void> {
+    this.loading.set(true);
+    this.error.set(null);
+
+    try {
+      await this.authService.login(credentials.name, credentials.password);
+      await this.router.navigate(['/posts']);
+    } catch (err: unknown) {
+      this.error.set(err);
+    } finally {
+      this.loading.set(false);
+    }
+  }
+}

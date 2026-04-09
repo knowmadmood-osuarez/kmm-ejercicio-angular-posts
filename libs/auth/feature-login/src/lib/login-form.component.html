@@ -1,0 +1,70 @@
+<div
+  class="rounded-lg border border-input-border bg-card shadow-card"
+  style="padding: 32px 32px 48px"
+>
+  <app-linear-progress [visible]="loading()" />
+
+  <form (submit)="onSubmit($event)" class="flex flex-col gap-6">
+    <!-- Username field -->
+    <div class="flex flex-col gap-2">
+      <app-label for="login-name" variant="compact">
+        {{ 'auth.login.username' | transloco }}
+      </app-label>
+      <app-input
+        id="login-name"
+        name="name"
+        variant="login"
+        [icon]="true"
+        [placeholder]="'auth.login.username' | transloco"
+        [value]="name"
+        [disabled]="loading()"
+        [ariaLabel]="'auth.login.username' | transloco"
+        (valueChange)="name = $event"
+      >
+        <app-icon slot="icon" name="user" class="h-3.5 w-3.5 text-text-secondary" />
+      </app-input>
+    </div>
+
+    <!-- Password field -->
+    <div class="flex flex-col gap-2">
+      <app-label for="login-password" variant="compact">
+        {{ 'auth.login.password' | transloco }}
+      </app-label>
+      <app-input
+        id="login-password"
+        name="password"
+        type="password"
+        variant="login"
+        [icon]="true"
+        [placeholder]="'auth.login.password' | transloco"
+        [value]="password"
+        [disabled]="loading()"
+        [ariaLabel]="'auth.login.password' | transloco"
+        (valueChange)="password = $event"
+      >
+        <app-icon slot="icon" name="lock" class="h-3.5 w-3.5 text-text-secondary" />
+      </app-input>
+    </div>
+
+    <!-- Error message -->
+    @if (error()) {
+      <p class="text-sm text-danger" role="alert" aria-live="polite">
+        {{ 'auth.login.error' | transloco }}
+      </p>
+    }
+
+    <!-- Submit button -->
+    <div class="pt-2">
+      <app-button
+        type="submit"
+        variant="primary"
+        size="xl"
+        [fullWidth]="true"
+        [disabled]="loading() || !isValid()"
+      >
+        {{ 'auth.login.submit' | transloco }}
+        <app-icon name="arrow-right" class="h-3 w-3" />
+      </app-button>
+    </div>
+  </form>
+</div>
