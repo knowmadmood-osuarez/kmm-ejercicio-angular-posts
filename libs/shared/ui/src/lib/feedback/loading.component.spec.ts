@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/angular';
+import { render } from '@testing-library/angular';
 import { provideTransloco } from '@jsverse/transloco';
 import { LoadingComponent } from './loading.component';
 

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/angular';
+import { render, fireEvent } from '@testing-library/angular';
 import { provideTransloco } from '@jsverse/transloco';
 import { ErrorStateComponent } from './error-state.component';
 
