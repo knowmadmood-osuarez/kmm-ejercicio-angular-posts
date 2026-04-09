@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "bundler",
+    "emitDecoratorMetadata": false,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2022",
+    "module": "preserve",
+    "lib": ["es2022", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@app/core": ["libs/core/src/index.ts"],
+      "@app/shared/ui": ["libs/shared/ui/src/index.ts"],
+      "@app/auth/feature-login": ["libs/auth/feature-login/src/index.ts"],
+      "@app/posts/data-access": ["libs/posts/data-access/src/index.ts"],
+      "@app/posts/feature-list": ["libs/posts/feature-list/src/index.ts"],
+      "@app/posts/feature-detail": ["libs/posts/feature-detail/src/index.ts"],
+      "@app/posts/feature-form": ["libs/posts/feature-form/src/index.ts"]
+    },
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "isolatedModules": true
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  },
+  "exclude": ["node_modules", "tmp"]
+}

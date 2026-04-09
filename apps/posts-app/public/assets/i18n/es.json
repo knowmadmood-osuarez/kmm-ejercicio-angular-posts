@@ -1,0 +1,79 @@
+{
+  "shared": {
+    "loading": "Cargando...",
+    "empty": "No hay resultados",
+    "error": "Ha ocurrido un error",
+    "retry": "Reintentar",
+    "forbidden": "No tienes permisos para acceder a este recurso",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "back": "Volver",
+    "search": "Buscar"
+  },
+  "header": {
+    "logout": "Cerrar sesión",
+    "language": "Idioma",
+    "posts": "Posts",
+    "newPost": "Nuevo post"
+  },
+  "auth": {
+    "login": {
+      "title": "Iniciar sesión",
+      "username": "Nombre de usuario",
+      "password": "Contraseña",
+      "submit": "Entrar",
+      "error": "Credenciales inválidas"
+    }
+  },
+  "posts": {
+    "list": {
+      "title": "Posts",
+      "empty": "No hay posts disponibles",
+      "search": "Buscar posts...",
+      "filterAuthor": "Filtrar por autor",
+      "filterTag": "Filtrar por etiqueta",
+      "newPost": "Nuevo post",
+      "allAuthors": "Todos los autores",
+      "allTags": "Todas las etiquetas"
+    },
+    "detail": {
+      "title": "Detalle del post",
+      "edit": "Editar post",
+      "delete": "Eliminar post",
+      "confirmDelete": "¿Estás seguro de que quieres eliminar este post?",
+      "by": "Por",
+      "on": "el"
+    },
+    "form": {
+      "titleNew": "Nuevo post",
+      "titleEdit": "Editar post",
+      "title": "Título",
+      "body": "Contenido",
+      "tags": "Etiquetas (separadas por coma)",
+      "submit": "Guardar",
+      "cancel": "Cancelar",
+      "titleRequired": "El título es obligatorio",
+      "titleMinLength": "El título debe tener al menos 3 caracteres",
+      "bodyRequired": "El contenido es obligatorio",
+      "bodyMinLength": "El contenido debe tener al menos 10 caracteres"
+    }
+  },
+  "comments": {
+    "title": "Comentarios",
+    "empty": "No hay comentarios aún",
+    "add": "Añadir comentario",
+    "edit": "Editar comentario",
+    "delete": "Eliminar comentario",
+    "confirmDelete": "¿Estás seguro de que quieres eliminar este comentario?",
+    "placeholder": "Escribe un comentario...",
+    "bodyRequired": "El comentario es obligatorio"
+  },
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "page": "Página {{current}} de {{total}}"
+  }
+}
