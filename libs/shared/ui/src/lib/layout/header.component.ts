@@ -24,7 +24,7 @@ function getInitial(name: string | undefined): string {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header
-      class="sticky top-0 z-40 w-full border-b border-input-border bg-header-bg backdrop-blur-md"
+      class="sticky top-0 z-40 w-full border-b border-input-border bg-header-bg backdrop-blur-[6px]"
     >
       <nav
         class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4"
