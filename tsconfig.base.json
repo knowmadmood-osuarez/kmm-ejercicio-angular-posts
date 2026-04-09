@@ -20,16 +20,7 @@
       "@app/posts/data-access": ["libs/posts/data-access/src/index.ts"],
       "@app/posts/feature-list": ["libs/posts/feature-list/src/index.ts"],
       "@app/posts/feature-detail": ["libs/posts/feature-detail/src/index.ts"],
-      "@app/posts/feature-form": ["libs/posts/feature-form/src/index.ts"],
-      "@kmm-ejercicio-angular-posts/core": ["libs/core/src/index.ts"],
-      "@kmm-ejercicio-angular-posts/shared-ui": ["libs/shared/ui/src/index.ts"],
-      "@kmm-ejercicio-angular-posts/auth-feature-login": ["libs/auth/feature-login/src/index.ts"],
-      "@kmm-ejercicio-angular-posts/posts-data-access": ["libs/posts/data-access/src/index.ts"],
-      "@kmm-ejercicio-angular-posts/posts-feature-list": ["libs/posts/feature-list/src/index.ts"],
-      "@kmm-ejercicio-angular-posts/posts-feature-detail": [
-        "libs/posts/feature-detail/src/index.ts"
-      ],
-      "@kmm-ejercicio-angular-posts/posts-feature-form": ["libs/posts/feature-form/src/index.ts"]
+      "@app/posts/feature-form": ["libs/posts/feature-form/src/index.ts"]
     },
     "strict": true,
     "noImplicitOverride": true,

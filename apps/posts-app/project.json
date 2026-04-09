@@ -1,26 +1,26 @@
 {
-  "name": "kmm-ejercicio-angular-posts",
-  "$schema": "node_modules/nx/schemas/project-schema.json",
+  "name": "posts-app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "includedScripts": [],
   "projectType": "application",
   "prefix": "app",
-  "sourceRoot": "./src",
+  "sourceRoot": "apps/posts-app/src",
   "tags": ["type:app", "scope:app"],
   "targets": {
     "build": {
       "executor": "@angular/build:application",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/kmm-ejercicio-angular-posts",
-        "browser": "./src/main.ts",
-        "tsConfig": "tsconfig.app.json",
+        "outputPath": "dist/posts-app",
+        "browser": "apps/posts-app/src/main.ts",
+        "tsConfig": "apps/posts-app/tsconfig.app.json",
         "assets": [
           {
             "glob": "**/*",
-            "input": "public"
+            "input": "apps/posts-app/public"
           }
         ],
-        "styles": ["./src/styles.css"]
+        "styles": ["apps/posts-app/src/styles.css"]
       },
       "configurations": {
         "production": {
@@ -51,10 +51,10 @@
       "executor": "@angular/build:dev-server",
       "configurations": {
         "production": {
-          "buildTarget": "kmm-ejercicio-angular-posts:build:production"
+          "buildTarget": "posts-app:build:production"
         },
         "development": {
-          "buildTarget": "kmm-ejercicio-angular-posts:build:development"
+          "buildTarget": "posts-app:build:development"
         }
       },
       "defaultConfiguration": "development"
@@ -62,7 +62,7 @@
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["./src"]
+        "lintFilePatterns": ["apps/posts-app/src"]
       }
     },
     "test": {
@@ -73,8 +73,8 @@
       "continuous": true,
       "executor": "@nx/web:file-server",
       "options": {
-        "buildTarget": "kmm-ejercicio-angular-posts:build",
-        "staticFilePath": "dist/kmm-ejercicio-angular-posts/browser",
+        "buildTarget": "posts-app:build",
+        "staticFilePath": "dist/posts-app/browser",
         "spa": true
       }
     }
