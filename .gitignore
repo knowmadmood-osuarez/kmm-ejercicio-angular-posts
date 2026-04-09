@@ -1,0 +1,81 @@
+# =====================
+# Dependencies
+# =====================
+node_modules/
+.pnpm-store/
+
+# =====================
+# Build outputs
+# =====================
+dist/
+tmp/
+out-tsc/
+build/
+
+# =====================
+# Nx
+# =====================
+.nx/cache
+.nx/workspace-data
+
+# =====================
+# IDE / Editors
+# =====================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# =====================
+# OS files
+# =====================
+.DS_Store
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# =====================
+# Angular
+# =====================
+.angular/cache
+.angular/
+
+# =====================
+# Testing
+# =====================
+coverage/
+test-results/
+playwright-report/
+blob-report/
+.nyc_output/
+
+# =====================
+# Environment / Secrets
+# =====================
+.env
+.env.local
+.env.*.local
+
+# =====================
+# Logs
+# =====================
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# =====================
+# Misc
+# =====================
+*.tgz
+.eslintcache
+.prettiercache
+
