@@ -9,6 +9,7 @@
   "targets": {
     "build": {
       "executor": "@angular/build:application",
+      "syncGenerators": ["@juristr/nx-tailwind-sync:source-directives"],
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/posts-app",
@@ -20,7 +21,12 @@
             "input": "apps/posts-app/public"
           }
         ],
-        "styles": ["apps/posts-app/src/styles.css"]
+        "styles": ["apps/posts-app/src/styles.css"],
+        "server": "apps/posts-app/src/main.server.ts",
+        "ssr": {
+          "entry": "apps/posts-app/server.ts"
+        },
+        "prerender": false
       },
       "configurations": {
         "production": {
@@ -49,6 +55,7 @@
     "serve": {
       "continuous": true,
       "executor": "@angular/build:dev-server",
+      "syncGenerators": ["@juristr/nx-tailwind-sync:source-directives"],
       "configurations": {
         "production": {
           "buildTarget": "posts-app:build:production"
@@ -77,6 +84,19 @@
         "staticFilePath": "dist/posts-app/browser",
         "spa": true
       }
+    },
+    "serve-ssr": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "posts-app:build:production"
+        },
+        "development": {
+          "buildTarget": "posts-app:build:development"
+        }
+      },
+      "defaultConfiguration": "development"
     }
   }
 }
