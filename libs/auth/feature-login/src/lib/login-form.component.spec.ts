@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideTransloco } from '@jsverse/transloco';
 
-import { LoginFormComponent, type LoginCredentials } from './login-form.component';
+import { type LoginCredentials, LoginFormComponent } from './login-form.component';
 
 const translocoProviders = provideTransloco({
   config: { availableLangs: ['es', 'en'], defaultLang: 'es', prodMode: true },
@@ -88,7 +88,7 @@ describe('LoginFormComponent', () => {
   });
 
   it('should show error message when error input is truthy', () => {
-    const { fixture, component } = setup();
+    const { fixture } = setup();
     fixture.componentRef.setInput('error', new Error('fail'));
     fixture.detectChanges();
 
