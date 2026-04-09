@@ -6,28 +6,39 @@ function normalizeLangs(available: ReturnType<TranslocoService['getAvailableLang
   return available.map((l) => (typeof l === 'string' ? l : l.id));
 }
 
+/** Pure function: compute the pill's translateX for the active language slot.
+ *  Figma: pill left=15.43px at index 0, each slot is 72px wide. */
+function computePillTranslateX(
+  activeIndex: number,
+  slotWidth: number,
+  pillOffsetX: number,
+): number {
+  return pillOffsetX + activeIndex * slotWidth;
+}
+
 @Component({
   selector: 'app-language-switcher',
   imports: [TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="relative flex h-7 items-center rounded-full bg-toggle-bg p-0.5"
+      class="relative flex h-7 items-center rounded-[10px] bg-toggle-bg"
+      style="width: 144px"
       role="radiogroup"
       [attr.aria-label]="'shared.languageSelector' | transloco"
     >
-      <!-- Sliding indicator pill -->
+      <!-- Sliding indicator pill — centered within its slot both axes -->
       <div
-        class="absolute h-5 rounded-full bg-toggle-active transition-all duration-200 ease-in-out"
-        [style.width.px]="pillWidth"
-        [style.transform]="'translateX(' + activeIndex() * pillWidth + 'px)'"
+        class="absolute rounded-[10px] bg-toggle-active transition-all duration-200 ease-in-out"
+        style="width: 45px; height: 19px; top: 4.5px"
+        [style.transform]="indicatorTransform()"
       ></div>
 
       @for (lang of langs(); track lang) {
         <button
           type="button"
-          class="relative z-10 flex items-center justify-center rounded-full px-3 text-[10px] font-medium leading-5 uppercase transition-colors"
-          [style.width.px]="pillWidth"
+          class="relative z-10 flex h-full items-center justify-center text-[10px] font-medium leading-5 uppercase transition-colors"
+          style="width: 72px"
           [class]="lang === activeLang() ? 'text-white' : 'text-black'"
           role="radio"
           [attr.aria-checked]="lang === activeLang()"
@@ -47,19 +58,25 @@ function normalizeLangs(available: ReturnType<TranslocoService['getAvailableLang
 export class LanguageSwitcherComponent {
   private readonly transloco = inject(TranslocoService);
 
-  /** Width of each language pill (px) */
-  readonly pillWidth = 48;
+  /** Slot width per language (px) — 144px total / 2 langs = 72px each */
+  private readonly slotWidth = 72;
 
-  /** Active language signal, updated on lang change */
+  /** Pill X offset at index 0: centers pill within 72px slot → (72-45)/2 = 13.5px */
+  private readonly pillOffsetX = 13.5;
+
   readonly activeLang = signal(this.transloco.getActiveLang());
 
-  /** Available languages from Transloco config */
   readonly langs = computed(() => normalizeLangs(this.transloco.getAvailableLangs()));
 
-  /** Index of the active language in the list */
   readonly activeIndex = computed(() => {
     const idx = this.langs().indexOf(this.activeLang());
     return idx >= 0 ? idx : 0;
+  });
+
+  /** Sliding pill position: translateX(15 + activeIndex × 72) */
+  readonly indicatorTransform = computed(() => {
+    const x = computePillTranslateX(this.activeIndex(), this.slotWidth, this.pillOffsetX);
+    return `translateX(${x}px)`;
   });
 
   setLang(lang: string): void {
