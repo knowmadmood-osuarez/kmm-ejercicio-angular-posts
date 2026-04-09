@@ -1,4 +1,4 @@
-import { render, fireEvent } from '@testing-library/angular';
+import { render } from '@testing-library/angular';
 import { provideTransloco } from '@jsverse/transloco';
 import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';

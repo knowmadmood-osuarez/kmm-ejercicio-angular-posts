@@ -23,6 +23,15 @@ export default defineConfig(() => ({
     coverage: {
       reportsDirectory: '../../../coverage/libs/auth/feature-login',
       provider: 'v8' as const,
+      reporter: ['text', 'lcov', 'html'],
+      include: ['src/lib/**/*.ts'],
+      exclude: ['src/lib/**/*.spec.ts', 'src/test-setup.ts', 'src/index.ts'],
+      thresholds: {
+        branches: 60,
+        functions: 60,
+        lines: 60,
+        statements: 60,
+      },
     },
   },
 }));
