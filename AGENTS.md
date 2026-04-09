@@ -117,8 +117,15 @@ libs/
     src/lib/auth/
     src/lib/http/api.config.ts
 
-  shared/ui/                          ← type:ui — Loading, Empty, Error, Forbidden, Pagination, Header, Layout
+  shared/ui/                          ← type:ui — Design System organizado por categorías
     src/lib/
+      icons/                         ← Icon, IconRegistry (SVG inline)
+      primitives/                    ← Button, Card, Badge, Avatar, Divider
+      forms/                         ← Input, Label, Select, Textarea
+      feedback/                      ← Loading, EmptyState, ErrorState, ForbiddenState, LinearProgress
+      layout/                        ← Header, Layout, LanguageSwitcher, PageHeader, SectionHeader
+      navigation/                    ← Pagination
+      overlays/                      ← ConfirmDialog
 
   auth/feature-login/                 ← type:feature — LoginPage (container), LoginForm (presentacional)
     src/lib/auth.routes.ts

@@ -14,17 +14,18 @@ libreria independiente con cache, tests y boundaries propios.
 +--------------------------------------------------------------+
 |                         Browser                              |
 |                                                              |
-|  +----------------+  +----------------+  +--------------+   |
-|  |  Auth Feature   |  |  Posts Features |  |  Shared UI   |   |
-|  |  (login lib)    |  |  (3 feature     |  |  (1 lib)     |   |
-|  |                 |  |   + 1 data-acc) |  |              |   |
-|  |  LoginPage      |  |  ListPage       |  |  Loading     |   |
-|  |  LoginForm      |  |  DetailPage     |  |  Empty       |   |
-|  |                 |  |  FormPage       |  |  Error       |   |
-|  |                 |  |  Comments       |  |  Forbidden   |   |
-|  +------+----------+  +------+----------+  |  Pagination  |   |
-|         |                    |             |  Layout      |   |
-|         |                    |             +--------------+   |
+|  +----------------+  +----------------+  +----------------+  |
+|  |  Auth Feature   |  |  Posts Features |  |  Shared UI     |  |
+|  |  (login lib)    |  |  (3 feature     |  |  (Design Sys.) |  |
+|  |                 |  |   + 1 data-acc) |  |                |  |
+|  |  LoginPage      |  |  ListPage       |  |  icons/        |  |
+|  |  LoginForm      |  |  DetailPage     |  |  primitives/   |  |
+|  |                 |  |  FormPage       |  |  forms/        |  |
+|  |                 |  |  Comments       |  |  feedback/     |  |
+|  +------+----------+  +------+----------+  |  layout/       |  |
+|         |                    |             |  navigation/   |  |
+|         |                    |             |  overlays/     |  |
+|         |                    |             +----------------+  |
 |  +------+--------------------+----------------------------+   |
 |  |              Core lib + Data-access lib                |   |
 |  |  AuthService . AuthGuard . AuthInterceptor             |   |
@@ -97,20 +98,62 @@ kmm-ejercicio-angular-posts/
 |   |   +-- tsconfig.spec.json
 |   |
 |   +-- shared/
-|   |   +-- ui/                              <- Componentes UI reutilizables
+|   |   +-- ui/                              <- Componentes UI reutilizables (Design System)
 |   |       +-- src/
-|   |       |   +-- index.ts
+|   |       |   +-- index.ts                 <- barrel export (todas las categorias)
 |   |       |   +-- lib/
-|   |       |       +-- loading.component.ts
-|   |       |       +-- empty-state.component.ts
-|   |       |       +-- error-state.component.ts
-|   |       |       +-- forbidden-state.component.ts
-|   |       |       +-- pagination.component.ts
-|   |       |       +-- confirm-dialog.component.ts
-|   |       |       +-- language-switcher.component.ts
-|   |       |       +-- header.component.ts
-|   |       |       +-- header.component.html
-|   |       |       +-- layout.component.ts
+|   |       |       +-- icons/               <- Sistema de iconos SVG inline
+|   |       |       |   +-- icon-registry.ts          <- Registro de iconos (IconName, IconDef, ICON_DEFS)
+|   |       |       |   +-- icon.component.ts
+|   |       |       |   +-- icon.component.spec.ts
+|   |       |       +-- primitives/          <- Atomos UI base reutilizables
+|   |       |       |   +-- avatar.component.ts
+|   |       |       |   +-- avatar.component.spec.ts
+|   |       |       |   +-- badge.component.ts
+|   |       |       |   +-- badge.component.spec.ts
+|   |       |       |   +-- button.component.ts       <- ButtonVariant, ButtonSize
+|   |       |       |   +-- button.component.spec.ts
+|   |       |       |   +-- card.component.ts          <- CardVariant
+|   |       |       |   +-- card.component.spec.ts
+|   |       |       |   +-- divider.component.ts
+|   |       |       |   +-- divider.component.spec.ts
+|   |       |       +-- forms/               <- Controles de formulario
+|   |       |       |   +-- input.component.ts         <- InputVariant
+|   |       |       |   +-- input.component.spec.ts
+|   |       |       |   +-- label.component.ts
+|   |       |       |   +-- label.component.spec.ts
+|   |       |       |   +-- select.component.ts
+|   |       |       |   +-- select.component.spec.ts
+|   |       |       |   +-- textarea.component.ts
+|   |       |       |   +-- textarea.component.spec.ts
+|   |       |       +-- feedback/            <- Estados de UI (loading, empty, error, forbidden)
+|   |       |       |   +-- loading.component.ts
+|   |       |       |   +-- loading.component.spec.ts
+|   |       |       |   +-- empty-state.component.ts
+|   |       |       |   +-- empty-state.component.spec.ts
+|   |       |       |   +-- error-state.component.ts
+|   |       |       |   +-- error-state.component.spec.ts
+|   |       |       |   +-- forbidden-state.component.ts
+|   |       |       |   +-- forbidden-state.component.spec.ts
+|   |       |       |   +-- linear-progress.component.ts
+|   |       |       |   +-- linear-progress.component.spec.ts
+|   |       |       +-- layout/              <- Header, layout shell, page/section headers
+|   |       |       |   +-- header.component.ts
+|   |       |       |   +-- header.component.spec.ts
+|   |       |       |   +-- layout.component.ts
+|   |       |       |   +-- layout.component.spec.ts
+|   |       |       |   +-- language-switcher.component.ts
+|   |       |       |   +-- language-switcher.component.spec.ts
+|   |       |       |   +-- page-header.component.ts
+|   |       |       |   +-- page-header.component.spec.ts
+|   |       |       |   +-- section-header.component.ts
+|   |       |       |   +-- section-header.component.spec.ts
+|   |       |       +-- navigation/          <- Paginacion
+|   |       |       |   +-- pagination.component.ts
+|   |       |       |   +-- pagination.component.spec.ts
+|   |       |       +-- overlays/            <- Dialogs y modales
+|   |       |           +-- confirm-dialog.component.ts
+|   |       |           +-- confirm-dialog.component.spec.ts
 |   |       +-- project.json
 |   |       +-- tsconfig.json
 |   |       +-- tsconfig.lib.json
@@ -238,7 +281,7 @@ kmm-ejercicio-angular-posts/
 | Lib                    | Import alias                | Tipo          | Responsabilidad                                                               |
 |------------------------|-----------------------------|---------------|-------------------------------------------------------------------------------|
 | `core`                 | `@app/core`                 | `util`        | AuthService, AuthGuard, AuthInterceptor, API config                           |
-| `shared-ui`            | `@app/shared/ui`            | `ui`          | Loading, Empty, Error, Forbidden, Pagination, ConfirmDialog, Header, Layout   |
+| `shared-ui`            | `@app/shared/ui`            | `ui`          | **icons/** Icon · **primitives/** Button, Card, Badge, Avatar, Divider · **forms/** Input, Label, Select, Textarea · **feedback/** Loading, Empty, Error, Forbidden, LinearProgress · **layout/** Header, Layout, LanguageSwitcher, PageHeader, SectionHeader · **navigation/** Pagination · **overlays/** ConfirmDialog |
 | `auth-feature-login`   | `@app/auth/feature-login`   | `feature`     | LoginPage, LoginForm, auth routes                                             |
 | `posts-data-access`    | `@app/posts/data-access`    | `data-access` | PostsService, CommentsService, modelos, PostOwnerGuard                        |
 | `posts-feature-list`   | `@app/posts/feature-list`   | `feature`     | PostListPage, PostList, PostCard, PostFilters, list routes                    |
