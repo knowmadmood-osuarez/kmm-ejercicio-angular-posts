@@ -1,0 +1,21 @@
+{
+  "name": "api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/api",
+  "tags": ["type:api", "scope:api"],
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx json-server --watch apps/api/db.json --port 3000"
+      }
+    },
+    "reset": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cp db.json apps/api/db.json"
+      }
+    }
+  }
+}
