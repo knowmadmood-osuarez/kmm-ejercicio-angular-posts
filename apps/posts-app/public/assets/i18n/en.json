@@ -4,14 +4,20 @@
     "empty": "No results found",
     "error": "An error occurred",
     "retry": "Retry",
-    "forbidden": "You don't have permission to access this resource",
+    "forbidden": "Access denied",
+    "forbiddenDetail": "You don't have permission to access this resource",
     "confirm": "Confirm",
+    "confirmTitle": "Are you sure?",
     "cancel": "Cancel",
     "save": "Save",
     "delete": "Delete",
     "edit": "Edit",
     "back": "Back",
-    "search": "Search"
+    "search": "Search",
+    "toggleMenu": "Toggle menu",
+    "languageSelector": "Language selector",
+    "loadingProgress": "Loading content",
+    "skipToContent": "Skip to main content"
   },
   "header": {
     "logout": "Log out",

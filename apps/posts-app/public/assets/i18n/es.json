@@ -4,14 +4,20 @@
     "empty": "No hay resultados",
     "error": "Ha ocurrido un error",
     "retry": "Reintentar",
-    "forbidden": "No tienes permisos para acceder a este recurso",
+    "forbidden": "Acceso denegado",
+    "forbiddenDetail": "No tienes permisos para acceder a este recurso",
     "confirm": "Confirmar",
+    "confirmTitle": "¿Estás seguro?",
     "cancel": "Cancelar",
     "save": "Guardar",
     "delete": "Eliminar",
     "edit": "Editar",
     "back": "Volver",
-    "search": "Buscar"
+    "search": "Buscar",
+    "toggleMenu": "Abrir menú",
+    "languageSelector": "Selector de idioma",
+    "loadingProgress": "Cargando contenido",
+    "skipToContent": "Ir al contenido principal"
   },
   "header": {
     "logout": "Cerrar sesión",

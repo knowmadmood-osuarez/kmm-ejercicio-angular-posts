@@ -1,3 +1,63 @@
 @import 'tailwindcss';
 
-/* You can add global styles to this file, and also import other style files */
+@theme {
+  /* ── Colors: Surfaces ── */
+  --color-surface: #f7f9fb;
+  --color-surface-alt: #f0f4f7;
+  --color-card: #ffffff;
+  --color-header-bg: rgba(247, 249, 251, 0.8);
+
+  /* ── Colors: Brand ── */
+  --color-primary: #0053dc;
+  --color-primary-light: #3e76fe;
+
+  /* ── Colors: Danger ── */
+  --color-danger: #ef4444;
+  --color-danger-text: #9f403d;
+  --color-danger-border: rgba(159, 64, 61, 0.2);
+
+  /* ── Colors: Text ── */
+  --color-text: #2a3439;
+  --color-text-secondary: #566166;
+  --color-text-muted: rgba(86, 97, 102, 0.6);
+  --color-placeholder: #717c82;
+
+  /* ── Colors: Components ── */
+  --color-tag-bg: #e8eff3;
+  --color-avatar-bg: #d5e3fd;
+  --color-field-bg: #d9e4ea;
+
+  /* ── Colors: Form inputs ── */
+  --color-input-bg: rgba(217, 228, 234, 0.3);
+  --color-input-border: rgba(169, 180, 185, 0.15);
+
+  /* ── Colors: Toggle ── */
+  --color-toggle-bg: #d9d9d9;
+  --color-toggle-active: #2a6bf3;
+
+  /* ── Typography ── */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Liberation Mono', ui-monospace, monospace;
+}
+
+/* ── Utility: primary gradient background ── */
+@utility bg-primary-gradient {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+}
+
+/* ── Utility: shadows ── */
+@utility shadow-primary {
+  box-shadow: 0px 4px 15px rgba(0, 83, 220, 0.2);
+}
+
+@utility shadow-primary-soft {
+  box-shadow: 0px 10px 40px rgba(0, 83, 220, 0.15);
+}
+
+@utility shadow-card {
+  box-shadow: 0px 10px 40px rgba(42, 52, 57, 0.04);
+}
+
+@utility shadow-btn {
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+}
