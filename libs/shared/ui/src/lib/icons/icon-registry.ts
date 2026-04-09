@@ -64,6 +64,18 @@ export const ICON_DEFS: Record<string, IconDef> = {
     viewBox: '0 0 16 16',
     content: `<path d="M10 2L4 8l6 6M4 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
   },
+  'arrow-right': {
+    viewBox: '0 0 16 16',
+    content: `<path d="M6 2l6 6-6 6M12 8H2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
+  },
+  user: {
+    viewBox: '0 0 16 16',
+    content: `<circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/>`,
+  },
+  lock: {
+    viewBox: '0 0 16 16',
+    content: `<rect x="3" y="7" width="10" height="7" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M5 7V5a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><circle cx="8" cy="11" r="1" fill="currentColor"/>`,
+  },
 
   // ── Illustrations (large, for states) ──
   'empty-box': {

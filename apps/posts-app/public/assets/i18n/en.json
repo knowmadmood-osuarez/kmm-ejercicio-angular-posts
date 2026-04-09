@@ -27,7 +27,8 @@
   },
   "auth": {
     "login": {
-      "title": "Login",
+      "title": "Welcome",
+      "subtitle": "Enter your credentials",
       "username": "Username",
       "password": "Password",
       "submit": "Sign in",

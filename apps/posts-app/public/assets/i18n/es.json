@@ -27,10 +27,11 @@
   },
   "auth": {
     "login": {
-      "title": "Iniciar sesión",
-      "username": "Nombre de usuario",
+      "title": "Bienvenido",
+      "subtitle": "Introduce tus credenciales",
+      "username": "Usuario",
       "password": "Contraseña",
-      "submit": "Entrar",
+      "submit": "Acceder",
       "error": "Credenciales inválidas"
     }
   },
