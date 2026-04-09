@@ -16,7 +16,7 @@
     "test": "nx test posts-app",
     "test:watch": "nx test posts-app --watch",
     "test:coverage": "nx test posts-app --coverage",
-    "e2e": "pnpm exec playwright test",
+    "e2e": "nx e2e posts-app-e2e",
     "format": "prettier --write \"{apps,libs}/**/*.{ts,html,css,json}\"",
     "format:check": "prettier --check \"{apps,libs}/**/*.{ts,html,css,json}\"",
     "prepare": "husky"

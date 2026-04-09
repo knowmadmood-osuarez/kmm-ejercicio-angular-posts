@@ -215,7 +215,7 @@ kmm-ejercicio-angular-posts/
 +-- package.json                             <- packageManager: pnpm@10.x
 +-- pnpm-lock.yaml
 +-- tsconfig.base.json                       <- paths aliases para libs
-+-- eslint.config.js                         <- ESLint 9+ flat config
++-- eslint.config.mjs                         <- ESLint 9+ flat config
 +-- .prettierrc
 +-- .prettierignore
 +-- .husky/
@@ -230,8 +230,8 @@ kmm-ejercicio-angular-posts/
 | Archivo              | Razon                                                                            |
 |----------------------|----------------------------------------------------------------------------------|
 | `tailwind.config.js` | TailwindCSS 4 usa configuracion CSS (`@theme` en `styles.css`), no archivo JS   |
-| `.eslintrc.json`     | Reemplazado por `eslint.config.js` (flat config, requerido por ESLint 9+)        |
-| `pnpm-workspace.yaml`| No necesario en Nx integrated monorepo — Nx gestiona proyectos via `project.json`|
+| `.eslintrc.json`     | Reemplazado por `eslint.config.mjs` (flat config, requerido por ESLint 9+)       |
+| `pnpm-workspace.yaml`| Eliminado — No necesario en Nx integrated monorepo, Nx gestiona proyectos via `project.json`|
 | `commitlint.config.js`| Renombrado a `.mjs` para compatibilidad ESM                                    |
 ---
 ## Librerias — Resumen
@@ -280,9 +280,9 @@ kmm-ejercicio-angular-posts/
                 +---------------+
         --- shared/ui (cualquier lib/app puede importarla) ---
 ```
-### Reglas de module boundaries (eslint.config.js)
+### Reglas de module boundaries (eslint.config.mjs)
 ```javascript
-// Dentro de eslint.config.js
+// Dentro de eslint.config.mjs
 {
   rules: {
     '@nx/enforce-module-boundaries': ['error', {

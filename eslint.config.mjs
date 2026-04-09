@@ -34,7 +34,7 @@ export default [
           depConstraints: [
             {
               sourceTag: 'type:app',
-              onlyDependOnLibsWithTags: ['type:feature', 'type:data-access', 'type:ui', 'type:util'],
+              onlyDependOnLibsWithTags: ['type:feature', 'type:ui', 'type:util'],
             },
             {
               sourceTag: 'type:feature',
@@ -50,11 +50,7 @@ export default [
             },
             {
               sourceTag: 'type:util',
-              onlyDependOnLibsWithTags: ['type:util'],
-            },
-            {
-              sourceTag: '*',
-              onlyDependOnLibsWithTags: ['*'],
+              onlyDependOnLibsWithTags: [],
             },
           ],
         },
