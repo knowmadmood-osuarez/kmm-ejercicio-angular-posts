@@ -85,3 +85,7 @@ IMPLEMENTATION_PLAN.md
 .eslintcache
 .prettiercache
 
+
+.angular
+
+vitest.config.*.timestamp*
