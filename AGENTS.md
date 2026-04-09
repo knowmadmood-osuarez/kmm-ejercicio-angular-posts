@@ -117,15 +117,7 @@ libs/
     src/lib/auth/
     src/lib/http/api.config.ts
 
-  shared/ui/                          ← type:ui — Design System organizado por categorías
-    src/lib/
-      icons/                         ← Icon, IconRegistry (SVG inline)
-      primitives/                    ← Button, Card, Badge, Avatar, Divider
-      forms/                         ← Input, Label, Select, Textarea
-      feedback/                      ← Loading, EmptyState, ErrorState, ForbiddenState, LinearProgress
-      layout/                        ← Header, Layout, LanguageSwitcher, PageHeader, SectionHeader
-      navigation/                    ← Pagination
-      overlays/                      ← ConfirmDialog
+  shared/ui/                          ← type:ui — Design System (ya implementado, no modificar)
 
   auth/feature-login/                 ← type:feature — LoginPage (container), LoginForm (presentacional)
     src/lib/auth.routes.ts
@@ -158,6 +150,13 @@ libs/
 ### Separación container vs presentacional
 - **Container** (page): inyecta servicios, gestiona estado con signals, pasa datos como `input()` signals.
 - **Presentacional**: recibe datos via `input()`, emite eventos con `output()`. Sin lógica de negocio ni inyección de servicios de dominio.
+
+### Estructura de archivos de componentes
+- **Componentes de `shared/ui`** (primitives, forms, feedback, icons, etc.): template inline en el `.ts` (ya implementados, no modificar).
+- **Componentes de feature** (pages, containers, presentacionales de feature): **separar** el template HTML en un archivo `.html` aparte y referenciarlo con `templateUrl`. Estructura:
+  - `my-component.ts` — lógica del componente (clase, inputs, outputs, signals)
+  - `my-component.html` — template HTML
+  - Styles inline (`:host { display: block; }`) o en archivo `.css` si son extensos
 
 ### Routing
 ```
@@ -356,4 +355,5 @@ main ← producción estable
 9. Las traducciones se manejan con `TranslocoModule` / `TranslocoPipe` / `transloco` directive.
 10. Respetar la estructura de Nx libs definida en la sección de arquitectura. Cada lib tiene su barrel (`index.ts`). Usar import aliases `@app/*`.
 11. Respetar los **principios de código obligatorios** (sección anterior): funciones puras, inmutabilidad, KISS, early returns, límite de 150 líneas por archivo.
+12. **Separar template HTML del TS** en componentes de feature (pages, containers, presentacionales). Usar `templateUrl: './my-component.html'`. Los componentes de `shared/ui` ya están implementados con template inline y **no deben modificarse**.
 
