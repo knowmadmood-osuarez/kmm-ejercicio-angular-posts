@@ -1,12 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 
-/**
- * Section header for sub-sections (e.g. "Comentarios / 03").
- *
- * Figma spec: 12px bold uppercase, tracking 1.2px, text-text-secondary,
- * optional count suffix, border-top divider.
- */
+/** Pure function: zero-pad a count for display (e.g. 3 → "03"). */
+function formatCount(count: number | undefined): string {
+  return count !== undefined ? String(count).padStart(2, '0') : '';
+}
 @Component({
   selector: 'app-section-header',
   imports: [TranslocoPipe],
@@ -43,8 +41,5 @@ export class SectionHeaderComponent {
   readonly divider = input(false);
 
   /** Zero-padded count display (e.g. "03") */
-  readonly formattedCount = computed(() => {
-    const c = this.count();
-    return c !== undefined ? String(c).padStart(2, '0') : '';
-  });
+  readonly formattedCount = computed(() => formatCount(this.count()));
 }

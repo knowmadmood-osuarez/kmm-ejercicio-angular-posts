@@ -1,11 +1,23 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
-/**
- * Badge / Tag component matching the Figma tag pills.
- *
- * Figma spec: bg-tag-bg (#E8EFF3), rounded-full (12px), px-3 py-1,
- * text 10px bold uppercase tracking 0.5px, text-text-secondary (#566166).
- */
+type BadgeVariant = 'default' | 'primary' | 'danger';
+type BadgeSize = 'sm' | 'md';
+
+const VARIANT_CLASSES: Record<BadgeVariant, string> = {
+  default: 'bg-tag-bg text-text-secondary',
+  primary: 'bg-primary/10 text-primary',
+  danger: 'bg-danger/10 text-danger-text',
+};
+
+const PADDING_CLASSES: Record<BadgeSize, string> = {
+  sm: 'px-2 py-0.5',
+  md: 'px-3 py-1',
+};
+
+/** Pure function: resolve badge classes. */
+function resolveBadgeClasses(variant: BadgeVariant, size: BadgeSize): string {
+  return `${PADDING_CLASSES[size]} ${VARIANT_CLASSES[variant]}`;
+}
 @Component({
   selector: 'app-badge',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,24 +31,8 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
   `,
 })
 export class BadgeComponent {
-  /** Visual style variant */
-  readonly variant = input<'default' | 'primary' | 'danger'>('default');
+  readonly variant = input<BadgeVariant>('default');
+  readonly size = input<BadgeSize>('md');
 
-  /** Size preset */
-  readonly size = input<'sm' | 'md'>('md');
-
-  readonly badgeClasses = computed(() => {
-    const v = this.variant();
-    const s = this.size();
-
-    const paddings = s === 'sm' ? 'px-2 py-0.5' : 'px-3 py-1';
-
-    const variants: Record<string, string> = {
-      default: 'bg-tag-bg text-text-secondary',
-      primary: 'bg-primary/10 text-primary',
-      danger: 'bg-danger/10 text-danger-text',
-    };
-
-    return `${paddings} ${variants[v]}`;
-  });
+  readonly badgeClasses = computed(() => resolveBadgeClasses(this.variant(), this.size()));
 }

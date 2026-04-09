@@ -1,6 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
+/** Pure function: normalize Transloco available langs to string[]. */
+function normalizeLangs(available: ReturnType<TranslocoService['getAvailableLangs']>): string[] {
+  return available.map((l) => (typeof l === 'string' ? l : l.id));
+}
+
 @Component({
   selector: 'app-language-switcher',
   imports: [TranslocoPipe],
@@ -49,11 +54,7 @@ export class LanguageSwitcherComponent {
   readonly activeLang = signal(this.transloco.getActiveLang());
 
   /** Available languages from Transloco config */
-  readonly langs = computed(() => {
-    const available = this.transloco.getAvailableLangs();
-    // getAvailableLangs() can return string[] or LangDefinition[]
-    return available.map((l) => (typeof l === 'string' ? l : l.id));
-  });
+  readonly langs = computed(() => normalizeLangs(this.transloco.getAvailableLangs()));
 
   /** Index of the active language in the list */
   readonly activeIndex = computed(() => {

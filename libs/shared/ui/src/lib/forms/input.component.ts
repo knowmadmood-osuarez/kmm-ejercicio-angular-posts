@@ -1,13 +1,17 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 
-/**
- * Input component following the Figma design system.
- *
- * Two visual variants from the Figma screens:
- * - `editor`  → solid #D9E4EA bg, 4px radius, larger text (post editor)
- * - `login`   → transparent bg with subtle border, 8px radius, icon padding (login form)
- */
 export type InputVariant = 'editor' | 'login';
+
+/** Pure function: resolve Tailwind classes for the input element. */
+function resolveInputClasses(variant: InputVariant, hasIcon: boolean): string {
+  if (variant === 'login') {
+    const pad = hasIcon ? 'pl-12 pr-4' : 'px-4';
+    return `${pad} py-[18px] bg-input-bg border border-input-border rounded-lg text-base text-text placeholder:text-placeholder/60`;
+  }
+  // editor (default)
+  const pad = hasIcon ? 'pl-12 pr-6' : 'px-6';
+  return `${pad} py-[17px] bg-field-bg rounded text-base text-text placeholder:text-placeholder`;
+}
 
 @Component({
   selector: 'app-input',
@@ -56,19 +60,7 @@ export class InputComponent {
   readonly valueChange = output<string>();
   readonly blurred = output<void>();
 
-  readonly inputClasses = computed(() => {
-    const v = this.variant();
-    const hasIcon = this.icon();
-
-    const base = hasIcon ? 'pl-12 pr-6' : 'px-6';
-
-    if (v === 'login') {
-      return `${hasIcon ? 'pl-12 pr-4' : 'px-4'} py-[18px] bg-input-bg border border-input-border rounded-lg text-base text-text placeholder:text-placeholder/60`;
-    }
-
-    // editor (default)
-    return `${base} py-[17px] bg-field-bg rounded text-base text-text placeholder:text-placeholder`;
-  });
+  readonly inputClasses = computed(() => resolveInputClasses(this.variant(), this.icon()));
 
   onInput(event: Event): void {
     const input = event.target as HTMLInputElement;

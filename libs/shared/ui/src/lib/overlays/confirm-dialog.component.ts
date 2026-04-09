@@ -97,20 +97,15 @@ export class ConfirmDialogComponent {
     const confirm = this.confirmBtn()?.nativeElement;
     if (!cancel || !confirm) return;
 
-    const focusableElements = [cancel, confirm];
-    const firstEl = focusableElements[0];
-    const lastEl = focusableElements[focusableElements.length - 1];
+    if (event.shiftKey && document.activeElement === cancel) {
+      event.preventDefault();
+      confirm.focus();
+      return;
+    }
 
-    if (event.shiftKey) {
-      if (document.activeElement === firstEl) {
-        event.preventDefault();
-        lastEl.focus();
-      }
-    } else {
-      if (document.activeElement === lastEl) {
-        event.preventDefault();
-        firstEl.focus();
-      }
+    if (!event.shiftKey && document.activeElement === confirm) {
+      event.preventDefault();
+      cancel.focus();
     }
   }
 }

@@ -1,6 +1,22 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 
+/** Pure function: build the array of visible page numbers (-1 = ellipsis). */
+function buildVisiblePages(current: number, total: number): number[] {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  const leftEllipsis = current > 3 ? [-1] : [];
+  const rightEllipsis = current < total - 2 ? [-1] : [];
+
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  const middle = Array.from({ length: end - start + 1 }, (_, i) => start + i);
+
+  return [1, ...leftEllipsis, ...middle, ...rightEllipsis, total];
+}
+
 @Component({
   selector: 'app-pagination',
   imports: [TranslocoPipe],
@@ -91,38 +107,5 @@ export class PaginationComponent {
   readonly isFirst = computed(() => this.currentPage() <= 1);
   readonly isLast = computed(() => this.currentPage() >= this.totalPages());
 
-  readonly visiblePages = computed(() => {
-    const current = this.currentPage();
-    const total = this.totalPages();
-
-    if (total <= 7) {
-      return Array.from({ length: total }, (_, i) => i + 1);
-    }
-
-    const pages: number[] = [];
-
-    // Always show first page
-    pages.push(1);
-
-    if (current > 3) {
-      pages.push(-1); // ellipsis
-    }
-
-    // Show pages around current
-    const start = Math.max(2, current - 1);
-    const end = Math.min(total - 1, current + 1);
-
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-
-    if (current < total - 2) {
-      pages.push(-1); // ellipsis
-    }
-
-    // Always show last page
-    pages.push(total);
-
-    return pages;
-  });
+  readonly visiblePages = computed(() => buildVisiblePages(this.currentPage(), this.totalPages()));
 }

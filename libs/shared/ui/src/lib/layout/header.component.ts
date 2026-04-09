@@ -11,10 +11,16 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthService } from '@app/core';
 
 import { LanguageSwitcherComponent } from './language-switcher.component';
+import { IconComponent } from '../icons/icon.component';
+
+/** Pure function: extract first character uppercase from a name. */
+function getInitial(name: string | undefined): string {
+  return name ? name.charAt(0).toUpperCase() : '';
+}
 
 @Component({
   selector: 'app-header',
-  imports: [RouterLink, RouterLinkActive, TranslocoPipe, LanguageSwitcherComponent],
+  imports: [RouterLink, RouterLinkActive, TranslocoPipe, LanguageSwitcherComponent, IconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header
@@ -27,12 +33,10 @@ import { LanguageSwitcherComponent } from './language-switcher.component';
       >
         <!-- Left: Logo + nav links -->
         <div class="flex items-center gap-8">
-          <!-- Logo -->
           <a routerLink="/posts" class="text-lg font-bold tracking-[-0.9px] text-text">
             Posts<span class="text-primary">App</span>
           </a>
 
-          <!-- Desktop nav links -->
           <div class="hidden items-center gap-6 md:flex">
             <a
               routerLink="/posts"
@@ -57,20 +61,7 @@ import { LanguageSwitcherComponent } from './language-switcher.component';
           <!-- Search bar (desktop) -->
           <div class="relative hidden lg:block">
             <div class="pointer-events-none absolute inset-y-0 left-3 flex items-center">
-              <svg
-                class="h-3.5 w-3.5 text-text-secondary"
-                fill="none"
-                viewBox="0 0 14 14"
-                aria-hidden="true"
-              >
-                <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.5" />
-                <path
-                  d="M10 10l3 3"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                />
-              </svg>
+              <app-icon name="search" class="h-3.5 w-3.5 text-text-secondary" />
             </div>
             <input
               type="search"
@@ -81,7 +72,6 @@ import { LanguageSwitcherComponent } from './language-switcher.component';
             />
           </div>
 
-          <!-- Language switcher -->
           <app-language-switcher />
 
           <!-- User info -->
@@ -108,15 +98,7 @@ import { LanguageSwitcherComponent } from './language-switcher.component';
             (click)="onLogout()"
             [attr.aria-label]="'header.logout' | transloco"
           >
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 16 16" aria-hidden="true">
-              <path
-                d="M6 2H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3M11 11l3-3-3-3M5 8h9"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
+            <app-icon name="logout" class="h-4 w-4" />
             <span class="hidden sm:inline">{{ 'header.logout' | transloco }}</span>
           </button>
 
@@ -129,25 +111,7 @@ import { LanguageSwitcherComponent } from './language-switcher.component';
             aria-controls="mobile-menu"
             [attr.aria-label]="'shared.toggleMenu' | transloco"
           >
-            @if (mobileMenuOpen()) {
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 20 20" aria-hidden="true">
-                <path
-                  d="M5 5l10 10M15 5L5 15"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                />
-              </svg>
-            } @else {
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 20 20" aria-hidden="true">
-                <path
-                  d="M3 5h14M3 10h14M3 15h14"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                />
-              </svg>
-            }
+            <app-icon [name]="mobileMenuOpen() ? 'close' : 'menu'" class="h-5 w-5" />
           </button>
         </div>
       </nav>
@@ -191,16 +155,10 @@ import { LanguageSwitcherComponent } from './language-switcher.component';
 export class HeaderComponent {
   private readonly authService = inject(AuthService);
 
-  /** Emits when search is triggered */
   readonly searchQuery = output<string>();
-
   readonly user = this.authService.currentUser;
   readonly mobileMenuOpen = signal(false);
-
-  readonly userInitial = computed(() => {
-    const name = this.user()?.name;
-    return name ? name.charAt(0).toUpperCase() : '';
-  });
+  readonly userInitial = computed(() => getInitial(this.user()?.name));
 
   onLogout(): void {
     this.authService.logout();

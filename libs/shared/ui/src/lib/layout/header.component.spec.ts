@@ -1,4 +1,4 @@
-import { render } from '@testing-library/angular';
+import { render, RenderResult } from '@testing-library/angular';
 import { provideTransloco } from '@jsverse/transloco';
 import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
@@ -23,68 +23,44 @@ const translocoProviders = provideTransloco({
   config: { availableLangs: ['en', 'es'], defaultLang: 'en', prodMode: true },
 });
 
+function renderHeader(): Promise<RenderResult<HeaderComponent>> {
+  return render(HeaderComponent, {
+    imports: [LanguageSwitcherComponent],
+    providers: [
+      translocoProviders,
+      provideRouter([]),
+      { provide: AuthService, useValue: mockAuthService },
+    ],
+  });
+}
+
 describe('HeaderComponent', () => {
   it('renders the navigation', async () => {
-    const { container } = await render(HeaderComponent, {
-      imports: [LanguageSwitcherComponent],
-      providers: [
-        translocoProviders,
-        provideRouter([]),
-        { provide: AuthService, useValue: mockAuthService },
-      ],
-    });
+    const { container } = await renderHeader();
     expect(container.querySelector('[role="navigation"]')).toBeTruthy();
   });
 
   it('renders the logo link', async () => {
-    const { container } = await render(HeaderComponent, {
-      imports: [LanguageSwitcherComponent],
-      providers: [
-        translocoProviders,
-        provideRouter([]),
-        { provide: AuthService, useValue: mockAuthService },
-      ],
-    });
+    const { container } = await renderHeader();
     const logo = container.querySelector('a[href="/posts"]');
     expect(logo).toBeTruthy();
     expect(logo?.textContent).toContain('Posts');
   });
 
   it('renders the logout button', async () => {
-    const { container } = await render(HeaderComponent, {
-      imports: [LanguageSwitcherComponent],
-      providers: [
-        translocoProviders,
-        provideRouter([]),
-        { provide: AuthService, useValue: mockAuthService },
-      ],
-    });
+    const { container } = await renderHeader();
     const logoutBtn = container.querySelector('button[aria-label]');
     expect(logoutBtn).toBeTruthy();
   });
 
   it('renders user initial when user is present', async () => {
-    const { container } = await render(HeaderComponent, {
-      imports: [LanguageSwitcherComponent],
-      providers: [
-        translocoProviders,
-        provideRouter([]),
-        { provide: AuthService, useValue: mockAuthService },
-      ],
-    });
+    const { container } = await renderHeader();
     expect(container.textContent).toContain('A');
     expect(container.textContent).toContain('alice');
   });
 
   it('renders language switcher', async () => {
-    const { container } = await render(HeaderComponent, {
-      imports: [LanguageSwitcherComponent],
-      providers: [
-        translocoProviders,
-        provideRouter([]),
-        { provide: AuthService, useValue: mockAuthService },
-      ],
-    });
+    const { container } = await renderHeader();
     expect(container.querySelector('app-language-switcher')).toBeTruthy();
   });
 });

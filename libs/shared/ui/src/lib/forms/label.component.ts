@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
-/**
- * Form field label following the Figma typography system.
- *
- * - Editor labels: 12px, bold, uppercase, tracking 1.2px
- * - Login labels: 10px, bold, uppercase, tracking 0.5px
- */
+type LabelVariant = 'default' | 'compact';
+
+const LABEL_CLASSES: Record<LabelVariant, string> = {
+  default: 'block text-xs font-bold uppercase tracking-[1.2px] leading-4 text-text-secondary',
+  compact:
+    'block pl-1 text-[10px] font-bold uppercase tracking-[0.5px] leading-[15px] text-text-secondary',
+};
 @Component({
   selector: 'app-label',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,12 +26,7 @@ export class LabelComponent {
   readonly for = input<string | undefined>(undefined);
 
   /** Label style variant matching Figma context */
-  readonly variant = input<'default' | 'compact'>('default');
+  readonly variant = input<LabelVariant>('default');
 
-  readonly labelClasses = computed(() => {
-    const v = this.variant();
-    return v === 'compact'
-      ? 'block pl-1 text-[10px] font-bold uppercase tracking-[0.5px] leading-[15px] text-text-secondary'
-      : 'block text-xs font-bold uppercase tracking-[1.2px] leading-4 text-text-secondary';
-  });
+  readonly labelClasses = computed(() => LABEL_CLASSES[this.variant()]);
 }

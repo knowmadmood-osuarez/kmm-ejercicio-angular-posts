@@ -1,11 +1,25 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
-/**
- * Avatar component matching the Figma user avatars.
- *
- * Shows the user initial in a circle with pastel background.
- * Figma spec: bg-avatar-bg (#D5E3FD), rounded-full, bold initial text.
- */
+type AvatarSize = 'xs' | 'sm' | 'md' | 'lg';
+
+const SIZE_CLASSES: Record<AvatarSize, string> = {
+  xs: 'h-5 w-5',
+  sm: 'h-6 w-6',
+  md: 'h-8 w-8',
+  lg: 'h-10 w-10',
+};
+
+const TEXT_SIZE_CLASSES: Record<AvatarSize, string> = {
+  xs: 'text-[8px]',
+  sm: 'text-[10px]',
+  md: 'text-xs',
+  lg: 'text-sm',
+};
+
+/** Pure function: first char uppercase, or fallback. */
+function getInitial(name: string): string {
+  return name ? name.charAt(0).toUpperCase() : '?';
+}
 @Component({
   selector: 'app-avatar',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,30 +48,9 @@ export class AvatarComponent {
   readonly src = input<string>('');
 
   /** Size preset */
-  readonly size = input<'xs' | 'sm' | 'md' | 'lg'>('sm');
+  readonly size = input<AvatarSize>('sm');
 
-  readonly initial = computed(() => {
-    const n = this.name();
-    return n ? n.charAt(0).toUpperCase() : '?';
-  });
-
-  readonly avatarClasses = computed(() => {
-    const sizes: Record<string, string> = {
-      xs: 'h-5 w-5',
-      sm: 'h-6 w-6',
-      md: 'h-8 w-8',
-      lg: 'h-10 w-10',
-    };
-    return sizes[this.size()];
-  });
-
-  readonly initialClasses = computed(() => {
-    const textSizes: Record<string, string> = {
-      xs: 'text-[8px]',
-      sm: 'text-[10px]',
-      md: 'text-xs',
-      lg: 'text-sm',
-    };
-    return textSizes[this.size()];
-  });
+  readonly initial = computed(() => getInitial(this.name()));
+  readonly avatarClasses = computed(() => SIZE_CLASSES[this.size()]);
+  readonly initialClasses = computed(() => TEXT_SIZE_CLASSES[this.size()]);
 }

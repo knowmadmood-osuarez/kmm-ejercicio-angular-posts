@@ -4,7 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter, Router } from '@angular/router';
 
-import { AuthService } from './auth.service';
+import { AuthService, generateToken } from './auth.service';
 import { API_URL } from '../http/api.config';
 import { User } from './user.model';
 
@@ -15,6 +15,17 @@ const mockUser: User = {
   email: 'alice@example.com',
   avatar: 'https://api.dicebear.com/9.x/thumbs/svg?seed=alice',
 };
+
+// ---------------------------------------------------------------------------
+// Pure function tests
+// ---------------------------------------------------------------------------
+describe('generateToken', () => {
+  it('returns a base64 string containing user id and name', () => {
+    const token = generateToken(mockUser);
+    const decoded = atob(token);
+    expect(decoded).toMatch(/^1:alice:\d+$/);
+  });
+});
 
 function setup(platform = 'browser') {
   TestBed.configureTestingModule({

@@ -1,6 +1,7 @@
 import { render, fireEvent } from '@testing-library/angular';
 import { provideTransloco } from '@jsverse/transloco';
 import { ErrorStateComponent } from './error-state.component';
+import { IconComponent } from '../icons/icon.component';
 
 const translocoProviders = provideTransloco({
   config: { availableLangs: ['en'], defaultLang: 'en', prodMode: true },
@@ -9,6 +10,7 @@ const translocoProviders = provideTransloco({
 describe('ErrorStateComponent', () => {
   it('renders with role="alert"', async () => {
     const { container } = await render(ErrorStateComponent, {
+      imports: [IconComponent],
       providers: [translocoProviders],
     });
     expect(container.querySelector('[role="alert"]')).toBeTruthy();
@@ -16,13 +18,15 @@ describe('ErrorStateComponent', () => {
 
   it('renders the error icon', async () => {
     const { container } = await render(ErrorStateComponent, {
+      imports: [IconComponent],
       providers: [translocoProviders],
     });
-    expect(container.querySelector('svg')).toBeTruthy();
+    expect(container.querySelector('app-icon')).toBeTruthy();
   });
 
   it('renders a heading element', async () => {
     const { container } = await render(ErrorStateComponent, {
+      imports: [IconComponent],
       providers: [translocoProviders],
     });
     expect(container.querySelector('h3')).toBeTruthy();
@@ -30,6 +34,7 @@ describe('ErrorStateComponent', () => {
 
   it('renders a retry button', async () => {
     const { container } = await render(ErrorStateComponent, {
+      imports: [IconComponent],
       providers: [translocoProviders],
     });
     const button = container.querySelector('button');
@@ -39,6 +44,7 @@ describe('ErrorStateComponent', () => {
   it('emits retry when button is clicked', async () => {
     const retrySpy = vi.fn();
     const { container } = await render(ErrorStateComponent, {
+      imports: [IconComponent],
       providers: [translocoProviders],
       on: { retry: retrySpy },
     });

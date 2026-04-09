@@ -328,6 +328,21 @@ main ← producción estable
 
 ---
 
+## 🧠 Principios de código obligatorios
+
+### 1. Enfoque "Pure Functions" (Inmutabilidad y efectos secundarios)
+- **Lógica fuera de la clase:** Siempre que sea posible, extrae la lógica de transformación de datos fuera de las clases de Angular (`@Component` o `@Injectable`) hacia funciones puras e independientes de TypeScript en el mismo archivo o en un archivo `.utils.ts`.
+- **`computed()` estricto:** Todas las señales computadas (`computed`) deben ser funciones matemáticas 100% puras. Prohibido mutar estado externo, hacer llamadas HTTP o disparar efectos secundarios dentro de un `computed`.
+- **Inmutabilidad:** Nunca mutes arrays u objetos directamente (ej. prohibido `array.push()`). Retorna siempre nuevas referencias (ej. `[...array, newItem]`).
+
+### 2. Principio KISS (Keep It Simple, Stupid)
+- **Cero sobre-ingeniería:** Escribe el código más simple y directo que resuelva el problema actual. No anticipes casos de uso futuros que no estén en los requisitos explícitos.
+- **Sin abstracciones prematuras:** Prohibido crear clases base (`BaseComponent`), factories complejos o interfaces genéricas excesivamente abstractas a menos que el código se repita más de 3 veces.
+- **Early Returns:** Evita la anidación profunda de `if/else`. Usa el patrón "Bouncer" (Early Return) en todas las funciones.
+- **Límites de tamaño:** Si vas a generar un archivo que supera las **150 líneas de código**, detente y propón una forma de dividirlo en componentes o funciones más pequeñas antes de continuar.
+
+---
+
 ## Notas para el agente de IA
 
 1. **Siempre** usar APIs de Angular 21: `input()`, `output()`, `viewChild()`, `model()`, `signal()`, `computed()`, `effect()`, `linkedSignal()`, `httpResource`, `@defer`.
@@ -340,4 +355,5 @@ main ← producción estable
 8. Para formularios usar la API de Signal Forms (no `FormGroup`/`FormControl` clásicos).
 9. Las traducciones se manejan con `TranslocoModule` / `TranslocoPipe` / `transloco` directive.
 10. Respetar la estructura de Nx libs definida en la sección de arquitectura. Cada lib tiene su barrel (`index.ts`). Usar import aliases `@app/*`.
+11. Respetar los **principios de código obligatorios** (sección anterior): funciones puras, inmutabilidad, KISS, early returns, límite de 150 líneas por archivo.
 
