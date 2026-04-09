@@ -1,4 +1,11 @@
 @import 'tailwindcss';
+@source "./app";
+
+/* nx-tailwind-sources:start */
+@source "../../../libs/auth/feature-login";
+@source "../../../libs/core";
+@source "../../../libs/shared/ui";
+/* nx-tailwind-sources:end */
 
 @theme {
   /* ── Colors: Surfaces ── */
