@@ -12,17 +12,17 @@ describe('IconComponent', () => {
   });
 
   it('sets aria-hidden="true" by default', async () => {
-    await render(IconComponent, { inputs: { name: 'logout' } });
-    const host = document.querySelector('app-icon');
-    expect(host?.getAttribute('aria-hidden')).toBe('true');
+    const { fixture } = await render(IconComponent, { inputs: { name: 'logout' } });
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.getAttribute('aria-hidden')).toBe('true');
   });
 
   it('sets aria-hidden="false" when label is provided', async () => {
-    await render(IconComponent, {
+    const { fixture } = await render(IconComponent, {
       inputs: { name: 'edit', label: 'Edit post' },
     });
-    const host = document.querySelector('app-icon');
-    expect(host?.getAttribute('aria-hidden')).toBe('false');
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.getAttribute('aria-hidden')).toBe('false');
   });
 
   it('includes aria-label on svg when label is set', async () => {
