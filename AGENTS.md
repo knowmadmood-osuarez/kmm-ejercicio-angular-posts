@@ -3,7 +3,8 @@
 ## Contexto del proyecto
 
 SPA de gestión de **posts** y **comments** con Angular 21 sobre un backend mock (`json-server`).  
-Repositorio: `git@github.com:knowmadmood-osuarez/kmm-ejercicio-angular-posts.git` (rama `main`).
+Repositorio: `git@github.com:knowmadmood-osuarez/kmm-ejercicio-angular-posts.git` (rama `main`).  
+Diseño de referencia (Figma): https://www.figma.com/design/7en10Y86YbN3QYZMmBy0AQ
 
 ---
 
@@ -89,68 +90,63 @@ interface Comment {
 - Nunca usar `any`. Tipar siempre con interfaces/types.
 - No hardcodear strings de UI. Usar siempre claves de Transloco.
 
-### Arquitectura — Screaming Architecture
+### Arquitectura — Screaming Architecture con Nx libs
+
 ```
 apps/
-  posts-app/                     ← aplicación Angular
+  posts-app/                          ← App shell: bootstrap, routing, layout
     src/
+      index.html
+      main.ts
+      styles.css                      ← TailwindCSS 4 (@import "tailwindcss")
       app/
-        core/                    ← singleton services, interceptors, guards
-          auth/
-            auth.service.ts
-            auth.interceptor.ts
-            auth.guard.ts
-          http/
-            api.config.ts
-        features/                ← un directorio por feature/dominio
-          auth/
-            login/
-              login-page.component.ts          ← container
-              login-form.component.ts          ← presentacional
-              login-page.component.spec.ts
-          posts/
-            post-list/
-              post-list-page.component.ts      ← container
-              post-list.component.ts           ← presentacional
-              post-card.component.ts           ← presentacional
-              post-filters.component.ts        ← presentacional
-            post-detail/
-              post-detail-page.component.ts    ← container
-              post-detail.component.ts         ← presentacional
-              post-comments.component.ts       ← presentacional (lazy con @defer)
-              comment-card.component.ts        ← presentacional
-              comment-form.component.ts        ← presentacional
-            post-form/
-              post-form-page.component.ts      ← container (new + edit)
-              post-form.component.ts           ← presentacional
-            services/
-              posts.service.ts
-              comments.service.ts
-            models/
-              post.model.ts
-              comment.model.ts
-            guards/
-              post-owner.guard.ts
-        shared/                  ← componentes reutilizables, pipes, directivas
-          ui/
-            loading.component.ts
-            empty-state.component.ts
-            error-state.component.ts
-            forbidden-state.component.ts
-            pagination.component.ts
-            confirm-dialog.component.ts
-          pipes/
-          directives/
         app.component.ts
         app.config.ts
         app.routes.ts
-      assets/
-        i18n/
-          en.json
-          es.json
-      styles.css
-      main.ts
+      assets/i18n/
+        en.json
+        es.json
+
+  api/                                ← Backend mock: json-server (proyecto Nx)
+    db.json                           ← Base de datos mock
+    routes.json                       ← (opcional) rewrite rules
+    project.json                      ← targets: serve, reset
+
+libs/
+  core/                               ← type:util — AuthService, AuthGuard, AuthInterceptor
+    src/lib/auth/
+    src/lib/http/api.config.ts
+
+  shared/ui/                          ← type:ui — Loading, Empty, Error, Forbidden, Pagination, Header, Layout
+    src/lib/
+
+  auth/feature-login/                 ← type:feature — LoginPage (container), LoginForm (presentacional)
+    src/lib/auth.routes.ts
+
+  posts/data-access/                  ← type:data-access — PostsService, CommentsService, modelos, PostOwnerGuard
+    src/lib/models/
+    src/lib/services/
+    src/lib/guards/
+
+  posts/feature-list/                 ← type:feature — PostListPage, PostList, PostCard, PostFilters
+    src/lib/list.routes.ts
+
+  posts/feature-detail/               ← type:feature — PostDetailPage, PostDetail, PostComments (@defer), CommentCard, CommentForm
+    src/lib/detail.routes.ts
+
+  posts/feature-form/                 ← type:feature — PostFormPage, PostForm (new + edit)
+    src/lib/form.routes.ts
 ```
+
+**Import aliases** (definidos en `tsconfig.base.json`):
+- `@app/core`, `@app/shared/ui`, `@app/auth/feature-login`
+- `@app/posts/data-access`, `@app/posts/feature-list`, `@app/posts/feature-detail`, `@app/posts/feature-form`
+
+**Module boundaries** (`eslint.config.js`):
+- `feature` → solo puede importar `data-access`, `ui`, `util`
+- `data-access` → solo puede importar `util`
+- `ui` → solo puede importar `util`
+- Una `feature` **NO** puede importar otra `feature` directamente
 
 ### Separación container vs presentacional
 - **Container** (page): inyecta servicios, gestiona estado con signals, pasa datos como `input()` signals.
@@ -158,16 +154,16 @@ apps/
 
 ### Routing
 ```
-/login                → LoginPageComponent (público)
-/posts                → PostListPageComponent (protegido)
-/posts/new            → PostFormPageComponent (protegido)
-/posts/:id            → PostDetailPageComponent (protegido)
-/posts/:id/edit       → PostFormPageComponent (protegido + ownership guard)
+/login                → LoginPageComponent (público)           ← @app/auth/feature-login
+/posts                → PostListPageComponent (protegido)      ← @app/posts/feature-list
+/posts/new            → PostFormPageComponent (protegido)      ← @app/posts/feature-form
+/posts/:id            → PostDetailPageComponent (protegido)    ← @app/posts/feature-detail
+/posts/:id/edit       → PostFormPageComponent (protegido + ownership guard) ← @app/posts/feature-form
 ```
-- Todas las rutas excepto `/login` protegidas con `authGuard`.
-- `/posts/:id/edit` protegida además con `postOwnerGuard`.
+- Todas las rutas excepto `/login` protegidas con `authGuard` (de `@app/core`).
+- `/posts/:id/edit` protegida además con `postOwnerGuard` (de `@app/posts/data-access`).
 - Query params para filtros y paginación: `?page=1&q=angular&author=alice&tag=signals`.
-- Lazy loading: cada feature se carga con `loadChildren`.
+- Lazy loading: cada lib feature se carga con `loadChildren` desde su barrel (`@app/posts/feature-list`, etc.).
 
 ### Autenticación
 - Login: POST-like contra `json-server` buscando en `/users?name=X&password=Y`.
@@ -228,7 +224,7 @@ Cada vista principal debe manejar explícitamente:
 | `perf` | Mejora de rendimiento |
 
 ### Scopes sugeridos
-`auth`, `posts`, `comments`, `shared`, `core`, `i18n`, `config`, `deps`, `e2e`
+`auth`, `posts`, `comments`, `shared`, `core`, `api`, `i18n`, `config`, `deps`, `e2e`
 
 ### Ejemplos
 ```
@@ -272,7 +268,7 @@ main ← producción estable
 ### Configuración en package.json
 ```json
 {
-  "packageManager": "pnpm@10.8.1",
+  "packageManager": "pnpm@10.33.0",
   "engines": {
     "node": ">=24.14.1",
     "pnpm": ">=10.0.0"
@@ -295,33 +291,33 @@ main ← producción estable
 ```json
 {
   "start": "nx serve posts-app",
-  "start:api": "pnpm dlx json-server db.json --port 3000",
-  "dev": "concurrently \"pnpm run start:api\" \"pnpm run start\"",
+  "start:api": "nx serve api",
+  "dev": "nx run-many --targets=serve --projects=posts-app,api",
   "build": "nx build posts-app",
   "lint": "nx lint posts-app",
   "test": "nx test posts-app",
   "test:watch": "nx test posts-app --watch",
   "test:coverage": "nx test posts-app --coverage",
   "e2e": "nx e2e posts-app-e2e",
-  "format": "prettier --write \"apps/**/*.{ts,html,css,json}\"",
-  "format:check": "prettier --check \"apps/**/*.{ts,html,css,json}\"",
+  "format": "prettier --write \"{apps,libs}/**/*.{ts,html,css,json}\"",
+  "format:check": "prettier --check \"{apps,libs}/**/*.{ts,html,css,json}\"",
   "prepare": "husky"
 }
 ```
 
 ---
 
-## Valorables (implementar si hay tiempo)
+## Valorables (todos planificados)
 
 - ✅ Router state con query params para filtros y paginación
-- ⬜ Prefetch de datos al hover sobre un post
-- ⬜ Cache con hidratación
-- ⬜ Optimistic updates en CRUD
-- ⬜ Scroll infinito en comentarios
-- ⬜ Animaciones de transición entre rutas
-- ⬜ Accesibilidad (ARIA labels, focus management, keyboard navigation)
+- ✅ Prefetch de datos al hover sobre un post
+- ✅ Cache con hidratación
+- ✅ Optimistic updates en CRUD
+- ✅ Scroll infinito en comentarios
+- ✅ Animaciones de transición entre rutas
+- ✅ Accesibilidad (ARIA labels, focus management, keyboard navigation)
 - ✅ Nx monorepo
-- ⬜ SSR con `@angular/ssr`
+- ✅ SSR con `@angular/ssr`
 
 ---
 
@@ -336,5 +332,5 @@ main ← producción estable
 7. Cada componente debe tener `changeDetection: ChangeDetectionStrategy.OnPush`.
 8. Para formularios usar la API de Signal Forms (no `FormGroup`/`FormControl` clásicos).
 9. Las traducciones se manejan con `TranslocoModule` / `TranslocoPipe` / `transloco` directive.
-10. Respetar la estructura de carpetas definida en la sección de arquitectura.
+10. Respetar la estructura de Nx libs definida en la sección de arquitectura. Cada lib tiene su barrel (`index.ts`). Usar import aliases `@app/*`.
 

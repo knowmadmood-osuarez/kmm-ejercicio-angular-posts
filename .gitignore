@@ -22,7 +22,8 @@ build/
 # IDE / Editors
 # =====================
 .idea/
-.vscode/
+.vscode/*
+!.vscode/mcp.json
 *.swp
 *.swo
 *~
@@ -71,6 +72,11 @@ pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+
+# =====================
+# Internal docs (no subir)
+# =====================
+IMPLEMENTATION_PLAN.md
 
 # =====================
 # Misc
