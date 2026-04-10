@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { form, required } from '@angular/forms/signals';
+import { form, required, submit } from '@angular/forms/signals';
 
 import {
   ButtonComponent,
@@ -40,7 +40,7 @@ interface LoginModel {
 })
 export class LoginFormComponent {
   readonly loading = input(false);
-  readonly error = input<unknown>(null);
+  readonly error = input<Error | null>(null);
 
   readonly submitted = output<LoginCredentials>();
 
@@ -51,14 +51,12 @@ export class LoginFormComponent {
     required(schema.password);
   });
 
-  readonly isValid = computed(
-    () => this.loginForm.name().valid() && this.loginForm.password().valid(),
-  );
-
   onSubmit(event?: Event): void {
     event?.preventDefault();
-    if (!this.isValid()) return;
-    const { name, password } = this.loginModel();
-    this.submitted.emit({ name: name.trim(), password });
+
+    submit(this.loginForm, async () => {
+      const { name, password } = this.loginModel();
+      this.submitted.emit({ name: name.trim(), password });
+    });
   }
 }

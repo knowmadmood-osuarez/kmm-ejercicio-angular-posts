@@ -23,7 +23,7 @@ export class LoginPageComponent {
   private readonly router = inject(Router);
 
   readonly loading = signal(false);
-  readonly error = signal<unknown>(null);
+  readonly error = signal<Error | null>(null);
 
   async onLogin(credentials: LoginCredentials): Promise<void> {
     this.loading.set(true);
@@ -33,7 +33,7 @@ export class LoginPageComponent {
       await this.authService.login(credentials.name, credentials.password);
       await this.router.navigate(['/posts']);
     } catch (err: unknown) {
-      this.error.set(err);
+      this.error.set(err instanceof Error ? err : new Error('Login failed'));
     } finally {
       this.loading.set(false);
     }
