@@ -4,9 +4,8 @@ import { httpResource, HttpResourceRef } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 import { API_URL } from '../http/api.config';
-import { User } from './user.model';
+import { SafeUser, User } from './user.model';
 
-const STORAGE_USER_KEY = 'auth_user';
 const STORAGE_TOKEN_KEY = 'auth_token';
 
 interface LoginCredentials {
@@ -14,15 +13,20 @@ interface LoginCredentials {
   password: string;
 }
 
-export function generateToken(user: User): string {
-  return btoa(`${user.id}:${user.name}:${Date.now()}`);
+interface TokenPayload extends SafeUser {
+  iat: number;
 }
 
-function loadUserFromStorage(isBrowser: boolean): User | null {
-  if (!isBrowser) return null;
+export function generateToken(user: SafeUser): string {
+  const payload: TokenPayload = { ...user, iat: Date.now() };
+  return btoa(JSON.stringify(payload));
+}
+
+function parseToken(token: string): SafeUser | null {
   try {
-    const raw = localStorage.getItem(STORAGE_USER_KEY);
-    return raw ? (JSON.parse(raw) as User) : null;
+    const payload = JSON.parse(atob(token)) as TokenPayload;
+    const { iat: _iat, ...user } = payload;
+    return user;
   } catch {
     return null;
   }
@@ -33,15 +37,13 @@ function loadTokenFromStorage(isBrowser: boolean): string | null {
   return localStorage.getItem(STORAGE_TOKEN_KEY);
 }
 
-function persistToStorage(user: User, token: string, isBrowser: boolean): void {
+function persistToken(token: string, isBrowser: boolean): void {
   if (!isBrowser) return;
-  localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(user));
   localStorage.setItem(STORAGE_TOKEN_KEY, token);
 }
 
 function clearStorage(isBrowser: boolean): void {
   if (!isBrowser) return;
-  localStorage.removeItem(STORAGE_USER_KEY);
   localStorage.removeItem(STORAGE_TOKEN_KEY);
 }
 
@@ -62,22 +64,24 @@ export class AuthService {
     };
   });
 
-  private readonly _currentUser = signal<User | null>(loadUserFromStorage(this.isBrowser));
   private readonly _token = signal<string | null>(loadTokenFromStorage(this.isBrowser));
 
-  readonly currentUser = this._currentUser.asReadonly();
   readonly token = this._token.asReadonly();
-  readonly isAuthenticated = computed(() => this._currentUser() !== null && this._token() !== null);
+  readonly currentUser = computed<SafeUser | null>(() => {
+    const t = this._token();
+    return t ? parseToken(t) : null;
+  });
+  readonly isAuthenticated = computed(() => this.currentUser() !== null);
 
-  private _loginResolve: ((user: User) => void) | null = null;
+  private _loginResolve: ((user: SafeUser) => void) | null = null;
   private _loginReject: ((error: Error) => void) | null = null;
 
   constructor() {
     effect(() => this.handleLoginResult());
   }
 
-  login(name: string, password: string): Promise<User> {
-    return new Promise<User>((resolve, reject) => {
+  login(name: string, password: string): Promise<SafeUser> {
+    return new Promise<SafeUser>((resolve, reject) => {
       this._loginResolve = resolve;
       this._loginReject = reject;
       this._loginRequest.set({ name, password });
@@ -85,7 +89,6 @@ export class AuthService {
   }
 
   logout(): void {
-    this._currentUser.set(null);
     this._token.set(null);
     this._loginRequest.set(undefined);
     clearStorage(this.isBrowser);
@@ -106,12 +109,11 @@ export class AuthService {
 
     const users = this.loginResource.value();
     if (users && users.length > 0) {
-      const user = users[0];
-      const token = generateToken(user);
-      this._currentUser.set(user);
+      const { password: _pwd, ...safeUser } = users[0];
+      const token = generateToken(safeUser);
       this._token.set(token);
-      persistToStorage(user, token, this.isBrowser);
-      this._loginResolve?.(user);
+      persistToken(token, this.isBrowser);
+      this._loginResolve?.(safeUser);
     } else if (users && users.length === 0) {
       this._loginReject?.(new Error('Invalid credentials'));
     }
