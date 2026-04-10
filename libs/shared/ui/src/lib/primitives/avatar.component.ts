@@ -10,15 +10,20 @@ const SIZE_CLASSES: Record<AvatarSize, string> = {
 };
 
 const TEXT_SIZE_CLASSES: Record<AvatarSize, string> = {
-  xs: 'text-[8px]',
-  sm: 'text-[10px]',
-  md: 'text-xs',
-  lg: 'text-sm',
+  xs: 'text-[7px]',
+  sm: 'text-[9px]',
+  md: 'text-[10px]',
+  lg: 'text-xs',
 };
 
-/** Pure function: first char uppercase, or fallback. */
-function getInitial(name: string): string {
-  return name ? name.charAt(0).toUpperCase() : '?';
+/** Pure: first initial of each word (up to 2), or first two letters of a single word, uppercased. */
+function getInitials(name: string): string {
+  if (!name) return '?';
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 1) {
+    return parts[0].slice(0, 2).toUpperCase();
+  }
+  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 }
 @Component({
   selector: 'app-avatar',
@@ -26,14 +31,21 @@ function getInitial(name: string): string {
   template: `
     <div
       [class]="avatarClasses()"
-      class="inline-flex items-center justify-center rounded-full bg-avatar-bg"
+      class="inline-flex items-center justify-center rounded-full"
+      [class.bg-avatar-bg]="color() === 'default'"
+      [class.bg-primary]="color() === 'primary'"
       [attr.aria-label]="name()"
       role="img"
     >
       @if (src()) {
         <img [src]="src()" [alt]="name()" class="h-full w-full rounded-full object-cover" />
       } @else {
-        <span [class]="initialClasses()" class="font-bold text-primary select-none">
+        <span
+          [class]="initialClasses()"
+          class="font-bold select-none"
+          [class.text-primary]="color() === 'default'"
+          [class.text-white]="color() === 'primary'"
+        >
           {{ initial() }}
         </span>
       }
@@ -50,7 +62,10 @@ export class AvatarComponent {
   /** Size preset */
   readonly size = input<AvatarSize>('sm');
 
-  readonly initial = computed(() => getInitial(this.name()));
+  /** Avatar color preset */
+  readonly color = input<'default' | 'primary'>('default');
+
+  readonly initial = computed(() => getInitials(this.name()));
   readonly avatarClasses = computed(() => SIZE_CLASSES[this.size()]);
   readonly initialClasses = computed(() => TEXT_SIZE_CLASSES[this.size()]);
 }
