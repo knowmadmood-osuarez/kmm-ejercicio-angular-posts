@@ -4,7 +4,8 @@ import { httpResource, HttpResourceRef } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
 import { API_URL } from '@app/core';
-import { PaginatedPosts, Post } from '../models/post.model';
+import type { User } from '@app/core';
+import { PaginatedPosts, Post, PostCreate, PostUpdate } from '../models/post.model';
 
 export interface PostFilters {
   page: number;
@@ -20,19 +21,8 @@ export class PostsService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = inject(API_URL);
 
-  // ---------------------------------------------------------------------------
-  // Filters state (driven by query params in container)
-  // ---------------------------------------------------------------------------
-  readonly filters = signal<PostFilters>({
-    page: 1,
-    q: '',
-    author: '',
-    tag: '',
-  });
+  readonly filters = signal<PostFilters>({ page: 1, q: '', author: '', tag: '' });
 
-  // ---------------------------------------------------------------------------
-  // Posts list resource (GET /posts with pagination + filters)
-  // ---------------------------------------------------------------------------
   readonly postsResource: HttpResourceRef<PaginatedPosts | undefined> =
     httpResource<PaginatedPosts>(() => {
       const f = this.filters();
@@ -41,22 +31,17 @@ export class PostsService {
         _per_page: DEFAULT_PER_PAGE,
       };
 
-      if (f.q) {
-        params['q'] = f.q;
-      }
-      if (f.author) {
-        params['userId'] = f.author;
-      }
-      if (f.tag) {
-        params['tags_like'] = f.tag;
-      }
+      if (f.q) params['q'] = f.q;
+      if (f.author) params['userId'] = f.author;
+      if (f.tag) params['tags_like'] = f.tag;
 
       return { url: `${this.apiUrl}/posts`, params };
     });
 
-  // ---------------------------------------------------------------------------
-  // Single post detail resource
-  // ---------------------------------------------------------------------------
+  readonly usersResource: HttpResourceRef<User[] | undefined> = httpResource<User[]>(
+    () => `${this.apiUrl}/users`,
+  );
+
   private readonly _detailId = signal<number | undefined>(undefined);
 
   readonly postDetailResource: HttpResourceRef<Post | undefined> = httpResource<Post>(() => {
@@ -65,35 +50,26 @@ export class PostsService {
     return `${this.apiUrl}/posts/${id}`;
   });
 
-  /** Set the post ID to load detail for. */
   loadDetail(id: number): void {
     this._detailId.set(id);
   }
 
-  // ---------------------------------------------------------------------------
-  // Prefetch cache (hover → preload detail)
-  // ---------------------------------------------------------------------------
   private readonly _prefetchedIds = new Set<number>();
 
   prefetch(id: number): void {
     if (this._prefetchedIds.has(id)) return;
     this._prefetchedIds.add(id);
-    // Fire-and-forget; result is cached by browser / json-server
     firstValueFrom(this.http.get<Post>(`${this.apiUrl}/posts/${id}`)).catch(() => {
       this._prefetchedIds.delete(id);
     });
   }
 
-  // ---------------------------------------------------------------------------
-  // Mutations (POST / PUT / DELETE)
-  // ---------------------------------------------------------------------------
-
-  async createPost(post: Omit<Post, 'id'>): Promise<Post> {
+  async createPost(post: PostCreate): Promise<Post> {
     return firstValueFrom(this.http.post<Post>(`${this.apiUrl}/posts`, post));
   }
 
-  async updatePost(id: number, post: Partial<Post>): Promise<Post> {
-    return firstValueFrom(this.http.put<Post>(`${this.apiUrl}/posts/${id}`, post));
+  async updatePost(id: number, changes: PostUpdate): Promise<Post> {
+    return firstValueFrom(this.http.patch<Post>(`${this.apiUrl}/posts/${id}`, changes));
   }
 
   async deletePost(id: number): Promise<void> {
