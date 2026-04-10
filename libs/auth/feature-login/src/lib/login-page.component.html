@@ -1,4 +1,3 @@
-<!-- Header -->
 <header
   class="fixed left-0 right-0 top-0 z-10 flex items-center justify-between bg-header-bg px-6 py-4 backdrop-blur-[6px]"
 >
@@ -6,10 +5,8 @@
   <app-language-switcher />
 </header>
 
-<!-- Main: centered login card -->
 <main class="flex min-h-screen items-center justify-center bg-surface px-6">
   <div class="w-full max-w-100">
-    <!-- Heading -->
     <div class="mb-10 flex flex-col gap-2">
       <h1 class="text-[30px] font-extrabold leading-9.5 tracking-tight text-text">
         {{ 'auth.login.title' | transloco }}
@@ -19,7 +16,6 @@
       </p>
     </div>
 
-    <!-- Login form card -->
     <app-login-form [loading]="loading()" [error]="error()" (submitted)="onLogin($event)" />
   </div>
 </main>
