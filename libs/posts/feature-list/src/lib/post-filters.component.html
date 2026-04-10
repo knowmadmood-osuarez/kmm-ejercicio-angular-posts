@@ -1,0 +1,27 @@
+<div class="flex flex-wrap items-center gap-2">
+  <app-select
+    id="filter-author"
+    name="author"
+    [value]="filters().author"
+    [ariaLabel]="'posts.list.filterAuthor' | transloco"
+    (valueChange)="onAuthorChange($event)"
+  >
+    <option value="">{{ 'posts.list.allAuthors' | transloco }}</option>
+    @for (author of authors(); track author.id) {
+      <option [value]="author.id">{{ author.name }}</option>
+    }
+  </app-select>
+
+  <app-select
+    id="filter-tag"
+    name="tag"
+    [value]="filters().tag"
+    [ariaLabel]="'posts.list.filterTag' | transloco"
+    (valueChange)="onTagChange($event)"
+  >
+    <option value="">{{ 'posts.list.allTags' | transloco }}</option>
+    @for (tag of tags(); track tag) {
+      <option [value]="tag">{{ tag }}</option>
+    }
+  </app-select>
+</div>

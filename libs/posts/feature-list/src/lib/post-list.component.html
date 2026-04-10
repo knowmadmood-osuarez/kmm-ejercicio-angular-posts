@@ -1,0 +1,12 @@
+<div class="flex flex-col gap-4">
+  @for (pa of postsWithAuthors(); track pa.post.id) {
+    <app-post-card
+      [post]="pa.post"
+      [author]="pa.author"
+      [isCurrentUser]="pa.isCurrentUser"
+      [variant]="pa.index % 2 === 1 ? 'tonal' : 'white'"
+      [lang]="lang()"
+      (hovered)="postHovered.emit($event)"
+    />
+  }
+</div>
