@@ -7,7 +7,6 @@ export interface Post {
   createdAt: string;
 }
 
-/** Paginated response shape returned by json-server v1 with `_page` param. */
 export interface PaginatedPosts {
   data: Post[];
   first: number;
@@ -17,3 +16,6 @@ export interface PaginatedPosts {
   pages: number;
   items: number;
 }
+
+export type PostCreate = Omit<Post, 'id'>;
+export type PostUpdate = Partial<Omit<Post, 'id' | 'userId' | 'createdAt'>>;

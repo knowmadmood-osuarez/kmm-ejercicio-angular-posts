@@ -1,6 +1,6 @@
 // Models
-export type { Post, PaginatedPosts } from './lib/models/post.model';
-export type { Comment } from './lib/models/comment.model';
+export type { Post, PaginatedPosts, PostCreate, PostUpdate } from './lib/models/post.model';
+export type { Comment, CommentCreate, CommentUpdate } from './lib/models/comment.model';
 
 // Services
 export { PostsService, type PostFilters } from './lib/services/posts.service';
