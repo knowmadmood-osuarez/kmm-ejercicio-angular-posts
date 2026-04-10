@@ -44,7 +44,8 @@
       "filterTag": "Filtrar por etiqueta",
       "newPost": "Nuevo post",
       "allAuthors": "Todos los autores",
-      "allTags": "Todas las etiquetas"
+      "allTags": "Todas las etiquetas",
+      "showing": "Mostrando {{count}} de {{total}} resultados"
     },
     "detail": {
       "title": "Detalle del post",

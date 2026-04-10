@@ -44,7 +44,8 @@
       "filterTag": "Filter by tag",
       "newPost": "New post",
       "allAuthors": "All authors",
-      "allTags": "All tags"
+      "allTags": "All tags",
+      "showing": "Showing {{count}} of {{total}} results"
     },
     "detail": {
       "title": "Post detail",
