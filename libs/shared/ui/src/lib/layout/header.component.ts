@@ -13,7 +13,6 @@ import { AuthService } from '@app/core';
 import { LanguageSwitcherComponent } from './language-switcher.component';
 import { IconComponent } from '../icons/icon.component';
 
-/** Pure function: extract first character uppercase from a name. */
 function getInitial(name: string | undefined): string {
   return name ? name.charAt(0).toUpperCase() : '';
 }
@@ -31,7 +30,6 @@ function getInitial(name: string | undefined): string {
         role="navigation"
         aria-label="Main navigation"
       >
-        <!-- Left: Logo + nav links -->
         <div class="flex items-center gap-8">
           <a routerLink="/posts" class="text-lg font-bold tracking-[-0.9px] text-text">
             Posts<span class="text-primary">App</span>
@@ -56,9 +54,7 @@ function getInitial(name: string | undefined): string {
           </div>
         </div>
 
-        <!-- Right: Search, lang switcher, user, logout -->
         <div class="flex items-center gap-4">
-          <!-- Search bar (desktop) -->
           <div class="relative hidden lg:block">
             <div class="pointer-events-none absolute inset-y-0 left-3 flex items-center">
               <app-icon name="search" class="h-3.5 w-3.5 text-text-secondary" />
@@ -74,7 +70,6 @@ function getInitial(name: string | undefined): string {
 
           <app-language-switcher />
 
-          <!-- User info -->
           @if (user(); as user) {
             <div class="hidden items-center gap-3 md:flex">
               <div
@@ -91,7 +86,6 @@ function getInitial(name: string | undefined): string {
             </div>
           }
 
-          <!-- Logout -->
           <button
             type="button"
             class="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-text-secondary transition-colors hover:bg-surface-alt hover:text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
@@ -102,7 +96,6 @@ function getInitial(name: string | undefined): string {
             <span class="hidden sm:inline">{{ 'header.logout' | transloco }}</span>
           </button>
 
-          <!-- Mobile hamburger -->
           <button
             type="button"
             class="inline-flex items-center justify-center rounded-lg p-2 text-text-secondary hover:bg-surface-alt md:hidden"
@@ -116,7 +109,6 @@ function getInitial(name: string | undefined): string {
         </div>
       </nav>
 
-      <!-- Mobile menu -->
       @if (mobileMenuOpen()) {
         <div id="mobile-menu" class="border-t border-input-border px-6 pb-4 md:hidden">
           <div class="flex flex-col gap-3 pt-3">

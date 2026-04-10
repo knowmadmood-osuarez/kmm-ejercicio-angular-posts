@@ -1,13 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
-/** Pure function: normalize Transloco available langs to string[]. */
 function normalizeLangs(available: ReturnType<TranslocoService['getAvailableLangs']>): string[] {
   return available.map((l) => (typeof l === 'string' ? l : l.id));
 }
 
-/** Pure function: compute the pill's translateX for the active language slot.
- *  Figma: pill left=15.43px at index 0, each slot is 72px wide. */
 function computePillTranslateX(
   activeIndex: number,
   slotWidth: number,
@@ -27,7 +24,6 @@ function computePillTranslateX(
       role="radiogroup"
       [attr.aria-label]="'shared.languageSelector' | transloco"
     >
-      <!-- Sliding indicator pill — centered within its slot both axes -->
       <div
         class="absolute rounded-[10px] bg-toggle-active transition-all duration-200 ease-in-out"
         style="width: 45px; height: 19px; top: 4.5px"
@@ -57,15 +53,10 @@ function computePillTranslateX(
 })
 export class LanguageSwitcherComponent {
   private readonly transloco = inject(TranslocoService);
-
-  /** Slot width per language (px) — 144px total / 2 langs = 72px each */
   private readonly slotWidth = 72;
-
-  /** Pill X offset at index 0: centers pill within 72px slot → (72-45)/2 = 13.5px */
   private readonly pillOffsetX = 13.5;
 
   readonly activeLang = signal(this.transloco.getActiveLang());
-
   readonly langs = computed(() => normalizeLangs(this.transloco.getAvailableLangs()));
 
   readonly activeIndex = computed(() => {
@@ -73,7 +64,6 @@ export class LanguageSwitcherComponent {
     return idx >= 0 ? idx : 0;
   });
 
-  /** Sliding pill position: translateX(15 + activeIndex × 72) */
   readonly indicatorTransform = computed(() => {
     const x = computePillTranslateX(this.activeIndex(), this.slotWidth, this.pillOffsetX);
     return `translateX(${x}px)`;
