@@ -5,7 +5,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 
 import { API_URL } from '@app/core';
 import { PostsService } from './posts.service';
-import type { Post, PaginatedPosts } from '../models/post.model';
+import type { PaginatedPosts, Post } from '../models/post.model';
 
 const mockPost: Post = {
   id: 1,
