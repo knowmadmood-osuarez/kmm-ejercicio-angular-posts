@@ -163,7 +163,7 @@ importers:
         specifier: ^27.1.0
         version: 27.4.0
       json-server:
-        specifier: ^1.0.0-beta.3
+        specifier: ^1.0.0-beta.15
         version: 1.0.0-beta.15
       lint-staged:
         specifier: ^16.4.0
