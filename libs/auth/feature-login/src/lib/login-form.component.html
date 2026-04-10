@@ -16,10 +16,10 @@
         variant="login"
         [icon]="true"
         [placeholder]="'auth.login.username' | transloco"
-        [value]="name"
+        [value]="loginForm.name().value()"
         [disabled]="loading()"
         [ariaLabel]="'auth.login.username' | transloco"
-        (valueChange)="name = $event"
+        (valueChange)="loginForm.name().value.set($event)"
       >
         <app-icon slot="icon" name="user" class="h-3.5 w-3.5 text-text-secondary" />
       </app-input>
@@ -37,10 +37,10 @@
         variant="login"
         [icon]="true"
         [placeholder]="'auth.login.password' | transloco"
-        [value]="password"
+        [value]="loginForm.password().value()"
         [disabled]="loading()"
         [ariaLabel]="'auth.login.password' | transloco"
-        (valueChange)="password = $event"
+        (valueChange)="loginForm.password().value.set($event)"
       >
         <app-icon slot="icon" name="lock" class="h-3.5 w-3.5 text-text-secondary" />
       </app-input>

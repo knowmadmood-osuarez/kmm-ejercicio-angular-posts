@@ -45,15 +45,19 @@ describe('LoginFormComponent', () => {
 
   it('should be valid when both fields are filled', () => {
     const { component } = setup();
-    component.name = 'alice';
-    component.password = 'alice123';
+    component.loginModel.set({ name: 'alice', password: 'alice123' });
     expect(component.isValid()).toBe(true);
   });
 
-  it('should be invalid when name is only whitespace', () => {
+  it('should be invalid when name is empty', () => {
     const { component } = setup();
-    component.name = '   ';
-    component.password = 'alice123';
+    component.loginModel.set({ name: '', password: 'alice123' });
+    expect(component.isValid()).toBe(false);
+  });
+
+  it('should be invalid when password is empty', () => {
+    const { component } = setup();
+    component.loginModel.set({ name: 'alice', password: '' });
     expect(component.isValid()).toBe(false);
   });
 
@@ -62,8 +66,7 @@ describe('LoginFormComponent', () => {
     const emitted: LoginCredentials[] = [];
     component.submitted.subscribe((v) => emitted.push(v));
 
-    component.name = '  alice  ';
-    component.password = 'alice123';
+    component.loginModel.set({ name: '  alice  ', password: 'alice123' });
     component.onSubmit();
 
     expect(emitted).toEqual([{ name: 'alice', password: 'alice123' }]);
@@ -74,8 +77,6 @@ describe('LoginFormComponent', () => {
     const emitted: LoginCredentials[] = [];
     component.submitted.subscribe((v) => emitted.push(v));
 
-    component.name = '';
-    component.password = '';
     component.onSubmit();
 
     expect(emitted).toEqual([]);
