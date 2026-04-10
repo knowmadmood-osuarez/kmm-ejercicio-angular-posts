@@ -11,25 +11,25 @@ import {
 
 import { authGuard } from './auth.guard';
 import { API_URL } from '../http/api.config';
-import { User } from './user.model';
+import type { SafeUser } from './user.model';
 
-const STORAGE_USER_KEY = 'auth_user';
-const STORAGE_TOKEN_KEY = 'auth_token';
-
-const mockUser: User = {
+const mockSafeUser: SafeUser = {
   id: 1,
   name: 'alice',
-  password: 'alice123',
   email: 'alice@example.com',
   avatar: 'https://api.dicebear.com/9.x/thumbs/svg?seed=alice',
 };
+
+function makeToken(user: SafeUser): string {
+  const payload = { ...user, iat: Date.now() };
+  return btoa(JSON.stringify(payload));
+}
 
 function setup(opts: { authenticated?: boolean } = {}) {
   localStorage.clear();
 
   if (opts.authenticated) {
-    localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(mockUser));
-    localStorage.setItem(STORAGE_TOKEN_KEY, 'test-token');
+    localStorage.setItem('auth_token', makeToken(mockSafeUser));
   }
 
   TestBed.configureTestingModule({

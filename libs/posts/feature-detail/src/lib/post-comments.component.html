@@ -1,0 +1,71 @@
+<section aria-label="{{ 'comments.title' | transloco }}">
+  <app-section-header title="comments.title" [count]="comments().length" [divider]="true" />
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <div class="mt-6">
+      <app-loading [lines]="2" />
+    </div>
+  }
+
+  <!-- Error -->
+  @if (error() && !isLoading()) {
+    <div class="mt-6">
+      <app-error-state message="shared.error" (retry)="onRetry()" />
+    </div>
+  }
+
+  <!-- Empty -->
+  @if (isEmpty()) {
+    <div class="mt-6">
+      <app-empty-state message="comments.empty" />
+    </div>
+  }
+
+  <!-- Comments list (divider between each) -->
+  @if (!isLoading() && !error() && comments().length) {
+    <ul class="divide-y divide-input-border" role="list">
+      @for (comment of comments(); track comment.id) {
+        <li role="listitem">
+          @if (editingComment()?.id === comment.id) {
+            <div class="py-5">
+              <app-comment-form
+                [initialBody]="comment.body"
+                [loading]="isSubmitting()"
+                (submitted)="onUpdateComment($event)"
+                (cancelled)="onCancelEdit()"
+              />
+            </div>
+          } @else {
+            <app-comment-card
+              [comment]="comment"
+              [author]="getAuthor(comment.userId)"
+              [isOwner]="isCommentOwner(comment.userId)"
+              [lang]="lang()"
+              (editClicked)="onEditComment($event)"
+              (deleteClicked)="onDeleteRequest($event)"
+            />
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  <!-- Add comment form — always at the bottom -->
+  <div class="mt-8 rounded-lg bg-surface-alt p-6">
+    <app-comment-form
+      initialBody=""
+      [loading]="isSubmitting()"
+      (submitted)="onAddComment($event)"
+    />
+  </div>
+
+  <!-- Confirm delete dialog -->
+  <app-confirm-dialog
+    [open]="confirmDeleteId() !== null"
+    title="shared.confirmTitle"
+    message="comments.confirmDelete"
+    (confirmed)="onDeleteConfirmed()"
+    (cancelled)="onDeleteCancelled()"
+  />
+</section>

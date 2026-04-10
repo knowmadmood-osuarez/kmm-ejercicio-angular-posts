@@ -6,7 +6,7 @@ import { provideRouter, Router } from '@angular/router';
 
 import { AuthService, generateToken } from './auth.service';
 import { API_URL } from '../http/api.config';
-import { User } from './user.model';
+import { SafeUser, User } from './user.model';
 
 const mockUser: User = {
   id: 1,
@@ -16,14 +16,28 @@ const mockUser: User = {
   avatar: 'https://api.dicebear.com/9.x/thumbs/svg?seed=alice',
 };
 
+const mockSafeUser: SafeUser = {
+  id: 1,
+  name: 'alice',
+  email: 'alice@example.com',
+  avatar: 'https://api.dicebear.com/9.x/thumbs/svg?seed=alice',
+};
+
+function makeToken(user: SafeUser): string {
+  const payload = { ...user, iat: Date.now() };
+  return btoa(JSON.stringify(payload));
+}
+
 // ---------------------------------------------------------------------------
 // Pure function tests
 // ---------------------------------------------------------------------------
 describe('generateToken', () => {
-  it('returns a base64 string containing user id and name', () => {
-    const token = generateToken(mockUser);
-    const decoded = atob(token);
-    expect(decoded).toMatch(/^1:alice:\d+$/);
+  it('returns a base64 JSON token with user fields and iat', () => {
+    const token = generateToken(mockSafeUser);
+    const decoded = JSON.parse(atob(token)) as { id: number; name: string; iat: number };
+    expect(decoded.id).toBe(1);
+    expect(decoded.name).toBe('alice');
+    expect(typeof decoded.iat).toBe('number');
   });
 });
 
@@ -57,11 +71,11 @@ describe('AuthService', () => {
   });
 
   it('restores session from localStorage', () => {
-    localStorage.setItem('auth_user', JSON.stringify(mockUser));
-    localStorage.setItem('auth_token', 'tok');
+    const token = makeToken(mockSafeUser);
+    localStorage.setItem('auth_token', token);
     const { service } = setup();
-    expect(service.currentUser()).toEqual(mockUser);
-    expect(service.token()).toBe('tok');
+    expect(service.currentUser()).toEqual(mockSafeUser);
+    expect(service.token()).toBe(token);
     expect(service.isAuthenticated()).toBe(true);
   });
 
@@ -79,12 +93,13 @@ describe('AuthService', () => {
     appRef.tick();
 
     const user = await promise;
-    expect(user).toEqual(mockUser);
+    expect(user).toEqual(mockSafeUser);
     expect(service.isAuthenticated()).toBe(true);
-    expect(localStorage.getItem('auth_user')).toBeTruthy();
+    expect(localStorage.getItem('auth_token')).toBeTruthy();
 
-    const decoded = atob(service.token()!);
-    expect(decoded).toMatch(/^1:alice:\d+$/);
+    const tokenDecoded = JSON.parse(atob(service.token()!)) as { id: number; name: string };
+    expect(tokenDecoded.id).toBe(1);
+    expect(tokenDecoded.name).toBe('alice');
   });
 
   it('login with empty result rejects', async () => {
@@ -118,8 +133,8 @@ describe('AuthService', () => {
   });
 
   it('logout clears state and navigates', async () => {
-    localStorage.setItem('auth_user', JSON.stringify(mockUser));
-    localStorage.setItem('auth_token', 'tok');
+    const token = makeToken(mockSafeUser);
+    localStorage.setItem('auth_token', token);
     const { service, router } = setup();
     const spy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
@@ -128,13 +143,13 @@ describe('AuthService', () => {
     expect(service.currentUser()).toBeNull();
     expect(service.token()).toBeNull();
     expect(service.isAuthenticated()).toBe(false);
-    expect(localStorage.getItem('auth_user')).toBeNull();
+    expect(localStorage.getItem('auth_token')).toBeNull();
     expect(spy).toHaveBeenCalledWith(['/login']);
   });
 
   it('ignores localStorage on server platform', () => {
-    localStorage.setItem('auth_user', JSON.stringify(mockUser));
-    localStorage.setItem('auth_token', 'tok');
+    const token = makeToken(mockSafeUser);
+    localStorage.setItem('auth_token', token);
     const { service } = setup('server');
     expect(service.currentUser()).toBeNull();
     expect(service.isAuthenticated()).toBe(false);

@@ -1,0 +1,48 @@
+<article>
+  <!-- Title row + owner actions -->
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <h1 class="text-3xl font-extrabold leading-tight tracking-[-0.5px] text-text sm:text-4xl">
+      {{ post().title }}
+    </h1>
+
+    @if (isOwner()) {
+      <div class="flex shrink-0 items-center gap-2" role="toolbar">
+        <app-button
+          type="button"
+          variant="primary"
+          size="sm"
+          (click)="editClicked.emit()"
+          [attr.aria-label]="'posts.detail.edit' | transloco"
+        >
+          {{ 'posts.detail.edit' | transloco }}
+        </app-button>
+
+        <app-button
+          type="button"
+          variant="danger"
+          size="sm"
+          (click)="deleteClicked.emit()"
+          [attr.aria-label]="'posts.detail.delete' | transloco"
+        >
+          {{ 'posts.detail.delete' | transloco }}
+        </app-button>
+      </div>
+    }
+  </div>
+
+  <!-- Tags (optional, subtle) -->
+  @if (post().tags.length) {
+    <div class="mt-4 flex flex-wrap gap-1.5">
+      @for (tag of post().tags; track tag) {
+        <app-badge size="sm">{{ tag }}</app-badge>
+      }
+    </div>
+  }
+
+  <!-- Body -->
+  <div class="mt-6 space-y-4">
+    @for (paragraph of paragraphs(); track $index) {
+      <p class="text-base leading-relaxed text-text-secondary">{{ paragraph }}</p>
+    }
+  </div>
+</article>

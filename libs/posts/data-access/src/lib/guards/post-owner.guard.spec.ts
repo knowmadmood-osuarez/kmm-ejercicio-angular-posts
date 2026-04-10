@@ -10,17 +10,21 @@ import {
 } from '@angular/router';
 
 import { API_URL } from '@app/core';
+import type { SafeUser } from '@app/core';
 import { postOwnerGuard } from './post-owner.guard';
 import type { Post } from '../models/post.model';
-import type { User } from '@app/core';
 
-const mockUser: User = {
+const mockSafeUser: SafeUser = {
   id: 1,
   name: 'alice',
-  password: 'alice123',
   email: 'alice@example.com',
   avatar: 'https://api.dicebear.com/9.x/thumbs/svg?seed=alice',
 };
+
+function makeToken(user: SafeUser): string {
+  const payload = { ...user, iat: Date.now() };
+  return btoa(JSON.stringify(payload));
+}
 
 const mockPost: Post = {
   id: 42,
@@ -55,8 +59,7 @@ describe('postOwnerGuard', () => {
 
   function setup(opts: { authenticated?: boolean } = {}) {
     if (opts.authenticated) {
-      localStorage.setItem('auth_user', JSON.stringify(mockUser));
-      localStorage.setItem('auth_token', 'test-token');
+      localStorage.setItem('auth_token', makeToken(mockSafeUser));
     }
 
     TestBed.configureTestingModule({

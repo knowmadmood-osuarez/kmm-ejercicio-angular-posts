@@ -1,0 +1,55 @@
+<!-- Back button -->
+<div class="mb-6">
+  <app-button
+    type="button"
+    variant="ghost"
+    size="sm"
+    (click)="onBack()"
+    [attr.aria-label]="'shared.back' | transloco"
+  >
+    <app-icon name="arrow-left" class="h-4 w-4" />
+    {{ 'shared.back' | transloco }}
+  </app-button>
+</div>
+
+<!-- Loading state -->
+@if (isLoading()) {
+  <app-loading [lines]="4" />
+}
+
+<!-- Error state -->
+@if (error() && !isLoading()) {
+  <app-error-state message="shared.error" (retry)="onRetry()" />
+}
+
+<!-- Content -->
+@if (post() && !isLoading() && !error()) {
+  <app-post-detail
+    [post]="post()!"
+    [author]="author()"
+    [isOwner]="isOwner()"
+    [lang]="lang()"
+    (editClicked)="onEdit()"
+    (deleteClicked)="onDeleteRequest()"
+  />
+
+  <!-- Comments — lazy loaded on viewport -->
+  <div class="mt-12">
+    @defer (on viewport) {
+      <app-post-comments [postId]="post()!.id" />
+    } @loading {
+      <app-loading [lines]="3" />
+    } @placeholder {
+      <div class="h-24 rounded-lg bg-surface-alt animate-pulse" aria-hidden="true"></div>
+    }
+  </div>
+}
+
+<!-- Confirm delete post dialog -->
+<app-confirm-dialog
+  [open]="showDeleteDialog()"
+  title="shared.confirmTitle"
+  message="posts.detail.confirmDelete"
+  (confirmed)="onDeleteConfirmed()"
+  (cancelled)="onDeleteCancelled()"
+/>

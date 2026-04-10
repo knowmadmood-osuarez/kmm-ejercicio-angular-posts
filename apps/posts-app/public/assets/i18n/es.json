@@ -77,6 +77,8 @@
     "delete": "Eliminar comentario",
     "confirmDelete": "¿Estás seguro de que quieres eliminar este comentario?",
     "placeholder": "Escribe un comentario...",
+    "submit": "Publicar comentario",
+    "update": "Actualizar comentario",
     "bodyRequired": "El comentario es obligatorio"
   },
   "pagination": {

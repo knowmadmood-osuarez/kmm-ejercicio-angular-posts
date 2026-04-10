@@ -51,6 +51,10 @@ export class LoginFormComponent {
     required(schema.password);
   });
 
+  isValid(): boolean {
+    return !this.loginForm().invalid();
+  }
+
   onSubmit(event?: Event): void {
     event?.preventDefault();
 
