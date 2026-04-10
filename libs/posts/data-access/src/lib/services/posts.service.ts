@@ -1,10 +1,9 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { httpResource, HttpResourceRef } from '@angular/common/http';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { HttpClient, httpResource, HttpResourceRef } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
+import type { SafeUser, User } from '@app/core';
 import { API_URL } from '@app/core';
-import type { User } from '@app/core';
 import { PaginatedPosts, Post, PostCreate, PostUpdate } from '../models/post.model';
 
 export interface PostFilters {
@@ -14,6 +13,11 @@ export interface PostFilters {
   tag: string;
 }
 
+/** Pure: deep equality for PostFilters — avoids spurious resource re-fetches. */
+function filtersEqual(a: PostFilters, b: PostFilters): boolean {
+  return a.page === b.page && a.q === b.q && a.author === b.author && a.tag === b.tag;
+}
+
 const DEFAULT_PER_PAGE = 6;
 
 @Injectable({ providedIn: 'root' })
@@ -21,7 +25,10 @@ export class PostsService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = inject(API_URL);
 
-  readonly filters = signal<PostFilters>({ page: 1, q: '', author: '', tag: '' });
+  readonly filters = signal<PostFilters>(
+    { page: 1, q: '', author: '', tag: '' },
+    { equal: filtersEqual },
+  );
 
   readonly postsResource: HttpResourceRef<PaginatedPosts | undefined> =
     httpResource<PaginatedPosts>(() => {
@@ -41,6 +48,16 @@ export class PostsService {
   readonly usersResource: HttpResourceRef<User[] | undefined> = httpResource<User[]>(
     () => `${this.apiUrl}/users`,
   );
+
+  /** Users without password — safe to pass to any component. */
+  readonly safeUsers = computed<SafeUser[]>(() =>
+    (this.usersResource.value() ?? []).map(({ password: _p, ...safe }) => safe),
+  );
+
+  readonly uniqueTags = computed<string[]>(() => {
+    const posts = this.postsResource.value()?.data ?? [];
+    return [...new Set(posts.flatMap((p) => p.tags))].sort();
+  });
 
   private readonly _detailId = signal<number | undefined>(undefined);
 

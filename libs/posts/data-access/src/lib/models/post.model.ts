@@ -7,6 +7,7 @@ export interface Post {
   createdAt: string;
 }
 
+// ...existing code...
 export interface PaginatedPosts {
   data: Post[];
   first: number;
