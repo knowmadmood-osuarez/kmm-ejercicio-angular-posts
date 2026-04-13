@@ -9,8 +9,8 @@ import { PostsService } from '@app/posts/data-access';
 import { PostDetailPageComponent } from './post-detail-page.component';
 
 const MOCK_POST = {
-  id: 1,
-  userId: 1,
+  id: '1',
+  userId: '1',
   title: 'Test Post',
   body: 'Test body content',
   tags: ['angular'],
@@ -57,7 +57,7 @@ describe('PostDetailPageComponent', () => {
 
   it('should parse postId from id input', () => {
     const { component } = setup('42');
-    expect(component.postId()).toBe(42);
+    expect(component.postId()).toBe('42');
   });
 
   it('should return null postId for invalid input', () => {
@@ -76,7 +76,7 @@ describe('PostDetailPageComponent', () => {
     const { component, router } = setup('5');
     const spy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
     component.onEdit();
-    expect(spy).toHaveBeenCalledWith(['/posts', 5, 'edit']);
+    expect(spy).toHaveBeenCalledWith(['/posts', '5', 'edit']);
   });
 
   it('should open delete confirm dialog on delete request', () => {
@@ -101,7 +101,7 @@ describe('PostDetailPageComponent', () => {
     component.onDeleteRequest();
     await component.onDeleteConfirmed();
 
-    expect(postsService.deletePost).toHaveBeenCalledWith(1);
+    expect(postsService.deletePost).toHaveBeenCalledWith('1');
     expect(spy).toHaveBeenCalledWith(['/posts']);
     expect(component.showDeleteDialog()).toBe(false);
   });
@@ -128,7 +128,7 @@ describe('PostDetailPageComponent', () => {
     fixture.detectChanges();
     TestBed.flushEffects();
 
-    expect(spy).toHaveBeenCalledWith(7);
+    expect(spy).toHaveBeenCalledWith('7');
   });
 
   it('should reload resource on retry', () => {

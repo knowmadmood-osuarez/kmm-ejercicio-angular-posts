@@ -18,7 +18,7 @@ import {
   SectionHeaderComponent,
 } from '@app/shared/ui';
 import { AuthService } from '@app/core';
-import { CommentsService, PostsService } from '@app/posts/data-access';
+import { CommentsService, PostsService, sortByNewest } from '@app/posts/data-access';
 import type { Comment } from '@app/posts/data-access';
 
 import { CommentCardComponent } from './comment-card.component';
@@ -41,7 +41,7 @@ import { CommentFormComponent } from './comment-form.component';
   templateUrl: './post-comments.component.html',
 })
 export class PostCommentsComponent {
-  readonly postId = input.required<number>();
+  readonly postId = input.required<string>();
 
   private readonly commentsService = inject(CommentsService);
   private readonly postsService = inject(PostsService);
@@ -50,7 +50,14 @@ export class PostCommentsComponent {
 
   readonly isLoading = computed(() => this.commentsService.commentsResource.isLoading());
   readonly error = computed(() => this.commentsService.commentsResource.error());
-  readonly comments = computed(() => this.commentsService.commentsResource.value() ?? []);
+
+  /** Merge optimistic (pending) comments on top of server comments, sorted newest-first. */
+  readonly comments = computed(() => {
+    const server = this.commentsService.commentsResource.value() ?? [];
+    const optimistic = this.commentsService.optimistic();
+    return [...optimistic, ...sortByNewest(server)];
+  });
+
   readonly isEmpty = computed(
     () => !this.isLoading() && !this.error() && this.comments().length === 0,
   );
@@ -61,7 +68,7 @@ export class PostCommentsComponent {
   });
 
   readonly editingComment = signal<Comment | null>(null);
-  readonly confirmDeleteId = signal<number | null>(null);
+  readonly confirmDeleteId = signal<string | null>(null);
   readonly isSubmitting = signal(false);
 
   constructor() {
@@ -70,12 +77,12 @@ export class PostCommentsComponent {
     });
   }
 
-  getAuthor(userId: number) {
-    return this.users().find((u) => u.id === userId);
+  getAuthor(userId: string) {
+    return this.users().find((u) => String(u.id) === String(userId));
   }
 
-  isCommentOwner(userId: number): boolean {
-    return this.currentUser()?.id === userId;
+  isCommentOwner(userId: string): boolean {
+    return String(this.currentUser()?.id) === String(userId);
   }
 
   async onAddComment(body: string): Promise<void> {
@@ -84,12 +91,11 @@ export class PostCommentsComponent {
     this.isSubmitting.set(true);
     try {
       await this.commentsService.createComment({
-        postId: this.postId(),
-        userId: user.id,
+        postId: String(this.postId()),
+        userId: String(user.id),
         body,
         createdAt: new Date().toISOString(),
       });
-      this.commentsService.commentsResource.reload();
     } finally {
       this.isSubmitting.set(false);
     }
@@ -116,7 +122,7 @@ export class PostCommentsComponent {
     }
   }
 
-  onDeleteRequest(id: number): void {
+  onDeleteRequest(id: string): void {
     this.confirmDeleteId.set(id);
   }
 

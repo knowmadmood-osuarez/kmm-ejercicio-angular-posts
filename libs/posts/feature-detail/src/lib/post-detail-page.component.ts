@@ -51,8 +51,7 @@ export class PostDetailPageComponent {
 
   readonly postId = computed(() => {
     const raw = this.id();
-    const parsed = parseInt(raw, 10);
-    return isNaN(parsed) ? null : parsed;
+    return raw || null;
   });
 
   readonly isLoading = computed(() => this.postsService.postDetailResource.isLoading());
@@ -65,14 +64,14 @@ export class PostDetailPageComponent {
   readonly author = computed(() => {
     const post = this.post();
     if (!post) return undefined;
-    return this.users().find((u) => u.id === post.userId);
+    return this.users().find((u) => String(u.id) === String(post.userId));
   });
 
   readonly isOwner = computed(() => {
     const post = this.post();
     const user = this.currentUser();
     if (!post || !user) return false;
-    return Number(post.userId) === Number(user.id);
+    return String(post.userId) === String(user.id);
   });
 
   readonly lang = toSignal(this.transloco.langChanges$, {

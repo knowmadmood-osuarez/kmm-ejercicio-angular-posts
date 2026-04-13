@@ -52,7 +52,7 @@ export class CommentCardComponent {
   readonly lang = input<string>('es');
 
   readonly editClicked = output<Comment>();
-  readonly deleteClicked = output<number>();
+  readonly deleteClicked = output<string>();
 
   readonly relativeDate = computed(() => relativeDate(this.comment().createdAt, this.lang()));
   readonly authorName = computed(() => capitalizeName(this.author()?.name ?? 'Unknown'));
