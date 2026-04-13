@@ -5,27 +5,19 @@ import { ButtonComponent } from '@app/shared/ui';
 import type { Comment } from '@app/posts/data-access';
 import type { SafeUser } from '@app/core';
 
-/** Pure: returns a locale-relative date string. */
+/** Pure: returns a locale-relative date string using Intl.RelativeTimeFormat. */
 function relativeDate(iso: string, lang: string): string {
-  const now = Date.now();
-  const diff = now - new Date(iso).getTime();
+  const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60_000);
   const hours = Math.floor(diff / 3_600_000);
   const days = Math.floor(diff / 86_400_000);
 
-  if (lang === 'es') {
-    if (mins < 2) return 'Ahora mismo';
-    if (mins < 60) return `hace ${mins} min`;
-    if (hours < 24) return `hace ${hours} hora${hours > 1 ? 's' : ''}`;
-    if (days === 1) return 'Ayer';
-    if (days < 7) return `hace ${days} días`;
-  } else {
-    if (mins < 2) return 'Just now';
-    if (mins < 60) return `${mins}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    if (days === 1) return 'Yesterday';
-    if (days < 7) return `${days}d ago`;
-  }
+  const rtf = new Intl.RelativeTimeFormat(lang, { numeric: 'auto' });
+
+  if (mins < 2) return rtf.format(0, 'minute');
+  if (mins < 60) return rtf.format(-mins, 'minute');
+  if (hours < 24) return rtf.format(-hours, 'hour');
+  if (days < 7) return rtf.format(-days, 'day');
 
   return new Date(iso).toLocaleDateString(lang, {
     year: 'numeric',
