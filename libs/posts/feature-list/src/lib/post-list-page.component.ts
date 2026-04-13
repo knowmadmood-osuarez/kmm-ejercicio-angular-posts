@@ -1,15 +1,21 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
-import { Router, ActivatedRoute, RouterLink } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
-
 import {
-  EmptyStateComponent,
-  ErrorStateComponent,
-  LoadingComponent,
-  PaginationComponent,
-} from '@app/shared/ui';
-import { PostsService, type PostFilters } from '@app/posts/data-access';
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  ElementRef,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+
+import { EmptyStateComponent, ErrorStateComponent, LoadingComponent } from '@app/shared/ui';
+import { type PostFilters, PostsService } from '@app/posts/data-access';
 import { AuthService } from '@app/core';
 
 import { PostFiltersComponent } from './post-filters.component';
@@ -24,7 +30,6 @@ import { PostListComponent } from './post-list.component';
     LoadingComponent,
     EmptyStateComponent,
     ErrorStateComponent,
-    PaginationComponent,
     PostFiltersComponent,
     PostListComponent,
   ],
@@ -35,16 +40,18 @@ export class PostListPageComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly transloco = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly authService = inject(AuthService);
   protected readonly postsService = inject(PostsService);
 
   private readonly queryParams = toSignal(this.route.queryParamMap);
 
-  readonly isLoading = computed(() => this.postsService.postsResource.isLoading());
-  readonly error = computed(() => this.postsService.postsResource.error());
-  readonly posts = computed(() => this.postsService.postsResource.value()?.data ?? []);
-  readonly totalPages = computed(() => this.postsService.postsResource.value()?.pages ?? 1);
-  readonly totalItems = computed(() => this.postsService.postsResource.value()?.items ?? 0);
+  readonly sentinel = viewChild<ElementRef<HTMLElement>>('sentinel');
+
+  readonly isLoading = computed(() => this.postsService.isLoading());
+  readonly error = computed(() => this.postsService.error());
+  readonly posts = computed(() => this.postsService.visiblePosts());
+  readonly totalItems = computed(() => this.postsService.totalItems());
   readonly isEmpty = computed(
     () => !this.isLoading() && !this.error() && this.posts().length === 0,
   );
@@ -56,17 +63,45 @@ export class PostListPageComponent {
     initialValue: this.transloco.getActiveLang(),
   });
   readonly currentUser = this.authService.currentUser;
+  readonly hasMore = computed(() => this.postsService.hasMore());
+  readonly isLoadingMore = computed(() => this.postsService.isLoadingMore());
+
+  private readonly observer = signal<IntersectionObserver | undefined>(undefined);
 
   constructor() {
+    // Sync query params → service filters
     effect(() => {
       const params = this.queryParams();
       if (!params) return;
       this.postsService.filters.set({
-        page: parseInt(params.get('page') ?? '1', 10),
         q: params.get('q') ?? '',
         author: params.get('author') ?? '',
         tag: params.get('tag') ?? '',
       });
+    });
+
+    // Create IntersectionObserver after first render
+    afterNextRender(() => {
+      const obs = new IntersectionObserver(
+        (entries) => {
+          if (entries[0]?.isIntersecting) {
+            this.postsService.loadNextPage();
+          }
+        },
+        { rootMargin: '200px' },
+      );
+      this.observer.set(obs);
+      this.destroyRef.onDestroy(() => obs.disconnect());
+    });
+
+    // Observe sentinel element reactively
+    effect(() => {
+      const obs = this.observer();
+      const el = this.sentinel()?.nativeElement;
+      if (obs && el) {
+        obs.disconnect();
+        obs.observe(el);
+      }
     });
   }
 
@@ -74,7 +109,6 @@ export class PostListPageComponent {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
-        page: filters.page > 1 ? filters.page : null,
         q: filters.q || null,
         author: filters.author || null,
         tag: filters.tag || null,
@@ -83,12 +117,8 @@ export class PostListPageComponent {
     });
   }
 
-  onPageChange(page: number): void {
-    this.onFiltersChange({ ...this.postsService.filters(), page });
-  }
-
   onRetry(): void {
-    this.postsService.postsResource.reload();
+    this.postsService.reload();
   }
 
   onPostHovered(id: string): void {

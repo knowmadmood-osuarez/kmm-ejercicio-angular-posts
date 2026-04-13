@@ -47,7 +47,8 @@
       "newPost": "New post",
       "allAuthors": "All authors",
       "allTags": "All tags",
-      "showing": "Showing {{count}} of {{total}} results"
+      "showing": "Showing {{count}} of {{total}} results",
+      "noMore": "You've seen all posts"
     },
     "detail": {
       "title": "Post detail",

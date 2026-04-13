@@ -21,7 +21,7 @@
   }
 </div>
 
-<!-- Loading -->
+<!-- Loading (first page) -->
 @if (isLoading()) {
   <app-loading [lines]="6" />
 }
@@ -46,14 +46,17 @@
     (postHovered)="onPostHovered($event)"
   />
 
-  @if (totalPages() > 1) {
-    <div class="mt-8">
-      <app-pagination
-        [currentPage]="filters().page"
-        [totalPages]="totalPages()"
-        (pageChange)="onPageChange($event)"
-      />
+  <!-- Infinite scroll sentinel -->
+  @if (hasMore()) {
+    <div #sentinel class="flex items-center justify-center py-8">
+      @if (isLoadingMore()) {
+        <app-loading [lines]="2" />
+      }
     </div>
+  } @else {
+    <p class="py-8 text-center text-sm text-text-muted">
+      {{ 'posts.list.noMore' | transloco }}
+    </p>
   }
 }
 

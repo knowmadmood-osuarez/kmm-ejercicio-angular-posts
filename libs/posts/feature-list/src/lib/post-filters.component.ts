@@ -20,10 +20,10 @@ export class PostFiltersComponent {
   readonly filtersChange = output<PostFilters>();
 
   onAuthorChange(author: string): void {
-    this.filtersChange.emit({ ...this.filters(), author, page: 1 });
+    this.filtersChange.emit({ ...this.filters(), author });
   }
 
   onTagChange(tag: string): void {
-    this.filtersChange.emit({ ...this.filters(), tag, page: 1 });
+    this.filtersChange.emit({ ...this.filters(), tag });
   }
 }
