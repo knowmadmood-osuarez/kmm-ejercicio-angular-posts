@@ -6,6 +6,7 @@
 @source "../../../libs/core";
 @source "../../../libs/posts/data-access";
 @source "../../../libs/posts/feature-detail";
+@source "../../../libs/posts/feature-form";
 @source "../../../libs/posts/feature-list";
 @source "../../../libs/shared/ui";
 /* nx-tailwind-sources:end */
