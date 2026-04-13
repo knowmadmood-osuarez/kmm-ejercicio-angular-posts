@@ -1,5 +1,10 @@
 import { ApplicationConfig, provideZonelessChangeDetection, isDevMode } from '@angular/core';
-import { provideRouter, withComponentInputBinding, withRouterConfig } from '@angular/router';
+import {
+  provideRouter,
+  withComponentInputBinding,
+  withRouterConfig,
+  withViewTransitions,
+} from '@angular/router';
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideTransloco } from '@jsverse/transloco';
@@ -15,6 +20,7 @@ export const appConfig: ApplicationConfig = {
       appRoutes,
       withComponentInputBinding(),
       withRouterConfig({ paramsInheritanceStrategy: 'always' }),
+      withViewTransitions({ skipInitialTransition: true }),
     ),
     provideHttpClient(withInterceptors([authInterceptor]), withFetch()),
     provideTransloco({

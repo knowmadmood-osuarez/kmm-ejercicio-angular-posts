@@ -24,26 +24,26 @@
 
 <!-- Content -->
 @if (post() && !isLoading() && !error()) {
-  <div class="animate-fade-in">
+  <div>
     <app-post-detail
-    [post]="post()!"
-    [author]="author()"
-    [isOwner]="isOwner()"
-    [lang]="lang()"
-    (editClicked)="onEdit()"
-    (deleteClicked)="onDeleteRequest()"
-  />
+      [post]="post()!"
+      [author]="author()"
+      [isOwner]="isOwner()"
+      [lang]="lang()"
+      (editClicked)="onEdit()"
+      (deleteClicked)="onDeleteRequest()"
+    />
 
-  <!-- Comments — lazy loaded on viewport -->
-  <div class="mt-12">
-    @defer (on viewport) {
-      <app-post-comments [postId]="post()!.id" />
-    } @loading {
-      <app-loading [lines]="3" />
-    } @placeholder {
-      <div class="h-24 rounded-lg bg-surface-alt animate-pulse" aria-hidden="true"></div>
-    }
-  </div>
+    <!-- Comments — lazy loaded on viewport -->
+    <div class="mt-12">
+      @defer (on viewport) {
+        <app-post-comments [postId]="post()!.id" />
+      } @loading {
+        <app-loading [lines]="3" />
+      } @placeholder {
+        <div class="h-24 rounded-lg bg-surface-alt animate-pulse" aria-hidden="true"></div>
+      }
+    </div>
   </div>
 }
 

@@ -38,27 +38,27 @@
 
 <!-- List -->
 @if (!isLoading() && !error() && posts().length) {
-  <div class="animate-fade-in">
+  <div>
     <app-post-list
-    [posts]="posts()"
-    [users]="users()"
-    [currentUser]="currentUser()"
-    [lang]="lang()"
-    (postHovered)="onPostHovered($event)"
-  />
+      [posts]="posts()"
+      [users]="users()"
+      [currentUser]="currentUser()"
+      [lang]="lang()"
+      (postHovered)="onPostHovered($event)"
+    />
 
-  <!-- Infinite scroll sentinel -->
-  @if (hasMore()) {
-    <div #sentinel class="flex items-center justify-center py-8">
-      @if (isLoadingMore()) {
-        <app-loading [lines]="2" />
-      }
-    </div>
-  } @else {
-    <p class="py-8 text-center text-sm text-text-muted">
-      {{ 'posts.list.noMore' | transloco }}
-    </p>
-  }
+    <!-- Infinite scroll sentinel -->
+    @if (hasMore()) {
+      <div #sentinel class="flex items-center justify-center py-8">
+        @if (isLoadingMore()) {
+          <app-loading [lines]="2" />
+        }
+      </div>
+    } @else {
+      <p class="py-8 text-center text-sm text-text-muted">
+        {{ 'posts.list.noMore' | transloco }}
+      </p>
+    }
   </div>
 }
 

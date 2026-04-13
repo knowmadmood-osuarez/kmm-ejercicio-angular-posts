@@ -40,7 +40,7 @@
 <!-- Form -->
 @if (!isLoading() && !error() && !isForbidden()) {
   @if (!isEditMode() || post()) {
-    <div class="animate-fade-in">
+    <div>
       <app-post-form
         [post]="post()"
         [loading]="isSaving()"
