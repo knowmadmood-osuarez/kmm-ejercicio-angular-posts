@@ -1,0 +1,44 @@
+<form (submit)="onSubmit($event)" class="flex flex-col gap-4">
+  <div class="flex flex-col gap-2">
+    <app-label for="comment-body">
+      {{ (initialBody() ? 'comments.edit' : 'comments.add') | transloco }}
+    </app-label>
+    <app-textarea
+      id="comment-body"
+      name="body"
+      [placeholder]="'comments.placeholder' | transloco"
+      [value]="commentForm.body().value()"
+      [disabled]="loading()"
+      [rows]="5"
+      [ariaLabel]="'comments.add' | transloco"
+      (valueChange)="commentForm.body().value.set($event)"
+      (blurred)="commentForm.body().markAsTouched()"
+    />
+    @if (commentForm.body().touched() && commentForm.body().invalid()) {
+      @for (error of commentForm.body().errors(); track error.kind) {
+        <p class="text-xs text-danger" role="alert" aria-live="polite">
+          {{ error.message! | transloco }}
+        </p>
+      }
+    }
+  </div>
+
+  <div class="flex items-center justify-end gap-3">
+    @if (initialBody()) {
+      <app-button type="button" variant="secondary" size="md" (click)="onCancel()">
+        {{ 'shared.cancel' | transloco }}
+      </app-button>
+    }
+    <app-button
+      type="submit"
+      variant="primary"
+      size="md"
+      [disabled]="loading() || commentForm().invalid()"
+    >
+      @if (loading()) {
+        <app-icon name="spinner" class="h-4 w-4 animate-spin" />
+      }
+      {{ (initialBody() ? 'comments.update' : 'comments.submit') | transloco }}
+    </app-button>
+  </div>
+</form>

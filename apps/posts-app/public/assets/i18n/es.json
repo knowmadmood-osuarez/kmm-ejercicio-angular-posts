@@ -32,7 +32,9 @@
       "username": "Usuario",
       "password": "Contraseña",
       "submit": "Acceder",
-      "error": "Credenciales inválidas"
+      "error": "Credenciales inválidas",
+      "nameRequired": "El usuario es obligatorio",
+      "passwordRequired": "La contraseña es obligatoria"
     }
   },
   "posts": {
@@ -44,7 +46,9 @@
       "filterTag": "Filtrar por etiqueta",
       "newPost": "Nuevo post",
       "allAuthors": "Todos los autores",
-      "allTags": "Todas las etiquetas"
+      "allTags": "Todas las etiquetas",
+      "showing": "Mostrando {{count}} de {{total}} resultados",
+      "noMore": "Has visto todos los posts"
     },
     "detail": {
       "title": "Detalle del post",
@@ -76,7 +80,10 @@
     "delete": "Eliminar comentario",
     "confirmDelete": "¿Estás seguro de que quieres eliminar este comentario?",
     "placeholder": "Escribe un comentario...",
-    "bodyRequired": "El comentario es obligatorio"
+    "submit": "Publicar comentario",
+    "update": "Actualizar comentario",
+    "bodyRequired": "El comentario es obligatorio",
+    "bodyMinLength": "El comentario debe tener al menos 3 caracteres"
   },
   "pagination": {
     "previous": "Anterior",

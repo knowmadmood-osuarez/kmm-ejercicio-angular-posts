@@ -1,0 +1,79 @@
+<!-- Title row -->
+<div class="mb-6 flex items-center justify-between">
+  <h1 class="text-3xl font-extrabold tracking-tight text-text sm:text-4xl">
+    {{ 'posts.list.title' | transloco }}
+  </h1>
+</div>
+
+<!-- Filters row -->
+<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+  <app-post-filters
+    [filters]="filters()"
+    [authors]="users()"
+    [tags]="tags()"
+    (filtersChange)="onFiltersChange($event)"
+  />
+
+  @if (!isLoading() && !error() && totalItems() > 0) {
+    <p class="shrink-0 text-xs font-semibold uppercase tracking-widest text-text-muted">
+      {{ 'posts.list.showing' | transloco: { count: posts().length, total: totalItems() } }}
+    </p>
+  }
+</div>
+
+<!-- Loading (first page) -->
+@if (isLoading()) {
+  <app-loading [lines]="6" />
+}
+
+<!-- Error -->
+@if (error() && !isLoading()) {
+  <app-error-state message="shared.error" (retry)="onRetry()" />
+}
+
+<!-- Empty -->
+@if (isEmpty()) {
+  <app-empty-state message="posts.list.empty" />
+}
+
+<!-- List -->
+@if (!isLoading() && !error() && posts().length) {
+  <app-post-list
+    [posts]="posts()"
+    [users]="users()"
+    [currentUser]="currentUser()"
+    [lang]="lang()"
+    (postHovered)="onPostHovered($event)"
+  />
+
+  <!-- Infinite scroll sentinel -->
+  @if (hasMore()) {
+    <div #sentinel class="flex items-center justify-center py-8">
+      @if (isLoadingMore()) {
+        <app-loading [lines]="2" />
+      }
+    </div>
+  } @else {
+    <p class="py-8 text-center text-sm text-text-muted">
+      {{ 'posts.list.noMore' | transloco }}
+    </p>
+  }
+}
+
+<!-- FAB: Nuevo post -->
+<a
+  routerLink="/posts/new"
+  class="fixed bottom-6 right-6 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary-gradient text-white shadow-primary transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 sm:h-auto sm:w-auto sm:rounded-lg sm:px-5 sm:py-3"
+  [attr.aria-label]="'posts.list.newPost' | transloco"
+>
+  <svg
+    class="h-5 w-5 sm:mr-2"
+    fill="none"
+    viewBox="0 0 20 20"
+    stroke="currentColor"
+    aria-hidden="true"
+  >
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 4v12M4 10h12" />
+  </svg>
+  <span class="hidden text-sm font-bold sm:inline">{{ 'posts.list.newPost' | transloco }}</span>
+</a>

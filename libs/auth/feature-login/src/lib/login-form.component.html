@@ -57,7 +57,7 @@
         size="xl"
         class="w-full"
         [fullWidth]="true"
-        [disabled]="loading() || !isValid()"
+        [disabled]="loading() || loginForm().invalid()"
       >
         {{ 'auth.login.submit' | transloco }}
         <app-icon name="arrow-right" class="h-3 w-3" />

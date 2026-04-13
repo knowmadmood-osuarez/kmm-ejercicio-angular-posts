@@ -1,0 +1,50 @@
+<!-- Back button -->
+<div class="mb-6">
+  <app-button
+    type="button"
+    variant="ghost"
+    size="sm"
+    (click)="onCancel()"
+    [attr.aria-label]="'shared.back' | transloco"
+  >
+    <app-icon name="arrow-left" class="h-4 w-4" />
+    {{ 'shared.back' | transloco }}
+  </app-button>
+</div>
+
+<!-- Page header -->
+<app-page-header [title]="pageTitle()" />
+
+<!-- Forbidden state -->
+@if (isForbidden()) {
+  <app-forbidden-state />
+}
+
+<!-- Loading state (edit mode only) -->
+@if (isLoading() && !isForbidden()) {
+  <app-loading [lines]="4" />
+}
+
+<!-- Error state -->
+@if (error() && !isLoading() && !isForbidden()) {
+  <app-error-state message="shared.error" (retry)="onRetry()" />
+}
+
+<!-- Save error feedback -->
+@if (saveError()) {
+  <div class="mb-4 rounded-lg bg-danger/10 p-4 text-sm text-danger" role="alert" aria-live="polite">
+    {{ saveError()! | transloco }}
+  </div>
+}
+
+<!-- Form -->
+@if (!isLoading() && !error() && !isForbidden()) {
+  @if (!isEditMode() || post()) {
+    <app-post-form
+      [post]="post()"
+      [loading]="isSaving()"
+      (submitted)="onSubmit($event)"
+      (cancelled)="onCancel()"
+    />
+  }
+}

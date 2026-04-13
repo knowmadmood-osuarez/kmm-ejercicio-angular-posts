@@ -1,25 +1,50 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { EMPTY, tap } from 'rxjs';
 
 import { AuthService } from './auth.service';
 
+function isPublicRequest(url: string, hasPassword: boolean): boolean {
+  if (hasPassword && url.includes('/users')) return true;
+  return url.includes('/assets/');
+}
+
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
+  const router = inject(Router);
 
-  const isLoginRequest = req.url.includes('/users') && req.params.has('password');
-  if (isLoginRequest) {
+  if (isPublicRequest(req.url, req.params.has('password'))) {
     return next(req);
   }
 
   const token = authService.token();
-  if (token) {
-    const cloned = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return next(cloned);
+
+  if (!token) {
+    void router.navigate(['/login']);
+    return EMPTY;
   }
 
-  return next(req);
+  const cloned = req.clone({
+    setHeaders: { Authorization: `Bearer ${token}` },
+  });
+
+  return next(cloned).pipe(
+    tap({
+      error: (err: unknown) => {
+        if (isHttpError(err, 401)) {
+          authService.logout();
+        }
+      },
+    }),
+  );
 };
+
+function isHttpError(err: unknown, status: number): boolean {
+  return (
+    typeof err === 'object' &&
+    err !== null &&
+    'status' in err &&
+    (err as { status: number }).status === status
+  );
+}

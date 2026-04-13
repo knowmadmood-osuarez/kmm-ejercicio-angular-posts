@@ -1,0 +1,49 @@
+<app-card [variant]="variant()" padding="compact">
+  <a
+    [routerLink]="['/posts', post().id]"
+    class="block focus:outline-none"
+    (mouseenter)="hovered.emit(post().id)"
+  >
+    <div class="flex flex-col gap-2">
+      <!-- Row 1: title + date -->
+      <div class="flex items-start justify-between gap-4">
+        <h2
+          class="text-base font-bold leading-snug text-text transition-colors hover:text-primary sm:text-lg"
+        >
+          {{ post().title }}
+        </h2>
+        <time
+          class="shrink-0 text-[11px] font-semibold uppercase tracking-widest text-text-muted"
+          [dateTime]="post().createdAt"
+        >
+          {{ formattedDate() }}
+        </time>
+      </div>
+
+      <!-- Excerpt -->
+      <p class="text-sm leading-relaxed text-text-secondary line-clamp-2">
+        {{ bodyExcerpt() }}
+      </p>
+
+      <!-- Footer: author + tags -->
+      <div class="flex items-center justify-between pt-1">
+        <div class="flex items-center gap-2">
+          <app-avatar
+            [name]="authorName()"
+            [color]="isCurrentUser() ? 'primary' : 'default'"
+            size="sm"
+          />
+          <span class="text-sm font-medium text-text-secondary">{{ authorName() }}</span>
+        </div>
+
+        @if (post().tags.length) {
+          <div class="flex flex-wrap justify-end gap-1.5">
+            @for (tag of post().tags; track tag) {
+              <app-badge size="sm">{{ tag }}</app-badge>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </a>
+</app-card>

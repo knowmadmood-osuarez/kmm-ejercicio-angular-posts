@@ -1,12 +1,13 @@
 export interface Post {
-  id: number;
-  userId: number;
+  id: string;
+  userId: string;
   title: string;
   body: string;
   tags: string[];
   createdAt: string;
 }
 
+// ...existing code...
 export interface PaginatedPosts {
   data: Post[];
   first: number;

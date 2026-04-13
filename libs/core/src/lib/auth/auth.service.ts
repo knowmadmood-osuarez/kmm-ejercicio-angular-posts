@@ -1,48 +1,70 @@
-import { computed, effect, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, PLATFORM_ID, REQUEST, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { httpResource, HttpResourceRef } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 import { API_URL } from '../http/api.config';
-import { User } from './user.model';
+import { SafeUser, User } from './user.model';
 
-const STORAGE_USER_KEY = 'auth_user';
 const STORAGE_TOKEN_KEY = 'auth_token';
+/** 7 days in seconds — keeps the cookie alive across browser restarts. */
+const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 
 interface LoginCredentials {
   name: string;
   password: string;
 }
 
-export function generateToken(user: User): string {
-  return btoa(`${user.id}:${user.name}:${Date.now()}`);
+interface TokenPayload extends SafeUser {
+  iat: number;
 }
 
-function loadUserFromStorage(isBrowser: boolean): User | null {
-  if (!isBrowser) return null;
+export function generateToken(user: SafeUser): string {
+  const payload: TokenPayload = { ...user, iat: Date.now() };
+  return btoa(JSON.stringify(payload));
+}
+
+function parseToken(token: string): SafeUser | null {
   try {
-    const raw = localStorage.getItem(STORAGE_USER_KEY);
-    return raw ? (JSON.parse(raw) as User) : null;
+    const payload = JSON.parse(atob(token)) as TokenPayload;
+    const { iat: _iat, ...user } = payload;
+    return { ...user, id: String(user.id) };
   } catch {
     return null;
   }
 }
 
-function loadTokenFromStorage(isBrowser: boolean): string | null {
-  if (!isBrowser) return null;
+/** Extracts a named cookie value from a `Cookie` header string. */
+function parseCookie(cookieHeader: string, name: string): string | null {
+  const match = cookieHeader
+    .split(';')
+    .map((c) => c.trim())
+    .find((c) => c.startsWith(`${name}=`));
+  if (!match) return null;
+  return decodeURIComponent(match.substring(name.length + 1));
+}
+
+/** Browser: reads token from localStorage. */
+function loadTokenFromBrowser(): string | null {
   return localStorage.getItem(STORAGE_TOKEN_KEY);
 }
 
-function persistToStorage(user: User, token: string, isBrowser: boolean): void {
-  if (!isBrowser) return;
-  localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(user));
-  localStorage.setItem(STORAGE_TOKEN_KEY, token);
+/** Server: reads token from the incoming HTTP request cookie header. */
+function loadTokenFromRequest(request: Request | null): string | null {
+  if (!request) return null;
+  const cookieHeader = request.headers.get('cookie');
+  if (!cookieHeader) return null;
+  return parseCookie(cookieHeader, STORAGE_TOKEN_KEY);
 }
 
-function clearStorage(isBrowser: boolean): void {
-  if (!isBrowser) return;
-  localStorage.removeItem(STORAGE_USER_KEY);
+function persistToken(token: string): void {
+  localStorage.setItem(STORAGE_TOKEN_KEY, token);
+  document.cookie = `${STORAGE_TOKEN_KEY}=${encodeURIComponent(token)}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
+}
+
+function clearStorage(): void {
   localStorage.removeItem(STORAGE_TOKEN_KEY);
+  document.cookie = `${STORAGE_TOKEN_KEY}=; path=/; max-age=0; SameSite=Lax`;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -50,6 +72,7 @@ export class AuthService {
   private readonly router = inject(Router);
   private readonly apiUrl = inject(API_URL);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly request = inject(REQUEST, { optional: true });
 
   private readonly _loginRequest = signal<LoginCredentials | undefined>(undefined);
 
@@ -62,22 +85,24 @@ export class AuthService {
     };
   });
 
-  private readonly _currentUser = signal<User | null>(loadUserFromStorage(this.isBrowser));
-  private readonly _token = signal<string | null>(loadTokenFromStorage(this.isBrowser));
+  private readonly _token = signal<string | null>(this.loadInitialToken());
 
-  readonly currentUser = this._currentUser.asReadonly();
   readonly token = this._token.asReadonly();
-  readonly isAuthenticated = computed(() => this._currentUser() !== null && this._token() !== null);
+  readonly currentUser = computed<SafeUser | null>(() => {
+    const t = this._token();
+    return t ? parseToken(t) : null;
+  });
+  readonly isAuthenticated = computed(() => this.currentUser() !== null);
 
-  private _loginResolve: ((user: User) => void) | null = null;
+  private _loginResolve: ((user: SafeUser) => void) | null = null;
   private _loginReject: ((error: Error) => void) | null = null;
 
   constructor() {
     effect(() => this.handleLoginResult());
   }
 
-  login(name: string, password: string): Promise<User> {
-    return new Promise<User>((resolve, reject) => {
+  login(name: string, password: string): Promise<SafeUser> {
+    return new Promise<SafeUser>((resolve, reject) => {
       this._loginResolve = resolve;
       this._loginReject = reject;
       this._loginRequest.set({ name, password });
@@ -85,11 +110,15 @@ export class AuthService {
   }
 
   logout(): void {
-    this._currentUser.set(null);
     this._token.set(null);
     this._loginRequest.set(undefined);
-    clearStorage(this.isBrowser);
+    if (this.isBrowser) clearStorage();
     void this.router.navigate(['/login']);
+  }
+
+  private loadInitialToken(): string | null {
+    if (this.isBrowser) return loadTokenFromBrowser();
+    return loadTokenFromRequest(this.request);
   }
 
   private handleLoginResult(): void {
@@ -106,12 +135,12 @@ export class AuthService {
 
     const users = this.loginResource.value();
     if (users && users.length > 0) {
-      const user = users[0];
-      const token = generateToken(user);
-      this._currentUser.set(user);
+      const { password: _pwd, ...rawUser } = users[0];
+      const safeUser: SafeUser = { ...rawUser, id: String(rawUser.id) };
+      const token = generateToken(safeUser);
       this._token.set(token);
-      persistToStorage(user, token, this.isBrowser);
-      this._loginResolve?.(user);
+      if (this.isBrowser) persistToken(token);
+      this._loginResolve?.(safeUser);
     } else if (users && users.length === 0) {
       this._loginReject?.(new Error('Invalid credentials'));
     }

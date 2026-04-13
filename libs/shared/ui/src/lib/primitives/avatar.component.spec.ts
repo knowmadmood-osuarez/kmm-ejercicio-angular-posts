@@ -6,7 +6,8 @@ describe('AvatarComponent', () => {
     const { getByText } = await render(AvatarComponent, {
       inputs: { name: 'alice' },
     });
-    expect(getByText('A')).toBeTruthy();
+    // Single-word names show first two chars uppercased
+    expect(getByText('AL')).toBeTruthy();
   });
 
   it('shows "?" when name is empty', async () => {

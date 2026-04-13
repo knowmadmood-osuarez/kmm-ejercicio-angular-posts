@@ -1,1 +1,1 @@
-export * from './lib/posts-feature-detail/posts-feature-detail';
+export { DETAIL_ROUTES } from './lib/detail.routes';

@@ -22,7 +22,7 @@ import { HeaderComponent } from './header.component';
 
       <main
         id="main-content"
-        class="mx-auto w-full max-w-7xl flex-1 px-4 pb-20 pt-24 sm:px-6"
+        class="mx-auto w-full max-w-7xl flex-1 px-4 pb-20 pt-8 sm:px-6"
         role="main"
       >
         <router-outlet />
