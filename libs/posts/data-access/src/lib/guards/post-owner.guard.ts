@@ -27,7 +27,7 @@ export const postOwnerGuard: CanActivateFn = async (route) => {
   try {
     const post = await firstValueFrom(http.get<Post>(`${apiUrl}/posts/${postId}`));
 
-    if (post.userId === currentUser.id) {
+    if (String(post.userId) === String(currentUser.id)) {
       return true;
     }
 

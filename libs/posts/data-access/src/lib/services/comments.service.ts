@@ -6,15 +6,22 @@ import { firstValueFrom } from 'rxjs';
 import { API_URL } from '@app/core';
 import { Comment, CommentCreate, CommentUpdate } from '../models/comment.model';
 
-const DEFAULT_PER_PAGE = 10;
+/** Pure: sort comments newest-first by createdAt (ISO string comparison). */
+function sortByNewest(comments: Comment[]): Comment[] {
+  return [...comments].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+/** Converts FK fields to numbers so json-server stores them consistently with seed data. */
+function toApiPayload(comment: CommentCreate): Record<string, unknown> {
+  return { ...comment, postId: Number(comment.postId), userId: Number(comment.userId) };
+}
 
 @Injectable({ providedIn: 'root' })
 export class CommentsService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = inject(API_URL);
 
-  private readonly _postId = signal<number | undefined>(undefined);
-  private readonly _page = signal(1);
+  private readonly _postId = signal<string | undefined>(undefined);
 
   readonly commentsResource: HttpResourceRef<Comment[] | undefined> = httpResource<Comment[]>(
     () => {
@@ -22,29 +29,44 @@ export class CommentsService {
       if (!postId) return undefined;
       return {
         url: `${this.apiUrl}/comments`,
-        params: { postId, _page: this._page(), _per_page: DEFAULT_PER_PAGE },
+        params: { postId },
       };
     },
   );
 
-  loadForPost(postId: number): void {
-    this._postId.set(postId);
-    this._page.set(1);
-  }
+  /** Optimistic comments added locally before server confirms. */
+  readonly optimistic = signal<Comment[]>([]);
 
-  loadNextPage(): void {
-    this._page.update((p) => p + 1);
+  loadForPost(postId: string): void {
+    this._postId.set(postId);
+    this.optimistic.set([]);
   }
 
   async createComment(comment: CommentCreate): Promise<Comment> {
-    return firstValueFrom(this.http.post<Comment>(`${this.apiUrl}/comments`, comment));
+    const tempId = `__temp_${Date.now()}`;
+    const optimisticComment: Comment = { ...comment, id: tempId };
+    this.optimistic.update((list) => [optimisticComment, ...list]);
+
+    try {
+      const created = await firstValueFrom(
+        this.http.post<Comment>(`${this.apiUrl}/comments`, toApiPayload(comment)),
+      );
+      this.optimistic.update((list) => list.filter((c) => c.id !== tempId));
+      this.commentsResource.reload();
+      return created;
+    } catch (err) {
+      this.optimistic.update((list) => list.filter((c) => c.id !== tempId));
+      throw err;
+    }
   }
 
-  async updateComment(id: number, changes: CommentUpdate): Promise<Comment> {
+  async updateComment(id: string, changes: CommentUpdate): Promise<Comment> {
     return firstValueFrom(this.http.patch<Comment>(`${this.apiUrl}/comments/${id}`, changes));
   }
 
-  async deleteComment(id: number): Promise<void> {
+  async deleteComment(id: string): Promise<void> {
     await firstValueFrom(this.http.delete<void>(`${this.apiUrl}/comments/${id}`));
   }
 }
+
+export { sortByNewest };

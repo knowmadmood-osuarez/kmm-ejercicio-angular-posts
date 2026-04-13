@@ -59,7 +59,7 @@ export class PostsService {
     return [...new Set(posts.flatMap((p) => p.tags))].sort();
   });
 
-  private readonly _detailId = signal<number | undefined>(undefined);
+  private readonly _detailId = signal<string | undefined>(undefined);
 
   readonly postDetailResource: HttpResourceRef<Post | undefined> = httpResource<Post>(() => {
     const id = this._detailId();
@@ -67,13 +67,13 @@ export class PostsService {
     return `${this.apiUrl}/posts/${id}`;
   });
 
-  loadDetail(id: number): void {
+  loadDetail(id: string): void {
     this._detailId.set(id);
   }
 
-  private readonly _prefetchedIds = new Set<number>();
+  private readonly _prefetchedIds = new Set<string>();
 
-  prefetch(id: number): void {
+  prefetch(id: string): void {
     if (this._prefetchedIds.has(id)) return;
     this._prefetchedIds.add(id);
     firstValueFrom(this.http.get<Post>(`${this.apiUrl}/posts/${id}`)).catch(() => {
@@ -82,14 +82,15 @@ export class PostsService {
   }
 
   async createPost(post: PostCreate): Promise<Post> {
-    return firstValueFrom(this.http.post<Post>(`${this.apiUrl}/posts`, post));
+    const payload = { ...post, userId: Number(post.userId) };
+    return firstValueFrom(this.http.post<Post>(`${this.apiUrl}/posts`, payload));
   }
 
-  async updatePost(id: number, changes: PostUpdate): Promise<Post> {
+  async updatePost(id: string, changes: PostUpdate): Promise<Post> {
     return firstValueFrom(this.http.patch<Post>(`${this.apiUrl}/posts/${id}`, changes));
   }
 
-  async deletePost(id: number): Promise<void> {
+  async deletePost(id: string): Promise<void> {
     await firstValueFrom(this.http.delete<void>(`${this.apiUrl}/posts/${id}`));
   }
 }

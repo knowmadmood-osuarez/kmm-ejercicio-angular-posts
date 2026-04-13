@@ -8,8 +8,8 @@ import { PostsService } from './posts.service';
 import type { PaginatedPosts, Post } from '../models/post.model';
 
 const mockPost: Post = {
-  id: 1,
-  userId: 1,
+  id: '1',
+  userId: '1',
   title: 'Test Post',
   body: 'Test body content',
   tags: ['angular', 'testing'],
@@ -70,14 +70,21 @@ describe('PostsService', () => {
 
   describe('createPost', () => {
     it('sends POST request and returns created post', async () => {
-      // Mutations use HttpClient directly — no tick needed
-      const newPost = { userId: 1, title: 'New', body: 'Body', tags: [], createdAt: '' };
+      const newPost = {
+        userId: '1',
+        title: 'New',
+        body: 'Body',
+        tags: [] as string[],
+        createdAt: '',
+      };
 
+      // Mutations use HttpClient directly — no tick needed
       const promise = service.createPost(newPost);
 
       const req = httpTesting.expectOne('http://localhost:3000/posts');
       expect(req.request.method).toBe('POST');
-      expect(req.request.body).toEqual(newPost);
+      // userId is converted to number for json-server consistency
+      expect(req.request.body).toEqual({ ...newPost, userId: 1 });
       req.flush(mockPost);
 
       expect(await promise).toEqual(mockPost);
@@ -88,7 +95,7 @@ describe('PostsService', () => {
     it('sends PATCH request with changes', async () => {
       const changes = { title: 'Updated Title' };
 
-      const promise = service.updatePost(1, changes);
+      const promise = service.updatePost('1', changes);
 
       const req = httpTesting.expectOne('http://localhost:3000/posts/1');
       expect(req.request.method).toBe('PATCH');
@@ -101,7 +108,7 @@ describe('PostsService', () => {
 
   describe('deletePost', () => {
     it('sends DELETE request', async () => {
-      const promise = service.deletePost(1);
+      const promise = service.deletePost('1');
 
       const req = httpTesting.expectOne('http://localhost:3000/posts/1');
       expect(req.request.method).toBe('DELETE');
@@ -113,7 +120,7 @@ describe('PostsService', () => {
 
   describe('loadDetail', () => {
     it('fires GET /posts/:id when detail ID is set', async () => {
-      service.loadDetail(42);
+      service.loadDetail('42');
       // Signal change → TestBed.tick() triggers the httpResource reactive effect
       TestBed.tick();
       const req = httpTesting.expectOne('http://localhost:3000/posts/42');
@@ -126,16 +133,16 @@ describe('PostsService', () => {
   describe('prefetch', () => {
     it('fires a GET request for a new post ID', () => {
       // prefetch uses HttpClient directly — no tick needed
-      service.prefetch(5);
+      service.prefetch('5');
       const req = httpTesting.expectOne('http://localhost:3000/posts/5');
       expect(req.request.method).toBe('GET');
       req.flush(mockPost);
     });
 
     it('does not fire a second request for an already prefetched ID', () => {
-      service.prefetch(5);
+      service.prefetch('5');
       httpTesting.expectOne('http://localhost:3000/posts/5').flush(mockPost);
-      service.prefetch(5);
+      service.prefetch('5');
       httpTesting.expectNone('http://localhost:3000/posts/5');
     });
   });
