@@ -43,6 +43,7 @@ describe('CommentsService', () => {
         provideHttpClientTesting(),
         { provide: PLATFORM_ID, useValue: 'browser' },
         { provide: API_URL, useValue: 'http://localhost:3000' },
+        CommentsService,
       ],
     });
 

@@ -8,7 +8,7 @@ import { signal } from '@angular/core';
 import type { User } from '@app/core';
 import { AuthFacade, ToastService } from '@app/core';
 import type { Comment } from '@app/posts/data-access';
-import { CommentsService, PostsService } from '@app/posts/data-access';
+import { CommentsService, CommentsFacade, PostsService } from '@app/posts/data-access';
 
 import { PostCommentsComponent } from './post-comments.component';
 
@@ -40,6 +40,8 @@ function setup() {
       provideHttpClientTesting(),
       provideRouter([], withComponentInputBinding()),
       translocoProviders,
+      CommentsService,
+      CommentsFacade,
     ],
   });
 
@@ -207,6 +209,7 @@ describe('PostCommentsComponent', () => {
         provideRouter([], withComponentInputBinding()),
         translocoProviders,
         { provide: CommentsService, useValue: mockCommentsService },
+        CommentsFacade,
       ],
     });
 

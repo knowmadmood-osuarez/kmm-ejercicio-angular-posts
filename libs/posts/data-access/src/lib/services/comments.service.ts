@@ -10,7 +10,7 @@ function sortByNewest(comments: Comment[]): Comment[] {
   return [...comments].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable()
 export class CommentsService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = inject(API_URL);

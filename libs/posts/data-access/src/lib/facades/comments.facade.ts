@@ -4,7 +4,7 @@ import { ToastService } from '@app/core';
 import { CommentsService, sortByNewest } from '../services/comments.service';
 import type { Comment, CommentCreate, CommentUpdate } from '../models/comment.model';
 
-@Injectable({ providedIn: 'root' })
+@Injectable()
 export class CommentsFacade {
   private readonly commentsService = inject(CommentsService);
   private readonly toast = inject(ToastService);
