@@ -15,7 +15,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { EmptyStateComponent, ErrorStateComponent, LoadingComponent } from '@app/shared/ui';
-import { type PostFilters, PostsService } from '@app/posts/data-access';
+import { type PostFilters, PostDetailService, PostsService } from '@app/posts/data-access';
 import { AuthService } from '@app/core';
 
 import { PostFiltersComponent } from './post-filters.component';
@@ -43,6 +43,7 @@ export class PostListPageComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly authService = inject(AuthService);
   protected readonly postsService = inject(PostsService);
+  private readonly postDetailService = inject(PostDetailService);
 
   private readonly queryParams = toSignal(this.route.queryParamMap);
 
@@ -122,6 +123,6 @@ export class PostListPageComponent {
   }
 
   onPostHovered(id: string): void {
-    this.postsService.prefetch(id);
+    this.postDetailService.prefetch(id);
   }
 }

@@ -19,7 +19,7 @@ import {
   LoadingComponent,
 } from '@app/shared/ui';
 import { AuthService, ToastService } from '@app/core';
-import { PostsService } from '@app/posts/data-access';
+import { PostDetailService, PostsService } from '@app/posts/data-access';
 
 import { PostDetailComponent } from './post-detail.component';
 import { PostCommentsComponent } from './post-comments.component';
@@ -47,6 +47,7 @@ export class PostDetailPageComponent {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly postsService = inject(PostsService);
+  private readonly postDetailService = inject(PostDetailService);
   private readonly transloco = inject(TranslocoService);
   private readonly toast = inject(ToastService);
 
@@ -55,9 +56,9 @@ export class PostDetailPageComponent {
     return raw || null;
   });
 
-  readonly isLoading = computed(() => this.postsService.postDetailResource.isLoading());
-  readonly error = computed(() => this.postsService.postDetailResource.error());
-  readonly post = computed(() => this.postsService.postDetailResource.value());
+  readonly isLoading = computed(() => this.postDetailService.postDetailResource.isLoading());
+  readonly error = computed(() => this.postDetailService.postDetailResource.error());
+  readonly post = computed(() => this.postDetailService.postDetailResource.value());
 
   readonly currentUser = this.authService.currentUser;
   readonly users = computed(() => this.postsService.users());
@@ -85,7 +86,7 @@ export class PostDetailPageComponent {
   constructor() {
     effect(() => {
       const id = this.postId();
-      if (id) this.postsService.loadDetail(id);
+      if (id) this.postDetailService.loadDetail(id);
     });
   }
 
@@ -107,7 +108,7 @@ export class PostDetailPageComponent {
     if (!id) return;
     this.isDeleting.set(true);
     try {
-      await this.postsService.deletePost(id);
+      await this.postDetailService.deletePost(id);
       this.toast.success('toast.postDeleted');
       void this.router.navigate(['/posts']);
     } finally {
@@ -117,7 +118,7 @@ export class PostDetailPageComponent {
   }
 
   onRetry(): void {
-    this.postsService.postDetailResource.reload();
+    this.postDetailService.postDetailResource.reload();
   }
 
   onBack(): void {

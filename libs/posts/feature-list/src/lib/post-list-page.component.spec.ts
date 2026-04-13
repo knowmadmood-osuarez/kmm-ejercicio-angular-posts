@@ -4,7 +4,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter, Router, withComponentInputBinding } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
 
-import { PostsService } from '@app/posts/data-access';
+import { PostDetailService, PostsService } from '@app/posts/data-access';
 
 import { PostListPageComponent } from './post-list-page.component';
 
@@ -34,6 +34,7 @@ function setup() {
     fixture,
     component: fixture.componentInstance,
     postsService: TestBed.inject(PostsService),
+    postDetailService: TestBed.inject(PostDetailService),
     router: TestBed.inject(Router),
   };
 }
@@ -75,9 +76,9 @@ describe('PostListPageComponent', () => {
     expect(spy).toHaveBeenCalled();
   });
 
-  it('onPostHovered calls postsService.prefetch', () => {
-    const { component, postsService } = setup();
-    const spy = vi.spyOn(postsService, 'prefetch');
+  it('onPostHovered calls postDetailService.prefetch', () => {
+    const { component, postDetailService } = setup();
+    const spy = vi.spyOn(postDetailService, 'prefetch');
     component.onPostHovered('42');
     expect(spy).toHaveBeenCalledWith('42');
   });

@@ -5,7 +5,7 @@ import { provideRouter, Router, withComponentInputBinding } from '@angular/route
 import { provideTransloco } from '@jsverse/transloco';
 
 import { ToastService } from '@app/core';
-import { PostsService } from '@app/posts/data-access';
+import { PostDetailService, PostsService } from '@app/posts/data-access';
 
 import { PostDetailPageComponent } from './post-detail-page.component';
 
@@ -46,6 +46,7 @@ function setup(postId = '1') {
     fixture,
     component: fixture.componentInstance,
     postsService: TestBed.inject(PostsService),
+    postDetailService: TestBed.inject(PostDetailService),
     router: TestBed.inject(Router),
   };
 }
@@ -95,14 +96,14 @@ describe('PostDetailPageComponent', () => {
   });
 
   it('should call deletePost and navigate to /posts on confirm', async () => {
-    const { component, postsService, router } = setup('1');
-    vi.spyOn(postsService, 'deletePost').mockResolvedValue();
+    const { component, postDetailService, router } = setup('1');
+    vi.spyOn(postDetailService, 'deletePost').mockResolvedValue();
     const spy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
     component.onDeleteRequest();
     await component.onDeleteConfirmed();
 
-    expect(postsService.deletePost).toHaveBeenCalledWith('1');
+    expect(postDetailService.deletePost).toHaveBeenCalledWith('1');
     expect(spy).toHaveBeenCalledWith(['/posts']);
     expect(component.showDeleteDialog()).toBe(false);
   });
@@ -121,7 +122,7 @@ describe('PostDetailPageComponent', () => {
       ],
     });
 
-    const postsService = TestBed.inject(PostsService);
+    const postsService = TestBed.inject(PostDetailService);
     const spy = vi.spyOn(postsService, 'loadDetail');
 
     const fixture = TestBed.createComponent(PostDetailPageComponent);
@@ -133,17 +134,17 @@ describe('PostDetailPageComponent', () => {
   });
 
   it('should reload resource on retry', () => {
-    const { component, postsService } = setup();
-    const spy = vi.spyOn(postsService.postDetailResource, 'reload');
+    const { component, postDetailService } = setup();
+    const spy = vi.spyOn(postDetailService.postDetailResource, 'reload');
     component.onRetry();
     expect(spy).toHaveBeenCalled();
   });
 
   it('isOwner should be true when post.userId equals currentUser.id', () => {
-    const { component, postsService, fixture } = setup('1');
+    const { component, postDetailService, fixture } = setup('1');
 
     // Simulate post loaded with userId matching currentUser
-    vi.spyOn(postsService.postDetailResource, 'value').mockReturnValue(MOCK_POST);
+    vi.spyOn(postDetailService.postDetailResource, 'value').mockReturnValue(MOCK_POST);
     fixture.detectChanges();
 
     // isOwner depends on currentUser which is null in test (no auth),
@@ -160,8 +161,8 @@ describe('PostDetailPageComponent', () => {
   });
 
   it('onDeleteConfirmed does nothing when postId is falsy', async () => {
-    const { component, postsService } = setup('');
-    const spy = vi.spyOn(postsService, 'deletePost').mockResolvedValue();
+    const { component, postDetailService } = setup('');
+    const spy = vi.spyOn(postDetailService, 'deletePost').mockResolvedValue();
     await component.onDeleteConfirmed();
     expect(spy).not.toHaveBeenCalled();
     expect(component.isDeleting()).toBe(false);
@@ -180,9 +181,9 @@ describe('PostDetailPageComponent', () => {
   });
 
   it('onDeleteConfirmed shows toast and navigates on success', async () => {
-    const { component, postsService, router } = setup('1');
+    const { component, postDetailService, router } = setup('1');
     const toast = TestBed.inject(ToastService);
-    vi.spyOn(postsService, 'deletePost').mockResolvedValue();
+    vi.spyOn(postDetailService, 'deletePost').mockResolvedValue();
     const navSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
     const toastSpy = vi.spyOn(toast, 'success');
 
