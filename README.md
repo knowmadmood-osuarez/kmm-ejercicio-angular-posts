@@ -108,6 +108,8 @@ pnpm nx reset api
 | `/posts/:id`      | Protegida                 | Detalle + comentarios  |
 | `/posts/:id/edit` | Protegida + `postOwnerGuard` | Editar post propio  |
 
+> 📐 Para el detalle completo de la arquitectura, estructura de libs, grafo de dependencias y reglas de boundaries, consulta [`ARCHITECTURE.md`](./ARCHITECTURE.md).
+
 ---
 
 ## Decisiones técnicas y tradeoffs
