@@ -45,6 +45,22 @@ describe('InputComponent', () => {
     expect(input.className).toContain('bg-input-bg');
   });
 
+  it('applies icon padding for editor variant', async () => {
+    const { container } = await render(InputComponent, {
+      inputs: { icon: true },
+    });
+    const input = container.querySelector('input')!;
+    expect(input.className).toContain('pl-12');
+  });
+
+  it('applies icon padding for login variant', async () => {
+    const { container } = await render(InputComponent, {
+      inputs: { variant: 'login', icon: true },
+    });
+    const input = container.querySelector('input')!;
+    expect(input.className).toContain('pl-12');
+  });
+
   it('emits valueChange on input', async () => {
     const valueChangeSpy = vi.fn();
     const { container } = await render(InputComponent, {

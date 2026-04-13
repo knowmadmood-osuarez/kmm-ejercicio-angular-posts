@@ -133,6 +133,14 @@ describe('ConfirmDialogComponent', () => {
     expect(document.activeElement).toBe(cancelBtn);
   });
 
+  it('does not expose native title attribute on host', async () => {
+    const { fixture } = await render(ConfirmDialogComponent, {
+      inputs: { open: true, title: 'shared.confirmTitle', message: 'shared.msg' },
+      providers: [translocoProviders],
+    });
+    expect(fixture.nativeElement.getAttribute('title')).toBeNull();
+  });
+
   it('emits cancelled on Escape key', async () => {
     const cancelledSpy = vi.fn();
     const { container } = await render(ConfirmDialogComponent, {

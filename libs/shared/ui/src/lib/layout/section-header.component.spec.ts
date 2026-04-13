@@ -42,6 +42,14 @@ describe('SectionHeaderComponent', () => {
     expect(wrapper.classList.contains('border-t')).toBe(false);
   });
 
+  it('does not expose native title attribute on host', async () => {
+    const { fixture } = await render(SectionHeaderComponent, {
+      inputs: { title: 'posts.comments' },
+      providers: [translocoProviders],
+    });
+    expect(fixture.nativeElement.getAttribute('title')).toBeNull();
+  });
+
   it('shows divider when enabled', async () => {
     const { container } = await render(SectionHeaderComponent, {
       inputs: { title: 'posts.comments', divider: true },
