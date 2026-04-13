@@ -48,7 +48,8 @@
       "allAuthors": "Todos los autores",
       "allTags": "Todas las etiquetas",
       "showing": "Mostrando {{count}} de {{total}} resultados",
-      "noMore": "Has visto todos los posts"
+      "noMore": "Has visto todos los posts",
+      "toggleFilters": "Filtros"
     },
     "detail": {
       "title": "Detalle del post",
@@ -84,6 +85,14 @@
     "update": "Actualizar comentario",
     "bodyRequired": "El comentario es obligatorio",
     "bodyMinLength": "El comentario debe tener al menos 3 caracteres"
+  },
+  "toast": {
+    "postCreated": "Post creado exitosamente",
+    "postUpdated": "Post actualizado exitosamente",
+    "postDeleted": "Post eliminado exitosamente",
+    "commentCreated": "Comentario publicado",
+    "commentUpdated": "Comentario actualizado",
+    "commentDeleted": "Comentario eliminado"
   },
   "pagination": {
     "previous": "Anterior",
