@@ -1,136 +1,171 @@
-# Proyecto: Angular moderno con backend mock
+# Angular Posts App
 
-## Objetivo
+SPA para gestión de posts y comentarios construida con **Angular 21**, **Nx monorepo**, **TailwindCSS 4** y **json-server** como backend mock.
 
-Construye una SPA con Angular moderno para gestionar `posts` y `comments` sobre un backend mock basado en `json-server`.
+## Requisitos previos
 
-La idea es practicar Angular actual con algo pequeño pero completo. Importa más una solución bien pensada y mantenible que una lista larga de features.
+| Herramienta | Versión         |
+|-------------|-----------------|
+| **Node.js** | `>= 24.14.1`   |
+| **pnpm**    | `>= 10.0.0`    |
 
-Se proporciona un diseño en Figma como inspiración de lo que buscamos lograr con esta práctica:
+## Instalación
 
-- https://www.figma.com/design/7en10Y86YbN3QYZMmBy0AQ
+```bash
+pnpm install
+```
 
-## Backend mock
+## Scripts operativos
 
-Usa `json-server` como base del backend, partiendo del archivo [`db.json`](./db.json).
+### Desarrollo
 
-- Repositorio oficial: https://github.com/typicode/json-server
-- Documentación de uso: https://github.com/typicode/json-server#readme
-- Ejemplo de arranque: `npx json-server db.json`
-- Relación de datos:
-  - `users`
-  - `posts` con `userId`
-  - `comments` con `postId` y `userId`
+```bash
+# App + API simultáneamente (recomendado)
+pnpm dev
 
-El login debe resolverse buscando coincidencia entre `name` y `password` dentro de `users`. Si el login es correcto, genera o simula un token estático y úsalo en las llamadas autenticadas mediante `Http Interceptor`.
+# Solo la app Angular (puerto 4200)
+pnpm start
 
-Credenciales mock disponibles:
+# Solo la API json-server (puerto 3000)
+pnpm start:api
 
-- `alice` / `alice123`
-- `bruno` / `bruno123`
-- `carla` / `carla123`
+# SSR: compilar producción + servir con Express
+pnpm start:ssr
+```
 
-## Requisitos funcionales
+### Lint & Formato
 
-- Pantalla de `login`.
-- Protección de rutas con `guards` y redirección a `login` si no hay sesión.
-- Persistencia de sesión tras recarga y acción de `logout`.
-- CRUD completo de `posts`.
-- CRUD completo de `comments` dentro del detalle de cada post.
-- Listado de posts con:
-  - paginación
-  - búsqueda por texto sobre título y contenido
-  - filtro por autor
-  - filtro por etiqueta
-- Detalle de post con autor y comentarios.
-- Solo se puede editar o borrar contenido propio:
-  - no deben mostrarse acciones de edición/borrado sobre recursos ajenos en la UI normal
-  - si se fuerza navegación manual a una ruta no autorizada, debe resolverse con protección y estado o flujo adecuado
-- Internacionalización obligatoria en `es` y `en`.
-- La aplicación debe ser responsive.
-- La implementación visual debe tomar el diseño proporcionado como inspiración.
-- Manejo consistente y explícito de estados `loading`, `empty`, `error` y `forbidden` en las vistas principales.
+```bash
+# ESLint en todas las libs y apps
+pnpm lint
 
-Flujo mínimo esperado:
+# Prettier — verificar formato
+pnpm format:check
 
-- `/login`
-- `/posts`
-- `/posts/new`
-- `/posts/:id`
-- `/posts/:id/edit`
+# Prettier — corregir formato
+pnpm format
+```
 
-## Requisitos técnicos
+### Testing
 
-- Usar la versión estable más reciente de Angular disponible al comenzar el proyecto.
-- La idea es practicar Angular moderno de verdad, aunque eso implique usar APIs oficiales que todavía estén en estado experimental.
-- Obligatorio:
-  - `standalone`
-  - `signals`
-  - `Signal Forms` en todos los formularios
-  - `httpResource`
-  - `zoneless`
-  - `lazy loading` de rutas
-  - `@defer` para comentarios
-  - `ngx-translate` o `Transloco` para i18n runtime
-  - `TailwindCSS` para maquetación
-  - enfoque `mobile first`
-  - `Screaming Architecture`: estructura guiada por dominio o feature, no por carpetas técnicas globales
-  - separación clara entre componentes contenedores y presentacionales
-  - librería de componentes libre de uso o componentes propios
-- Calidad:
-  - `ESLint`
-  - `Prettier`
-  - `Husky`
-  - `lint-staged`
-  - convención de commits consistente, preferiblemente `Conventional Commits`
-  - flujo de trabajo de ramas razonado, ya sea `git flow` o una alternativa equivalente
-- Testing:
-  - `Vitest`
-  - `Testing Library`
-  - `Playwright` para al menos un flujo crítico end-to-end
+```bash
+# Ejecutar todos los tests unitarios (Vitest)
+pnpm test
 
-## Criterios de aceptación
+# Tests en modo watch
+pnpm test:watch
 
-- La aplicación arranca con el backend mock basado en `db.json`.
-- El login valida contra `users` y deja sesión persistida.
-- Las llamadas protegidas usan interceptor con token.
-- Las rutas privadas no son accesibles sin sesión.
-- El listado permite paginar y filtrar por texto, autor y etiqueta.
-- El detalle carga comentarios de forma lazy y no los solicita antes de que sean necesarios.
-- No pueden editarse ni borrarse recursos ajenos desde la UI ni forzando rutas de edición.
-- La aplicación permite cambiar entre `es` y `en` en runtime.
-- La aplicación funciona correctamente en móvil y escritorio.
-- La implementación mantiene una dirección visual alineada con el diseño compartido.
-- La UI contempla estados `loading`, `empty`, `error` y `forbidden`.
-- Existe cobertura automatizada sobre autenticación, guards, listado, detalle diferido, ownership y al menos un flujo CRUD.
+# Tests con cobertura (libs)
+pnpm test:libs:coverage
 
-## Entregable
+# Cobertura completa (app + libs)
+pnpm test:coverage
+```
 
-Entrega un repositorio git con:
+### E2E
 
-- código fuente
-- `db.json`
-- `README.md` breve con instrucciones de ejecución
-- scripts operativos para desarrollo, lint, test y e2e
+```bash
+# Instalar browsers de Playwright (solo la primera vez)
+npx playwright install chromium
 
-Incluye en el README final del proyecto una nota corta con decisiones técnicas o tradeoffs relevantes.
+# Playwright (levanta app + api automáticamente)
+pnpm e2e
+```
+
+### Build
+
+```bash
+# Build de desarrollo
+pnpm build
+
+# Build de producción
+pnpm build:prod
+```
+
+### Utilidades
+
+```bash
+# Resetear db.json a su estado inicial
+pnpm nx reset api
+```
+
+## Credenciales mock
+
+| Usuario | Contraseña |
+|---------|------------|
+| alice   | alice123   |
+| bruno   | bruno123   |
+| carla   | carla123   |
+| diego   | diego123   |
+
+## Rutas de la app
+
+| Ruta              | Acceso                    | Descripción            |
+|-------------------|---------------------------|------------------------|
+| `/login`          | Público                   | Pantalla de login      |
+| `/posts`          | Protegida (`authGuard`)   | Listado de posts       |
+| `/posts/new`      | Protegida                 | Crear nuevo post       |
+| `/posts/:id`      | Protegida                 | Detalle + comentarios  |
+| `/posts/:id/edit` | Protegida + `postOwnerGuard` | Editar post propio  |
+
+---
+
+## Decisiones técnicas y tradeoffs
+
+### Arquitectura
+
+- **Nx monorepo integrado** con 7 libs organizadas por dominio y tipo (Screaming Architecture). Las module boundaries se aplican con `@nx/enforce-module-boundaries` en ESLint: un feature nunca importa otro feature.
+- **Container vs Presentacional**: los componentes page (container) inyectan facades y gestionan estado UI local con signals; los presentacionales solo reciben `input()` y emiten `output()`.
+- **Facade layer**: capa intermedia entre componentes y servicios de datos (`AuthFacade`, `PostsFacade`, `CommentsFacade`). Centraliza la orquestación de dominio (mutación → invalidación de cache → notificación toast) y expone señales readonly. Los componentes nunca inyectan servicios de datos directamente.
+
+### Angular 21 moderno
+
+- **Zoneless** (`provideZonelessChangeDetection`): sin `zone.js`, change detection basado 100% en signals.
+- **Signals everywhere**: `signal()`, `computed()`, `effect()`, `linkedSignal()` para todo el estado reactivo. RxJS minimizado solo a `firstValueFrom()` para mutaciones HTTP.
+- **`httpResource`** para todas las peticiones GET declarativas. `HttpClient` clásico solo para POST/PUT/DELETE.
+- **Signal Forms** en todos los formularios (login, crear/editar post, comentarios).
+- **`@defer`** para carga lazy de comentarios en el detalle de un post (trigger `on viewport`).
+- **Template syntax moderno**: `@if`, `@for`, `@switch` — sin directivas legacy (`*ngIf`, `*ngFor`).
+
+### State management
+
+- **`linkedSignal()`** en `PostsFacade` para sincronizar query params de la URL con los filtros del listado, manteniendo URLs compartibles y navegación back/forward consistente.
+- **Optimistic updates** en comentarios: la UI refleja el cambio antes de la confirmación del servidor, con rollback automático si falla.
+- **Scoped providers**: `CommentsService` y `CommentsFacade` están escopados a la ruta de detalle (`/posts/:id`) en vez de ser singletons root. Se destruyen al salir de la ruta, evitando estado stale en memoria.
+
+### UX
+
+- **Mobile first** con TailwindCSS 4: 1 columna (mobile) → 2 columnas (tablet) → 3 columnas (desktop).
+- **i18n runtime** con Transloco (español/inglés), cambio en caliente sin recargar.
+- **4 estados de vista** gestionados explícitamente en cada página: loading (skeletons), empty, error (con retry), forbidden.
+- **Prefetch al hover** en tarjetas de post: se precarga el detalle para reducir latencia al navegar.
+- **View transitions** habilitadas para transiciones de ruta animadas.
+
+### Testing
+
+- **Vitest + Testing Library** para unit e integration tests en todas las libs.
+- **Playwright** para E2E del flujo crítico (login → navegación → CRUD).
+- Cada lib tiene su propio `vite.config.mts` y `tsconfig.spec.json` para ejecución aislada (`nx test <lib>`).
+
+### Tradeoffs asumidos
+
+| Decisión | Tradeoff |
+|----------|----------|
+| `httpResource` (experimental) | API puede cambiar en futuras versiones de Angular, pero es la dirección oficial y se integra nativamente con signals |
+| Signal Forms (experimental) | Misma situación que `httpResource`; se priorizó alineamiento con el futuro del framework |
+| `json-server` como backend | Limitaciones en filtros complejos (tags) requirieron filtrado client-side para búsqueda por texto y tags |
+| Login mock con `GET /users?name&password` | Inseguro en producción, pero adecuado para el scope mock del ejercicio |
+| Singletons root para `PostsFacade`/`PostsService` | El listado de posts comparte estado entre 3 features; escoparlo rompería la navegación back/forward. `CommentsService` sí se escopó a la ruta porque solo lo usa `feature-detail` |
+
+---
 
 ## Uso de IA
 
-Se permite usar herramientas de IA durante el desarrollo. Se valorará que se usen bien: para acelerar trabajo mecánico, contrastar alternativas, mejorar testing o arquitectura y, sobre todo, para hacer buen `harness engineering`, es decir, dar a la IA contexto útil, documentación oficial, docs del proyecto, skills, subagentes o criterios de aceptación claros cuando de verdad ayuden.
+Se utilizó **GitHub Copilot** (chat + agent mode) como herramienta de asistencia durante el desarrollo:
 
-Si has usado IA, deja una nota breve indicando qué herramientas usaste, para qué las usaste y qué decisiones revisaste o corregiste manualmente.
+- **Generación mecánica**: scaffolding de tests unitarios, specs repetitivos, boilerplate de componentes presentacionales.
+- **Revisión de testing**: generación de mocks y validación de que los providers estuvieran correctamente configurados en `TestBed` tras los cambios de scoping.
+- **Documentación**: generación de este README a partir del contexto del proyecto (`ARCHITECTURE.md`, `AGENTS.md`, `package.json`, rutas, configuración).
 
-## Valorable
+Todas las decisiones arquitectónicas fueron revisadas y validadas manualmente antes de aplicarse.
 
-- `router state` con `query params` para filtros y paginación
-- prefetch de datos al pasar por encima de un post
-- cache con hidratación
-- optimistic updates
-- virtual scrolling o paginación infinita donde tenga sentido
-  - sugerencia: comentarios con scroll infinito en lugar de paginación
-- state management avanzado
-- `Nx` o monorepo
-- SSR
-- accesibilidad
-- animaciones
