@@ -16,7 +16,7 @@ function filtersEqual(a: PostFilters, b: PostFilters): boolean {
   return a.q === b.q && a.author === b.author && a.tag === b.tag;
 }
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 12;
 
 @Injectable({ providedIn: 'root' })
 export class PostsService {
