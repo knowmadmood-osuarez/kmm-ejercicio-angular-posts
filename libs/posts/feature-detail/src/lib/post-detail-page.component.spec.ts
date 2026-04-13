@@ -4,6 +4,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter, Router, withComponentInputBinding } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
 
+import { ToastService } from '@app/core';
 import { PostsService } from '@app/posts/data-access';
 
 import { PostDetailPageComponent } from './post-detail-page.component';
@@ -149,5 +150,48 @@ describe('PostDetailPageComponent', () => {
     // so just verify it's a reactive computed signal
     expect(typeof component.isOwner).toBe('function');
     expect(typeof component.isOwner()).toBe('boolean');
+  });
+
+  it('onEdit does nothing when postId is falsy', () => {
+    const { component, router } = setup('');
+    const spy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+    component.onEdit();
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  it('onDeleteConfirmed does nothing when postId is falsy', async () => {
+    const { component, postsService } = setup('');
+    const spy = vi.spyOn(postsService, 'deletePost').mockResolvedValue();
+    await component.onDeleteConfirmed();
+    expect(spy).not.toHaveBeenCalled();
+    expect(component.isDeleting()).toBe(false);
+  });
+
+  it('isOwner is false when no currentUser is authenticated', () => {
+    const { component } = setup('1');
+    // No authenticated user in test → isOwner must be false
+    expect(component.isOwner()).toBe(false);
+  });
+
+  it('author returns undefined when post has not loaded', () => {
+    const { component } = setup('1');
+    // postDetailResource hasn't loaded in unit test → author is undefined
+    expect(component.author()).toBeUndefined();
+  });
+
+  it('onDeleteConfirmed shows toast and navigates on success', async () => {
+    const { component, postsService, router } = setup('1');
+    const toast = TestBed.inject(ToastService);
+    vi.spyOn(postsService, 'deletePost').mockResolvedValue();
+    const navSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+    const toastSpy = vi.spyOn(toast, 'success');
+
+    component.onDeleteRequest();
+    await component.onDeleteConfirmed();
+
+    expect(toastSpy).toHaveBeenCalledWith('toast.postDeleted');
+    expect(navSpy).toHaveBeenCalledWith(['/posts']);
+    expect(component.isDeleting()).toBe(false);
+    expect(component.showDeleteDialog()).toBe(false);
   });
 });

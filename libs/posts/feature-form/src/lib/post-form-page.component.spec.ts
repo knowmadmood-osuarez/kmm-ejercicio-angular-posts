@@ -3,10 +3,13 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter, Router, withComponentInputBinding } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
+import { signal } from '@angular/core';
 
+import { AuthService, ToastService } from '@app/core';
 import { PostsService } from '@app/posts/data-access';
 
 import { PostFormPageComponent } from './post-form-page.component';
+import type { PostFormData } from './post-form.component';
 
 const MOCK_POST = {
   id: '1',
@@ -16,6 +19,8 @@ const MOCK_POST = {
   tags: ['angular', 'testing'],
   createdAt: new Date().toISOString(),
 };
+
+const MOCK_USER = { id: '1', name: 'alice', email: 'a@b.com', avatar: '' };
 
 const translocoProviders = provideTransloco({
   config: { availableLangs: ['es', 'en'], defaultLang: 'es', prodMode: true },
@@ -47,7 +52,9 @@ function setup(postId?: string) {
     fixture,
     component: fixture.componentInstance,
     postsService: TestBed.inject(PostsService),
+    authService: TestBed.inject(AuthService),
     router: TestBed.inject(Router),
+    toast: TestBed.inject(ToastService),
   };
 }
 
@@ -113,5 +120,61 @@ describe('PostFormPageComponent', () => {
     const spy = vi.spyOn(postsService.postDetailResource, 'reload');
     component.onRetry();
     expect(spy).toHaveBeenCalled();
+  });
+
+  it('onSubmit does nothing if no currentUser', async () => {
+    const { component, postsService } = setup();
+    const spy = vi.spyOn(postsService, 'createPost');
+    await component.onSubmit({ title: 'T', body: 'B', tags: [] });
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  it('onSubmit in new mode calls createPost', async () => {
+    const { component, postsService, authService, router, toast } = setup();
+    Object.defineProperty(authService, 'currentUser', { value: signal(MOCK_USER) });
+    vi.spyOn(postsService, 'createPost').mockResolvedValue(MOCK_POST as never);
+    vi.spyOn(postsService, 'reload');
+    vi.spyOn(router, 'navigate').mockResolvedValue(true);
+    const toastSpy = vi.spyOn(toast, 'success');
+
+    const data: PostFormData = { title: 'New', body: 'Body', tags: ['a'] };
+    await component.onSubmit(data);
+
+    expect(postsService.createPost).toHaveBeenCalled();
+    expect(toastSpy).toHaveBeenCalledWith('toast.postCreated');
+    expect(router.navigate).toHaveBeenCalledWith(['/posts']);
+    expect(component.isSaving()).toBe(false);
+  });
+
+  it('onSubmit in edit mode calls updatePost', async () => {
+    const { component, postsService, authService, router, toast } = setup('1');
+    Object.defineProperty(authService, 'currentUser', { value: signal(MOCK_USER) });
+    vi.spyOn(postsService, 'updatePost').mockResolvedValue(MOCK_POST as never);
+    vi.spyOn(postsService, 'reload');
+    vi.spyOn(router, 'navigate').mockResolvedValue(true);
+    const toastSpy = vi.spyOn(toast, 'success');
+
+    const data: PostFormData = { title: 'Updated', body: 'Body', tags: [] };
+    await component.onSubmit(data);
+
+    expect(postsService.updatePost).toHaveBeenCalledWith('1', {
+      title: 'Updated',
+      body: 'Body',
+      tags: [],
+    });
+    expect(toastSpy).toHaveBeenCalledWith('toast.postUpdated');
+  });
+
+  it('onSubmit sets saveError on failure', async () => {
+    const { component, postsService, authService, toast } = setup();
+    Object.defineProperty(authService, 'currentUser', { value: signal(MOCK_USER) });
+    vi.spyOn(postsService, 'createPost').mockRejectedValue(new Error('fail'));
+    const errorSpy = vi.spyOn(toast, 'error');
+
+    await component.onSubmit({ title: 'T', body: 'B', tags: [] });
+
+    expect(component.saveError()).toBe('shared.error');
+    expect(errorSpy).toHaveBeenCalledWith('shared.error');
+    expect(component.isSaving()).toBe(false);
   });
 });

@@ -165,4 +165,24 @@ describe('AuthService', () => {
     expect(service.currentUser()).toEqual(mockSafeUser);
     expect(service.isAuthenticated()).toBe(true);
   });
+
+  it('returns null user when token in localStorage is invalid base64', () => {
+    localStorage.setItem('auth_token', '%%%invalid%%%');
+    const { service } = setup();
+    expect(service.currentUser()).toBeNull();
+  });
+
+  it('returns null on server when request has no cookie header', () => {
+    const request = new Request('http://localhost:4000/posts');
+    const { service } = setup('server', request);
+    expect(service.currentUser()).toBeNull();
+  });
+
+  it('returns null on server when cookie header has no auth_token', () => {
+    const request = new Request('http://localhost:4000/posts', {
+      headers: { cookie: 'other_cookie=value' },
+    });
+    const { service } = setup('server', request);
+    expect(service.currentUser()).toBeNull();
+  });
 });

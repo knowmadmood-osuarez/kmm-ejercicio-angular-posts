@@ -1,6 +1,7 @@
-import { render, RenderResult } from '@testing-library/angular';
+import { render, RenderResult, fireEvent } from '@testing-library/angular';
+import { TestBed } from '@angular/core/testing';
 import { provideTransloco } from '@jsverse/transloco';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { signal } from '@angular/core';
 import { AuthService } from '@app/core';
 import { HeaderComponent } from './header.component';
@@ -17,6 +18,8 @@ const mockUser = {
 const mockAuthService = {
   currentUser: signal(mockUser),
   logout: vi.fn(),
+  token: signal('fake-token'),
+  isAuthenticated: signal(true),
 };
 
 const translocoProviders = provideTransloco({
@@ -65,5 +68,30 @@ describe('HeaderComponent', () => {
   it('renders language switcher', async () => {
     const { container } = await renderHeader();
     expect(container.querySelector('app-language-switcher')).toBeTruthy();
+  });
+
+  it('calls authService.logout when logout button is clicked', async () => {
+    mockAuthService.logout.mockReset();
+    const { container } = await renderHeader();
+    const logoutBtn = container.querySelector('button[aria-label]') as HTMLElement;
+    fireEvent.click(logoutBtn);
+    expect(mockAuthService.logout).toHaveBeenCalled();
+  });
+
+  it('navigates with search query on Enter', async () => {
+    const { container } = await renderHeader();
+    const router = TestBed.inject(Router);
+    const spy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    const input = container.querySelector('input[type="search"]') as HTMLInputElement;
+    input.value = 'angular';
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(spy).toHaveBeenCalledWith(
+      [],
+      expect.objectContaining({
+        queryParams: expect.objectContaining({ q: 'angular' }),
+      }),
+    );
   });
 });

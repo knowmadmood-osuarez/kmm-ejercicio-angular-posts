@@ -4,7 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { API_URL } from '@app/core';
-import { CommentsService } from './comments.service';
+import { CommentsService, sortByNewest } from './comments.service';
 import type { Comment } from '../models/comment.model';
 
 const mockComment: Comment = {
@@ -14,6 +14,22 @@ const mockComment: Comment = {
   body: 'Great post!',
   createdAt: '2024-01-01T00:00:00.000Z',
 };
+
+describe('sortByNewest', () => {
+  it('sorts comments newest-first by createdAt', () => {
+    const older: Comment = { ...mockComment, id: '1', createdAt: '2024-01-01T00:00:00.000Z' };
+    const newer: Comment = { ...mockComment, id: '2', createdAt: '2024-06-01T00:00:00.000Z' };
+    const result = sortByNewest([older, newer]);
+    expect(result[0].id).toBe('2');
+    expect(result[1].id).toBe('1');
+  });
+
+  it('returns a new array without mutating the original', () => {
+    const comments = [mockComment];
+    const result = sortByNewest(comments);
+    expect(result).not.toBe(comments);
+  });
+});
 
 describe('CommentsService', () => {
   let service: CommentsService;

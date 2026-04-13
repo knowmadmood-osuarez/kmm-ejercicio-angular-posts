@@ -122,4 +122,26 @@ describe('authInterceptor', () => {
 
     expect(localStorage.getItem(STORAGE_TOKEN_KEY)).toBeNull();
   });
+
+  it('skips Authorization header for asset requests', () => {
+    const { http, httpTesting } = setup({ authenticated: true });
+
+    http.get('http://localhost:3000/assets/i18n/en.json').subscribe();
+
+    const req = httpTesting.expectOne('http://localhost:3000/assets/i18n/en.json');
+    expect(req.request.headers.has('Authorization')).toBe(false);
+    req.flush({});
+  });
+
+  it('does not logout on non-401 server error', () => {
+    const { http, httpTesting } = setup({ authenticated: true });
+
+    http.get('http://localhost:3000/posts').subscribe({ error: () => undefined });
+
+    const req = httpTesting.expectOne('http://localhost:3000/posts');
+    req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
+
+    // Token should still be present (not logged out)
+    expect(localStorage.getItem(STORAGE_TOKEN_KEY)).toBeTruthy();
+  });
 });

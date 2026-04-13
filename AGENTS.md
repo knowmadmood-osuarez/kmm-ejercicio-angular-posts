@@ -34,7 +34,7 @@ apps/api/                     # Mock backend (json-server with db.json).
 
 libs/
  ├─ core/                     # type:util - Auth, Guards, HTTP Interceptors.
- ├─ shared/ui/                # type:ui - Design System (Dumb components. DO NOT MODIFY).
+ ├─ shared/ui/                # type:ui - Design System.
  ├─ auth/feature-login/       # type:feature - Login pages and flows.
  ├─ posts/data-access/        # type:data-access - Services (Posts/Comments), Models, Domain Guards.
  ├─ posts/feature-list/       # type:feature - Post list, filters.

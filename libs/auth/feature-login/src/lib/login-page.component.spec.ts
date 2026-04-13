@@ -103,4 +103,15 @@ describe('LoginPageComponent', () => {
     await loginPromise;
     expect(component.loading()).toBe(false);
   });
+
+  it('should wrap non-Error rejection in a new Error', async () => {
+    const { component, authService } = setup();
+    vi.spyOn(authService, 'login').mockRejectedValue('string rejection');
+
+    await component.onLogin({ name: 'alice', password: 'wrong' });
+
+    expect(component.error()).toBeInstanceOf(Error);
+    expect(component.error()?.message).toBe('Login failed');
+    expect(component.loading()).toBe(false);
+  });
 });
