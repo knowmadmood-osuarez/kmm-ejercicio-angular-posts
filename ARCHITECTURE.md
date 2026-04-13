@@ -17,19 +17,25 @@ libreria independiente con cache, tests y boundaries propios.
 |  +----------------+  +----------------+  +----------------+  |
 |  |  Auth Feature   |  |  Posts Features |  |  Shared UI     |  |
 |  |  (login lib)    |  |  (3 feature     |  |  (Design Sys.) |  |
-|  |                 |  |   + 1 data-acc) |  |                |  |
+|  |                 |  |   libs)         |  |                |  |
 |  |  LoginPage      |  |  ListPage       |  |  icons/        |  |
 |  |  LoginForm      |  |  DetailPage     |  |  primitives/   |  |
 |  |                 |  |  FormPage       |  |  forms/        |  |
 |  |                 |  |  Comments       |  |  feedback/     |  |
 |  +------+----------+  +------+----------+  |  layout/       |  |
-|         |                    |             |  navigation/   |  |
 |         |                    |             |  overlays/     |  |
-|         |                    |             +----------------+  |
+|         |  Facade layer      |             +----------------+  |
+|         v                    v                                |
+|  +------+--------------------+----------------------------+   |
+|  |  AuthFacade        PostsFacade       CommentsFacade    |   |
+|  |  (readonly signals + domain orchestration)             |   |
+|  +------+--------------------+----------------------------+   |
+|         |                    |                                |
 |  +------+--------------------+----------------------------+   |
 |  |              Core lib + Data-access lib                |   |
 |  |  AuthService . AuthGuard . AuthInterceptor             |   |
-|  |  PostsService . CommentsService . PostOwnerGuard       |   |
+|  |  PostsService . PostDetailService . CommentsService     |   |
+|  |  PostOwnerGuard . ToastService                         |   |
 |  +------------------------+-------------------------------+   |
 |                           | httpResource / HttpClient          |
 +---------------------------+----------------------------------+
@@ -47,52 +53,72 @@ libreria independiente con cache, tests y boundaries propios.
 kmm-ejercicio-angular-posts/
 |
 +-- apps/
-|   +-- posts-app/                           <- App shell: bootstrap, routing, layout
-|   |   +-- src/
-|   |   |   +-- index.html
-|   |   |   +-- main.ts
-|   |   |   +-- styles.css                   <- TailwindCSS 4 (@import "tailwindcss")
-|   |   |   +-- app/
-|   |   |   |   +-- app.component.ts
-|   |   |   |   +-- app.config.ts
-|   |   |   |   +-- app.routes.ts
+|   +-- posts-app/                           <- App shell: bootstrap, routing, layout, SSR
+|   |   +-- public/
+|   |   |   +-- favicon.ico
 |   |   |   +-- assets/
 |   |   |       +-- i18n/
-|   |   |           +-- en.json
-|   |   |           +-- es.json
+|   |   |           +-- en.json              <- Traducciones ingles (Transloco)
+|   |   |           +-- es.json              <- Traducciones espanol (Transloco)
+|   |   +-- src/
+|   |   |   +-- index.html
+|   |   |   +-- main.ts                      <- Bootstrap client
+|   |   |   +-- main.server.ts               <- Bootstrap server (SSR)
+|   |   |   +-- styles.css                   <- TailwindCSS 4 (@import "tailwindcss")
+|   |   |   +-- app/
+|   |   |       +-- app.ts                   <- Root component (Angular 21: sin sufijo .component)
+|   |   |       +-- app.spec.ts
+|   |   |       +-- app.config.ts            <- provideZonelessChangeDetection, router, http, transloco
+|   |   |       +-- app.config.server.ts     <- Configuracion SSR server
+|   |   |       +-- app.routes.ts            <- Routing principal (lazy loading de features)
+|   |   |       +-- app.routes.server.ts     <- Rutas SSR server
+|   |   |       +-- transloco-loader.ts      <- TranslocoHttpLoader para i18n
+|   |   |       +-- layout/
+|   |   |       |   +-- app-layout.component.ts    <- Layout shell (header + router-outlet)
+|   |   |       |   +-- app-layout.component.html
+|   |   |       +-- toast/
+|   |   |           +-- toast-container.component.ts <- Contenedor global de toasts
+|   |   +-- server.ts                        <- Entry point SSR (Express/Node)
 |   |   +-- project.json
 |   |   +-- tsconfig.json                    <- extends tsconfig.base.json
 |   |   +-- tsconfig.app.json
+|   |   +-- tsconfig.server.json             <- Config TypeScript para SSR
 |   |   +-- tsconfig.spec.json
 |   |
 |   +-- api/                                 <- Backend mock: json-server
-|   |   +-- db.json                          <- Base de datos mock (movido desde raiz)
-|   |   +-- routes.json                      <- (opcional) rewrite rules para json-server
+|   |   +-- db.json                          <- Base de datos mock (copia de trabajo)
 |   |   +-- project.json                     <- Nx project con targets: serve, reset
 |   |
 |   +-- posts-app-e2e/                       <- Playwright e2e
 |       +-- src/
-|       |   +-- auth.spec.ts
-|       |   +-- posts-crud.spec.ts
-|       |   +-- fixtures/
+|       |   +-- app.spec.ts
 |       +-- playwright.config.ts
 |       +-- project.json
 |
 +-- libs/
-|   +-- core/                                <- Singleton: auth, interceptors, API config
+|   +-- core/                                <- Singleton: auth, interceptors, API config, facades
 |   |   +-- src/
 |   |   |   +-- index.ts                     <- barrel export
+|   |   |   +-- test-setup.ts
 |   |   |   +-- lib/
 |   |   |       +-- auth/
 |   |   |       |   +-- auth.service.ts
 |   |   |       |   +-- auth.service.spec.ts
+|   |   |       |   +-- auth.facade.ts             <- Facade: readonly signals + login/logout
 |   |   |       |   +-- auth.interceptor.ts
 |   |   |       |   +-- auth.interceptor.spec.ts
 |   |   |       |   +-- auth.guard.ts
 |   |   |       |   +-- auth.guard.spec.ts
+|   |   |       |   +-- auth-storage.ts            <- Pure functions: token gen/parse/persist
+|   |   |       |   +-- user.model.ts
 |   |   |       +-- http/
-|   |   |           +-- api.config.ts
+|   |   |       |   +-- api.config.ts
+|   |   |       +-- toast/
+|   |   |           +-- toast.service.ts
+|   |   |           +-- toast.service.spec.ts
 |   |   +-- project.json
+|   |   +-- eslint.config.mjs
+|   |   +-- vite.config.mts
 |   |   +-- tsconfig.json
 |   |   +-- tsconfig.lib.json
 |   |   +-- tsconfig.spec.json
@@ -101,6 +127,7 @@ kmm-ejercicio-angular-posts/
 |   |   +-- ui/                              <- Componentes UI reutilizables (Design System)
 |   |       +-- src/
 |   |       |   +-- index.ts                 <- barrel export (todas las categorias)
+|   |       |   +-- test-setup.ts
 |   |       |   +-- lib/
 |   |       |       +-- icons/               <- Sistema de iconos SVG inline
 |   |       |       |   +-- icon-registry.ts          <- Registro de iconos (IconName, IconDef, ICON_DEFS)
@@ -115,8 +142,6 @@ kmm-ejercicio-angular-posts/
 |   |       |       |   +-- button.component.spec.ts
 |   |       |       |   +-- card.component.ts          <- CardVariant
 |   |       |       |   +-- card.component.spec.ts
-|   |       |       |   +-- divider.component.ts
-|   |       |       |   +-- divider.component.spec.ts
 |   |       |       +-- forms/               <- Controles de formulario
 |   |       |       |   +-- input.component.ts         <- InputVariant
 |   |       |       |   +-- input.component.spec.ts
@@ -137,24 +162,19 @@ kmm-ejercicio-angular-posts/
 |   |       |       |   +-- forbidden-state.component.spec.ts
 |   |       |       |   +-- linear-progress.component.ts
 |   |       |       |   +-- linear-progress.component.spec.ts
-|   |       |       +-- layout/              <- Header, layout shell, page/section headers
-|   |       |       |   +-- header.component.ts
-|   |       |       |   +-- header.component.spec.ts
-|   |       |       |   +-- layout.component.ts
-|   |       |       |   +-- layout.component.spec.ts
+|   |       |       +-- layout/              <- Selectores de idioma, headers de pagina/seccion
 |   |       |       |   +-- language-switcher.component.ts
 |   |       |       |   +-- language-switcher.component.spec.ts
 |   |       |       |   +-- page-header.component.ts
 |   |       |       |   +-- page-header.component.spec.ts
 |   |       |       |   +-- section-header.component.ts
 |   |       |       |   +-- section-header.component.spec.ts
-|   |       |       +-- navigation/          <- Paginacion
-|   |       |       |   +-- pagination.component.ts
-|   |       |       |   +-- pagination.component.spec.ts
 |   |       |       +-- overlays/            <- Dialogs y modales
 |   |       |           +-- confirm-dialog.component.ts
 |   |       |           +-- confirm-dialog.component.spec.ts
 |   |       +-- project.json
+|   |       +-- eslint.config.mjs
+|   |       +-- vite.config.mts
 |   |       +-- tsconfig.json
 |   |       +-- tsconfig.lib.json
 |   |       +-- tsconfig.spec.json
@@ -163,22 +183,27 @@ kmm-ejercicio-angular-posts/
 |   |   +-- feature-login/                   <- Feature: pagina de login
 |   |       +-- src/
 |   |       |   +-- index.ts
+|   |       |   +-- test-setup.ts
 |   |       |   +-- lib/
 |   |       |       +-- login-page.component.ts       <- container
 |   |       |       +-- login-page.component.html
 |   |       |       +-- login-page.component.spec.ts
 |   |       |       +-- login-form.component.ts       <- presentacional
 |   |       |       +-- login-form.component.html
+|   |       |       +-- login-form.component.spec.ts
 |   |       |       +-- auth.routes.ts
 |   |       +-- project.json
+|   |       +-- eslint.config.mjs
+|   |       +-- vite.config.mts
 |   |       +-- tsconfig.json
 |   |       +-- tsconfig.lib.json
 |   |       +-- tsconfig.spec.json
 |   |
 |   +-- posts/
-|       +-- data-access/                     <- Servicios, modelos, guards de posts
+|       +-- data-access/                     <- Servicios, modelos, guards, facades de posts
 |       |   +-- src/
 |       |   |   +-- index.ts
+|       |   |   +-- test-setup.ts
 |       |   |   +-- lib/
 |       |   |       +-- models/
 |       |   |       |   +-- post.model.ts
@@ -186,12 +211,20 @@ kmm-ejercicio-angular-posts/
 |       |   |       +-- services/
 |       |   |       |   +-- posts.service.ts
 |       |   |       |   +-- posts.service.spec.ts
+|       |   |       |   +-- post-detail.service.ts
+|       |   |       |   +-- post-detail.service.spec.ts
 |       |   |       |   +-- comments.service.ts
 |       |   |       |   +-- comments.service.spec.ts
+|       |   |       |   +-- post-filters.utils.ts
+|       |   |       +-- facades/
+|       |   |       |   +-- posts.facade.ts          <- Domain orchestration: state + mutations + toast
+|       |   |       |   +-- comments.facade.ts       <- Domain orchestration: state + mutations + toast
 |       |   |       +-- guards/
 |       |   |           +-- post-owner.guard.ts
 |       |   |           +-- post-owner.guard.spec.ts
 |       |   +-- project.json
+|       |   +-- eslint.config.mjs
+|       |   +-- vite.config.mts
 |       |   +-- tsconfig.json
 |       |   +-- tsconfig.lib.json
 |       |   +-- tsconfig.spec.json
@@ -199,18 +232,24 @@ kmm-ejercicio-angular-posts/
 |       +-- feature-list/                    <- Feature: listado de posts + filtros
 |       |   +-- src/
 |       |   |   +-- index.ts
+|       |   |   +-- test-setup.ts
 |       |   |   +-- lib/
 |       |   |       +-- post-list-page.component.ts   <- container
 |       |   |       +-- post-list-page.component.html
 |       |   |       +-- post-list-page.component.spec.ts
 |       |   |       +-- post-list.component.ts        <- presentacional
 |       |   |       +-- post-list.component.html
+|       |   |       +-- post-list.component.spec.ts
 |       |   |       +-- post-card.component.ts        <- presentacional
 |       |   |       +-- post-card.component.html
+|       |   |       +-- post-card.component.spec.ts
 |       |   |       +-- post-filters.component.ts     <- presentacional
 |       |   |       +-- post-filters.component.html
+|       |   |       +-- post-filters.component.spec.ts
 |       |   |       +-- list.routes.ts
 |       |   +-- project.json
+|       |   +-- eslint.config.mjs
+|       |   +-- vite.config.mts
 |       |   +-- tsconfig.json
 |       |   +-- tsconfig.lib.json
 |       |   +-- tsconfig.spec.json
@@ -218,20 +257,27 @@ kmm-ejercicio-angular-posts/
 |       +-- feature-detail/                  <- Feature: detalle + comentarios
 |       |   +-- src/
 |       |   |   +-- index.ts
+|       |   |   +-- test-setup.ts
 |       |   |   +-- lib/
 |       |   |       +-- post-detail-page.component.ts   <- container
 |       |   |       +-- post-detail-page.component.html
 |       |   |       +-- post-detail-page.component.spec.ts
 |       |   |       +-- post-detail.component.ts        <- presentacional
 |       |   |       +-- post-detail.component.html
+|       |   |       +-- post-detail.component.spec.ts
 |       |   |       +-- post-comments.component.ts      <- presentacional (@defer)
 |       |   |       +-- post-comments.component.html
+|       |   |       +-- post-comments.component.spec.ts
 |       |   |       +-- comment-card.component.ts       <- presentacional
 |       |   |       +-- comment-card.component.html
+|       |   |       +-- comment-card.component.spec.ts
 |       |   |       +-- comment-form.component.ts       <- presentacional
 |       |   |       +-- comment-form.component.html
+|       |   |       +-- comment-form.component.spec.ts
 |       |   |       +-- detail.routes.ts
 |       |   +-- project.json
+|       |   +-- eslint.config.mjs
+|       |   +-- vite.config.mts
 |       |   +-- tsconfig.json
 |       |   +-- tsconfig.lib.json
 |       |   +-- tsconfig.spec.json
@@ -239,37 +285,75 @@ kmm-ejercicio-angular-posts/
 |       +-- feature-form/                    <- Feature: crear/editar post
 |           +-- src/
 |           |   +-- index.ts
+|           |   +-- test-setup.ts
 |           |   +-- lib/
 |           |       +-- post-form-page.component.ts     <- container (new + edit)
 |           |       +-- post-form-page.component.html
 |           |       +-- post-form-page.component.spec.ts
 |           |       +-- post-form.component.ts          <- presentacional
 |           |       +-- post-form.component.html
+|           |       +-- post-form.component.spec.ts
 |           |       +-- form.routes.ts
 |           +-- project.json
+|           +-- eslint.config.mjs
+|           +-- vite.config.mts
 |           +-- tsconfig.json
 |           +-- tsconfig.lib.json
 |           +-- tsconfig.spec.json
 |
++-- .github/
+|   +-- workflows/
+|       +-- ci.yml                           <- CI pipeline (GitHub Actions)
++-- .husky/
+|   +-- pre-commit
+|   +-- commit-msg
 +-- db.json                                  <- Copia de referencia (enunciado). Copia de trabajo en apps/api/
 +-- .nvmrc                                   <- 24.14.1
 +-- .node-version                            <- 24.14.1
++-- .gitignore
++-- .postcssrc.json                          <- Config PostCSS (TailwindCSS 4)
 +-- nx.json
 +-- package.json                             <- packageManager: pnpm@10.x
 +-- pnpm-lock.yaml
 +-- tsconfig.base.json                       <- paths aliases para libs
-+-- eslint.config.mjs                         <- ESLint 9+ flat config
++-- eslint.config.mjs                        <- ESLint 9+ flat config (root)
++-- eslint.base.config.mjs                   <- ESLint base config compartida por libs
 +-- .prettierrc
 +-- .prettierignore
-+-- .husky/
-|   +-- pre-commit
-|   +-- commit-msg
 +-- commitlint.config.mjs
++-- vitest.shared.ts                         <- Configuracion compartida Vitest
++-- vitest.shared.mts                        <- Configuracion compartida Vitest (ESM)
++-- vitest.workspace.ts                      <- Workspace config Vitest (multi-proyecto)
 +-- AGENTS.md
 +-- ARCHITECTURE.md
++-- IMPLEMENTATION_PLAN.md
 +-- README.md
 ```
-### Archivos eliminados respecto a la version anterior
+
+### Cambios respecto a la version anterior del documento
+| Cambio                                       | Detalle                                                                                              |
+|----------------------------------------------|------------------------------------------------------------------------------------------------------|
+| `app.component.ts` → `app.ts`               | Angular 21 elimina el sufijo `.component` en el root component                                      |
+| Archivos SSR añadidos                        | `server.ts`, `main.server.ts`, `app.config.server.ts`, `app.routes.server.ts`, `tsconfig.server.json` |
+| `src/assets/` → `public/assets/`             | Nueva convencion Angular: assets estaticos en `public/` (fuera de `src/`)                           |
+| `layout/` y `toast/` en app shell            | `app-layout.component.ts/html` y `toast-container.component.ts` movidos al shell                    |
+| `transloco-loader.ts` añadido                | Loader HTTP para Transloco en el shell                                                               |
+| `routes.json` eliminado de `apps/api/`       | No existe — json-server funciona solo con `db.json`                                                  |
+| E2E simplificado                             | Solo `app.spec.ts` actualmente (no `auth.spec.ts`, `posts-crud.spec.ts`, `fixtures/`)                |
+| `shared/ui`: `navigation/` eliminado         | `pagination.component` no existe. Sin carpeta `navigation/`                                          |
+| `shared/ui`: `divider` eliminado             | `divider.component` no existe en `primitives/`                                                       |
+| `shared/ui`: `header`/`layout` eliminados    | `header.component` y `layout.component` no existen en `layout/`. El layout real vive en el app shell |
+| `test-setup.ts` en cada lib                  | Todas las libs incluyen `test-setup.ts` (configuracion Vitest)                                       |
+| `eslint.config.mjs` + `vite.config.mts` por lib | Cada lib tiene su propia config ESLint y Vite                                                    |
+| `post-detail.service.spec.ts` añadido        | Existia pero no estaba documentado                                                                   |
+| Specs añadidos en features                   | `post-list.component.spec.ts`, `post-form.component.spec.ts`, `login-form.component.spec.ts` etc.   |
+| `eslint.base.config.mjs` añadido en raiz     | Config ESLint base compartida (no documentado antes)                                                 |
+| `.postcssrc.json` añadido                    | Configuracion PostCSS para TailwindCSS 4                                                             |
+| `.github/workflows/ci.yml` añadido           | Pipeline CI con GitHub Actions                                                                       |
+| `vitest.shared.ts/mts` + `vitest.workspace.ts` | Configuracion Vitest multi-proyecto compartida                                                    |
+| `IMPLEMENTATION_PLAN.md` añadido             | Plan de implementacion del proyecto                                                                  |
+
+### Archivos eliminados respecto a la version original del scaffold
 | Archivo              | Razon                                                                            |
 |----------------------|----------------------------------------------------------------------------------|
 | `tailwind.config.js` | TailwindCSS 4 usa configuracion CSS (`@theme` en `styles.css`), no archivo JS   |
@@ -280,10 +364,10 @@ kmm-ejercicio-angular-posts/
 ## Librerias — Resumen
 | Lib                    | Import alias                | Tipo          | Responsabilidad                                                               |
 |------------------------|-----------------------------|---------------|-------------------------------------------------------------------------------|
-| `core`                 | `@app/core`                 | `util`        | AuthService, AuthGuard, AuthInterceptor, API config                           |
-| `shared-ui`            | `@app/shared/ui`            | `ui`          | **icons/** Icon · **primitives/** Button, Card, Badge, Avatar, Divider · **forms/** Input, Label, Select, Textarea · **feedback/** Loading, Empty, Error, Forbidden, LinearProgress · **layout/** Header, Layout, LanguageSwitcher, PageHeader, SectionHeader · **navigation/** Pagination · **overlays/** ConfirmDialog |
+| `core`                 | `@app/core`                 | `util`        | AuthService, **AuthFacade**, AuthGuard, AuthInterceptor, ToastService, API config |
+| `shared-ui`            | `@app/shared/ui`            | `ui`          | **icons/** Icon · **primitives/** Button, Card, Badge, Avatar · **forms/** Input, Label, Select, Textarea · **feedback/** Loading, Empty, Error, Forbidden, LinearProgress · **layout/** LanguageSwitcher, PageHeader, SectionHeader · **overlays/** ConfirmDialog |
 | `auth-feature-login`   | `@app/auth/feature-login`   | `feature`     | LoginPage, LoginForm, auth routes                                             |
-| `posts-data-access`    | `@app/posts/data-access`    | `data-access` | PostsService, CommentsService, modelos, PostOwnerGuard                        |
+| `posts-data-access`    | `@app/posts/data-access`    | `data-access` | PostsService, PostDetailService, CommentsService, **PostsFacade**, **CommentsFacade**, modelos, PostOwnerGuard |
 | `posts-feature-list`   | `@app/posts/feature-list`   | `feature`     | PostListPage, PostList, PostCard, PostFilters, list routes                    |
 | `posts-feature-detail` | `@app/posts/feature-detail` | `feature`     | PostDetailPage, PostDetail, PostComments, CommentCard, CommentForm            |
 | `posts-feature-form`   | `@app/posts/feature-form`   | `feature`     | PostFormPage, PostForm, form routes                                           |
@@ -317,7 +401,13 @@ kmm-ejercicio-angular-posts/
                 |               |                    |        feature-form
                 |               |                    |            |
                 v               v                    v            v
-              core          posts/data-access <------+------------+
+              AuthFacade     PostsFacade          CommentsFacade
+              (core)        (data-access)        (data-access)
+                |               |                    |
+                v               v                    v
+              core          posts/data-access <------+
+              AuthService   PostsService, PostDetailService,
+                            CommentsService, PostOwnerGuard
                 ^               |
                 |               |
                 +---------------+
@@ -374,14 +464,16 @@ Los tipos siguen la convencion estandar Nx:
 - **util** — Helpers, constantes, configuracion transversal.
 ### 3. Container vs Presentacional
 **Decision**: Separar componentes en containers (pages) y presentacionales puros.
-| Aspecto           | Container (Page)     | Presentacional          |
-|-------------------|----------------------|-------------------------|
-| Inyecta servicios | SI                   | NO                      |
-| Gestiona estado   | SI (signals)         | NO                      |
-| Recibe datos      | Via servicios/router | Via `input()`           |
-| Emite eventos     | Ejecuta acciones     | Via `output()`          |
-| Testabilidad      | Integration tests    | Unit tests simples      |
-| Ubicacion         | `feature-*` libs     | `feature-*` o `ui` libs |
+| Aspecto           | Container (Page)           | Presentacional          |
+|-------------------|----------------------------|-------------------------|
+| Inyecta servicios | **Facades** (no servicios) | NO                      |
+| Gestiona estado   | UI local (signals)         | NO                      |
+| Recibe datos      | Via facades/router         | Via `input()`           |
+| Emite eventos     | Ejecuta acciones           | Via `output()`          |
+| Testabilidad      | Integration tests          | Unit tests simples      |
+| Ubicacion         | `feature-*` libs           | `feature-*` o `ui` libs |
+
+> **Nota**: Los containers inyectan **facades** (`AuthFacade`, `PostsFacade`, `CommentsFacade`), nunca servicios de datos directamente. Esto garantiza que toda mutacion pase por la orquestacion de dominio (invalidar cache + notificar).
 ### 4. Zoneless + Signals
 **Decision**: Eliminar `zone.js` y manejar todo el estado con signals.
 **Razon**: Mejor rendimiento, change detection granular, direccion oficial de Angular.
@@ -538,13 +630,104 @@ Para mutaciones (POST, PUT, DELETE) se usa `HttpClient` con `firstValueFrom()`.
 - Hidratacion de datos via `TransferState` para evitar doble fetch.
 
 ### 22. State management avanzado — Facade con Signals
-**Decision**: Pasar de signals sueltos a un patron facade estructurado.
-**Razon**: Centralizar estado, mejorar testabilidad, separar read (signals) de write (metodos).
-**Patron**:
-- Cada servicio expone signals readonly (`posts()`, `isLoading()`, `error()`)
-- Mutaciones via metodos que actualizan signals internos
-- `linkedSignal()` para sync bidireccional query params ↔ filtros
-- `effect()` para side effects (localStorage, cache invalidation)
+**Decision**: Introducir una capa de **facades** entre los componentes (features) y los servicios de datos.
+
+**Razon**: Centralizar el estado reactivo, separar lectura (signals readonly) de escritura (metodos de mutacion), y orquestar la logica de dominio (mutacion + invalidacion + notificacion) en un solo lugar.
+
+**Arquitectura en 3 capas**:
+```
+Component (UI)          Facade (Domain)           Service (Data)
+┌──────────────┐        ┌──────────────────┐      ┌─────────────────┐
+│ UI state     │ inject  │ readonly signals  │ inject│ httpResource    │
+│ (isDeleting, │───────>│ (posts, isLoading │────->│ HttpClient      │
+│  showDialog) │        │  error, filters)  │      │ signal state    │
+│              │        │                  │      │                 │
+│ navigation   │ await   │ domain methods   │ await │ CRUD methods    │
+│ (router)     │<───────│ (create, update,  │<─────│ (firstValueFrom)│
+│              │        │  delete + reload  │      │                 │
+│              │        │  + toast)         │      │                 │
+└──────────────┘        └──────────────────┘      └─────────────────┘
+```
+
+**Regla de separacion de responsabilidades**:
+| Responsabilidad                         | Donde                      |
+|-----------------------------------------|----------------------------|
+| Estado reactivo readonly (signals)      | **Facade**                 |
+| Orquestacion de dominio (mutacion + invalidacion de cache + toast) | **Facade** |
+| Estado UI local (isDeleting, showDialog, isSubmitting) | **Componente** |
+| Navegacion post-accion (router.navigate)| **Componente**             |
+| Fetching HTTP bajo nivel                | **Service**                |
+
+**Facades implementadas**:
+
+| Facade           | Ubicacion                              | Readonly signals                                                | Metodos de mutacion                                   |
+|------------------|----------------------------------------|-----------------------------------------------------------------|-------------------------------------------------------|
+| `AuthFacade`     | `libs/core/src/lib/auth/`              | `currentUser`, `token`, `userId`                                | `login()`, `logout()`                                 |
+| `PostsFacade`    | `libs/posts/data-access/src/lib/facades/` | `posts`, `isLoading`, `isLoadingMore`, `error`, `totalItems`, `hasMore`, `users`, `uniqueTags`, `isEmpty`, `pagination`, `selectedPost`, `selectedPostLoading`, `selectedPostError`, `filters` (linkedSignal) | `createPost()`, `updatePost()`, `deletePost()`, `loadNextPage()`, `reload()`, `loadDetail()`, `reloadDetail()`, `prefetch()`, `syncFiltersFromRoute()` |
+| `CommentsFacade` | `libs/posts/data-access/src/lib/facades/` | `comments` (merged optimistic+server), `isLoading`, `error`, `isEmpty`, `hasMore`, `loadingMore` | `createComment()`, `updateComment()`, `deleteComment()`, `loadForPost()`, `reload()` |
+
+**`linkedSignal()` para sync query params ↔ filtros** (`PostsFacade`):
+```typescript
+// Source: signal alimentado por el componente desde los query params de la ruta
+private readonly _routeFilters = signal<PostFilters>(
+  { q: '', author: '', tag: '' },
+  { equal: filtersEqual },
+);
+
+// linkedSignal: se resetea cuando _routeFilters cambia; tambien es writable manualmente
+readonly filters = linkedSignal({
+  source: () => this._routeFilters(),
+  computation: (source: PostFilters) => source,
+  equal: filtersEqual,
+});
+
+// effect() sincroniza facade → PostsService (que dispara el fetch)
+constructor() {
+  effect(() => {
+    const f = this.filters();
+    untracked(() => this.postsService.filters.set(f));
+  });
+}
+```
+Flujo completo:
+1. URL cambia → componente lee `queryParams` → llama `facade.syncFiltersFromRoute(params)` → `_routeFilters` se actualiza → `linkedSignal` se resetea → `effect()` sincroniza a `PostsService` → datos se recargan.
+2. Usuario cambia filtro en UI → componente hace `facade.filters.set(newFilters)` + `router.navigate(queryParams)` → respuesta inmediata + URL actualizada.
+
+**`effect()` para side effects** (`AuthFacade`):
+```typescript
+// Logging reactivo de cambios de sesion (solo en dev)
+constructor() {
+  if (isDevMode()) {
+    effect(() => {
+      const user = this.currentUser();
+      const action = user ? `authenticated as "${user.name}"` : 'logged out';
+      console.debug(`[AuthFacade] ${action}`);
+    });
+  }
+}
+```
+
+**Ejemplo de mutacion orquestada** (`PostsFacade.deletePost`):
+```typescript
+// Facade: orquesta dominio (mutacion + invalidacion + notificacion)
+async deletePost(id: string): Promise<void> {
+  await this.postDetailService.deletePost(id);   // 1. Mutacion
+  this.postsService.reload();                     // 2. Invalidar cache
+  this.toast.success('toast.postDeleted');         // 3. Notificar exito
+}
+
+// Componente: solo UI local + navegacion
+async onDeleteConfirmed(): Promise<void> {
+  this.isDeleting.set(true);                      // UI: spinner
+  try {
+    await this.postsFacade.deletePost(id);        // Delegar al dominio
+    void this.router.navigate(['/posts']);         // Navegacion post-accion
+  } finally {
+    this.isDeleting.set(false);                   // UI: reset spinner
+    this.showDeleteDialog.set(false);             // UI: cerrar dialog
+  }
+}
+```
 ---
 ## Routing Map
 ```typescript
