@@ -60,7 +60,7 @@ export class PostDetailPageComponent {
   readonly post = computed(() => this.postsService.postDetailResource.value());
 
   readonly currentUser = this.authService.currentUser;
-  readonly users = computed(() => this.postsService.safeUsers());
+  readonly users = computed(() => this.postsService.users());
 
   readonly author = computed(() => {
     const post = this.post();

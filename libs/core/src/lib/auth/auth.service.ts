@@ -4,67 +4,21 @@ import { httpResource, HttpResourceRef } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 import { API_URL } from '../http/api.config';
-import { SafeUser, User } from './user.model';
+import { User } from './user.model';
+import {
+  clearStorage,
+  generateToken,
+  loadTokenFromBrowser,
+  loadTokenFromRequest,
+  parseToken,
+  persistToken,
+} from './auth-storage';
 
-const STORAGE_TOKEN_KEY = 'auth_token';
-/** 7 days in seconds — keeps the cookie alive across browser restarts. */
-const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
+export { generateToken } from './auth-storage';
 
 interface LoginCredentials {
   name: string;
   password: string;
-}
-
-interface TokenPayload extends SafeUser {
-  iat: number;
-}
-
-export function generateToken(user: SafeUser): string {
-  const payload: TokenPayload = { ...user, iat: Date.now() };
-  return btoa(JSON.stringify(payload));
-}
-
-function parseToken(token: string): SafeUser | null {
-  try {
-    const payload = JSON.parse(atob(token)) as TokenPayload;
-    const { iat: _iat, ...user } = payload;
-    return { ...user, id: String(user.id) };
-  } catch {
-    return null;
-  }
-}
-
-/** Extracts a named cookie value from a `Cookie` header string. */
-function parseCookie(cookieHeader: string, name: string): string | null {
-  const match = cookieHeader
-    .split(';')
-    .map((c) => c.trim())
-    .find((c) => c.startsWith(`${name}=`));
-  if (!match) return null;
-  return decodeURIComponent(match.substring(name.length + 1));
-}
-
-/** Browser: reads token from localStorage. */
-function loadTokenFromBrowser(): string | null {
-  return localStorage.getItem(STORAGE_TOKEN_KEY);
-}
-
-/** Server: reads token from the incoming HTTP request cookie header. */
-function loadTokenFromRequest(request: Request | null): string | null {
-  if (!request) return null;
-  const cookieHeader = request.headers.get('cookie');
-  if (!cookieHeader) return null;
-  return parseCookie(cookieHeader, STORAGE_TOKEN_KEY);
-}
-
-function persistToken(token: string): void {
-  localStorage.setItem(STORAGE_TOKEN_KEY, token);
-  document.cookie = `${STORAGE_TOKEN_KEY}=${encodeURIComponent(token)}; path=/; max-age=${COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
-}
-
-function clearStorage(): void {
-  localStorage.removeItem(STORAGE_TOKEN_KEY);
-  document.cookie = `${STORAGE_TOKEN_KEY}=; path=/; max-age=0; SameSite=Lax`;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -88,21 +42,21 @@ export class AuthService {
   private readonly _token = signal<string | null>(this.loadInitialToken());
 
   readonly token = this._token.asReadonly();
-  readonly currentUser = computed<SafeUser | null>(() => {
+  readonly currentUser = computed<User | null>(() => {
     const t = this._token();
     return t ? parseToken(t) : null;
   });
   readonly isAuthenticated = computed(() => this.currentUser() !== null);
 
-  private _loginResolve: ((user: SafeUser) => void) | null = null;
+  private _loginResolve: ((user: User) => void) | null = null;
   private _loginReject: ((error: Error) => void) | null = null;
 
   constructor() {
     effect(() => this.handleLoginResult());
   }
 
-  login(name: string, password: string): Promise<SafeUser> {
-    return new Promise<SafeUser>((resolve, reject) => {
+  login(name: string, password: string): Promise<User> {
+    return new Promise<User>((resolve, reject) => {
       this._loginResolve = resolve;
       this._loginReject = reject;
       this._loginRequest.set({ name, password });
@@ -123,27 +77,25 @@ export class AuthService {
 
   private handleLoginResult(): void {
     const status = this.loginResource.status();
-
-    if (status === 'error') {
-      const error = this.loginResource.error();
-      this._loginReject?.(error instanceof Error ? error : new Error('Login failed'));
-      this.resetLoginTracking();
-      return;
-    }
-
+    if (status === 'error') return this.rejectLogin(this.loginResource.error());
     if (status !== 'resolved') return;
 
     const users = this.loginResource.value();
-    if (users && users.length > 0) {
-      const { password: _pwd, ...rawUser } = users[0];
-      const safeUser: SafeUser = { ...rawUser, id: String(rawUser.id) };
-      const token = generateToken(safeUser);
-      this._token.set(token);
-      if (this.isBrowser) persistToken(token);
-      this._loginResolve?.(safeUser);
-    } else if (users && users.length === 0) {
-      this._loginReject?.(new Error('Invalid credentials'));
-    }
+    if (!users?.length) return this.rejectLogin(new Error('Invalid credentials'));
+
+    this.completeLogin({ ...users[0], id: String(users[0].id) });
+  }
+
+  private completeLogin(user: User): void {
+    const token = generateToken(user);
+    this._token.set(token);
+    if (this.isBrowser) persistToken(token);
+    this._loginResolve?.(user);
+    this.resetLoginTracking();
+  }
+
+  private rejectLogin(error: unknown): void {
+    this._loginReject?.(error instanceof Error ? error : new Error('Login failed'));
     this.resetLoginTracking();
   }
 

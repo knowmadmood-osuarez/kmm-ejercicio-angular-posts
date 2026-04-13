@@ -2,7 +2,7 @@ import { computed, effect, inject, Injectable, signal, untracked } from '@angula
 import { HttpClient, httpResource, HttpResourceRef } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
-import type { SafeUser, User } from '@app/core';
+import type { User } from '@app/core';
 import { API_URL } from '@app/core';
 import { PaginatedPosts, Post, PostCreate, PostUpdate } from '../models/post.model';
 
@@ -66,9 +66,7 @@ export class PostsService {
     () => `${this.apiUrl}/users`,
   );
 
-  readonly safeUsers = computed<SafeUser[]>(() =>
-    (this.usersResource.value() ?? []).map(({ password: _p, ...safe }) => safe),
-  );
+  readonly users = computed<User[]>(() => this.usersResource.value() ?? []);
 
   constructor() {
     effect(() => {

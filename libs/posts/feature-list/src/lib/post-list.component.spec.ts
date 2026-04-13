@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import type { Post } from '@app/posts/data-access';
-import type { SafeUser } from '@app/core';
+import type { User } from '@app/core';
 
 import { PostListComponent } from './post-list.component';
 
@@ -23,14 +23,12 @@ const mockPost2: Post = {
   createdAt: '2024-01-02T00:00:00.000Z',
 };
 
-const mockUsers: SafeUser[] = [
-  { id: '1', name: 'alice', email: 'a@b.com', avatar: '' },
-  { id: '2', name: 'bruno', email: 'b@b.com', avatar: '' },
+const mockUsers: User[] = [
+  { id: '1', name: 'alice', password: 'alice123', email: 'a@b.com', avatar: '' },
+  { id: '2', name: 'bruno', password: 'bruno123', email: 'b@b.com', avatar: '' },
 ];
 
-function setup(
-  overrides: { posts?: Post[]; users?: SafeUser[]; currentUser?: SafeUser | null } = {},
-) {
+function setup(overrides: { posts?: Post[]; users?: User[]; currentUser?: User | null } = {}) {
   TestBed.configureTestingModule({
     imports: [PostListComponent],
   });

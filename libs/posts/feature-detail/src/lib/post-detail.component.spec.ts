@@ -3,7 +3,7 @@ import { provideTransloco } from '@jsverse/transloco';
 
 import { PostDetailComponent } from './post-detail.component';
 import type { Post } from '@app/posts/data-access';
-import type { SafeUser } from '@app/core';
+import type { User } from '@app/core';
 
 const mockPost: Post = {
   id: '1',
@@ -14,9 +14,10 @@ const mockPost: Post = {
   createdAt: new Date().toISOString(),
 };
 
-const mockAuthor: SafeUser = {
+const mockAuthor: User = {
   id: '1',
   name: 'alice',
+  password: 'alice123',
   email: 'alice@test.com',
   avatar: 'https://example.com/avatar.png',
 };
@@ -25,7 +26,7 @@ const translocoProviders = provideTransloco({
   config: { availableLangs: ['es', 'en'], defaultLang: 'es', prodMode: true },
 });
 
-function setup(overrides: { author?: SafeUser; isOwner?: boolean } = {}) {
+function setup(overrides: { author?: User; isOwner?: boolean } = {}) {
   TestBed.configureTestingModule({
     imports: [PostDetailComponent],
     providers: [translocoProviders],

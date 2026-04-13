@@ -2,15 +2,15 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideTransloco } from '@jsverse/transloco';
 
 import type { PostFilters } from '@app/posts/data-access';
-import type { SafeUser } from '@app/core';
+import type { User } from '@app/core';
 
 import { PostFiltersComponent } from './post-filters.component';
 
 const defaultFilters: PostFilters = { q: '', author: '', tag: '' };
 
-const mockAuthors: SafeUser[] = [
-  { id: '1', name: 'alice', email: 'a@b.com', avatar: '' },
-  { id: '2', name: 'bruno', email: 'b@b.com', avatar: '' },
+const mockAuthors: User[] = [
+  { id: '1', name: 'alice', password: 'alice123', email: 'a@b.com', avatar: '' },
+  { id: '2', name: 'bruno', password: 'bruno123', email: 'b@b.com', avatar: '' },
 ];
 
 const mockTags = ['angular', 'signals', 'testing'];

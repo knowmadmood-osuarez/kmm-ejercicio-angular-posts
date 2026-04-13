@@ -3,7 +3,7 @@ import { provideTransloco } from '@jsverse/transloco';
 
 import { CommentCardComponent } from './comment-card.component';
 import type { Comment } from '@app/posts/data-access';
-import type { SafeUser } from '@app/core';
+import type { User } from '@app/core';
 
 const mockComment: Comment = {
   id: '1',
@@ -13,9 +13,10 @@ const mockComment: Comment = {
   createdAt: new Date().toISOString(),
 };
 
-const mockAuthor: SafeUser = {
+const mockAuthor: User = {
   id: '1',
   name: 'alice',
+  password: 'alice123',
   email: 'alice@test.com',
   avatar: 'https://example.com/avatar.png',
 };
@@ -24,7 +25,7 @@ const translocoProviders = provideTransloco({
   config: { availableLangs: ['es', 'en'], defaultLang: 'es', prodMode: true },
 });
 
-function setup(overrides: { author?: SafeUser; isOwner?: boolean; lang?: string } = {}) {
+function setup(overrides: { author?: User; isOwner?: boolean; lang?: string } = {}) {
   TestBed.configureTestingModule({
     imports: [CommentCardComponent],
     providers: [translocoProviders],

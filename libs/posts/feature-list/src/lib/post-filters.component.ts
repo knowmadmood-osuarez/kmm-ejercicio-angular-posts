@@ -3,7 +3,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 
 import { IconComponent, SelectComponent } from '@app/shared/ui';
 import type { PostFilters } from '@app/posts/data-access';
-import type { SafeUser } from '@app/core';
+import type { User } from '@app/core';
 
 @Component({
   selector: 'app-post-filters',
@@ -14,7 +14,7 @@ import type { SafeUser } from '@app/core';
 })
 export class PostFiltersComponent {
   readonly filters = input.required<PostFilters>();
-  readonly authors = input<SafeUser[]>([]);
+  readonly authors = input<User[]>([]);
   readonly tags = input<string[]>([]);
 
   readonly filtersChange = output<PostFilters>();

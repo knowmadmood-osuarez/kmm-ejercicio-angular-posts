@@ -63,7 +63,7 @@ export class PostCommentsComponent {
     () => !this.isLoading() && !this.error() && this.comments().length === 0,
   );
   readonly currentUser = this.authService.currentUser;
-  readonly users = computed(() => this.postsService.safeUsers());
+  readonly users = computed(() => this.postsService.users());
   readonly lang = toSignal(this.transloco.langChanges$, {
     initialValue: this.transloco.getActiveLang(),
   });

@@ -56,7 +56,7 @@ export class PostListPageComponent {
     () => !this.isLoading() && !this.error() && this.posts().length === 0,
   );
 
-  readonly users = computed(() => this.postsService.safeUsers());
+  readonly users = computed(() => this.postsService.users());
   readonly tags = computed(() => this.postsService.uniqueTags());
   readonly filters = computed(() => this.postsService.filters());
   readonly lang = toSignal(this.transloco.langChanges$, {

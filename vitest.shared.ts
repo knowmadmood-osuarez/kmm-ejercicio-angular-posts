@@ -26,7 +26,7 @@ export interface CoverageOverrides {
 export function sharedCoverage(overrides: CoverageOverrides) {
   return {
     provider: 'v8' as const,
-    reporter: ['text', 'lcov', 'html'],
+    reporter: [['text', { maxCols: 120 }], 'lcov', 'html'],
     include: overrides.include ?? ['src/lib/**/*.ts'],
     exclude: [...GLOBAL_EXCLUDE, ...(overrides.exclude ?? [])],
     reportsDirectory: overrides.reportsDirectory,

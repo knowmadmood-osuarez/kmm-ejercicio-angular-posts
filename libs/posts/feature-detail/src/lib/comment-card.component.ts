@@ -3,7 +3,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 
 import { ButtonComponent } from '@app/shared/ui';
 import type { Comment } from '@app/posts/data-access';
-import type { SafeUser } from '@app/core';
+import type { User } from '@app/core';
 
 /** Pure: returns a locale-relative date string using Intl.RelativeTimeFormat. */
 function relativeDate(iso: string, lang: string): string {
@@ -39,7 +39,7 @@ function capitalizeName(name: string): string {
 })
 export class CommentCardComponent {
   readonly comment = input.required<Comment>();
-  readonly author = input<SafeUser | undefined>(undefined);
+  readonly author = input<User | undefined>(undefined);
   readonly isOwner = input(false);
   readonly lang = input<string>('es');
 

@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
 
 import type { Post } from '@app/posts/data-access';
-import type { SafeUser } from '@app/core';
+import type { User } from '@app/core';
 
 import { PostCardComponent } from './post-card.component';
 
@@ -19,9 +19,10 @@ const mockPost: Post = {
 const longBody =
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.';
 
-const mockAuthor: SafeUser = {
+const mockAuthor: User = {
   id: '1',
   name: 'alice',
+  password: 'alice123',
   email: 'alice@test.com',
   avatar: 'https://example.com/avatar.png',
 };
@@ -31,7 +32,7 @@ const translocoProviders = provideTransloco({
 });
 
 function setup(
-  overrides: { post?: Post; author?: SafeUser; isCurrentUser?: boolean; lang?: string } = {},
+  overrides: { post?: Post; author?: User; isCurrentUser?: boolean; lang?: string } = {},
 ) {
   TestBed.configureTestingModule({
     imports: [PostCardComponent],

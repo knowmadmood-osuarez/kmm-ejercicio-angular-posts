@@ -5,16 +5,17 @@ import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
 import { signal } from '@angular/core';
 
-import type { SafeUser } from '@app/core';
+import type { User } from '@app/core';
 import { AuthService, ToastService } from '@app/core';
 import type { Comment } from '@app/posts/data-access';
 import { CommentsService, PostsService } from '@app/posts/data-access';
 
 import { PostCommentsComponent } from './post-comments.component';
 
-const mockUser: SafeUser = {
+const mockUser: User = {
   id: '1',
   name: 'alice',
+  password: 'alice123',
   email: 'alice@test.com',
   avatar: '',
 };
@@ -65,14 +66,14 @@ describe('PostCommentsComponent', () => {
   it('getAuthor returns the matching user', () => {
     const { component } = setup();
     const postsService = TestBed.inject(PostsService);
-    vi.spyOn(postsService, 'safeUsers').mockReturnValue([mockUser]);
+    vi.spyOn(postsService, 'users').mockReturnValue([mockUser]);
     expect(component.getAuthor('1')).toEqual(mockUser);
   });
 
   it('getAuthor returns undefined for unknown userId', () => {
     const { component } = setup();
     const postsService = TestBed.inject(PostsService);
-    vi.spyOn(postsService, 'safeUsers').mockReturnValue([mockUser]);
+    vi.spyOn(postsService, 'users').mockReturnValue([mockUser]);
     expect(component.getAuthor('999')).toBeUndefined();
   });
 
