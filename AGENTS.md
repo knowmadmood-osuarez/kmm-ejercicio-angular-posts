@@ -26,62 +26,67 @@ Single Page Application for managing posts and comments. Mobile First design wit
 ---
 
 ## 📐 3. Architecture & Structure (Screaming Architecture)
-The project uses an Nx monorepo. Strictly respect module boundaries:
+The project uses an Nx monorepo with Screaming Architecture. **For the full directory tree, libs inventory, dependency graph, module boundary rules, and architectural decisions, see [`ARCHITECTURE.md`](./ARCHITECTURE.md).**
 
-```text
-apps/posts-app/               # App Shell: bootstrap (main.ts), global routing, layout.
-apps/api/                     # Mock backend (json-server with db.json).
+**Lib summary (quick reference):**
 
-libs/
- ├─ core/                     # type:util - Auth, Guards, HTTP Interceptors.
- ├─ shared/ui/                # type:ui - Design System.
- ├─ auth/feature-login/       # type:feature - Login pages and flows.
- ├─ posts/data-access/        # type:data-access - Services (Posts/Comments), Models, Domain Guards.
- ├─ posts/feature-list/       # type:feature - Post list, filters.
- ├─ posts/feature-detail/     # type:feature - Post detail, comments (@defer).
- └─ posts/feature-form/       # type:feature - Post creation and edition.
-```
+| Lib path                | Alias                       | Type          |
+|-------------------------|-----------------------------|---------------|
+| `libs/core/`            | `@app/core`                 | `util`        |
+| `libs/shared/ui/`       | `@app/shared/ui`            | `ui`          |
+| `libs/auth/feature-login/` | `@app/auth/feature-login` | `feature`     |
+| `libs/posts/data-access/`  | `@app/posts/data-access`  | `data-access` |
+| `libs/posts/feature-list/`  | `@app/posts/feature-list` | `feature`     |
+| `libs/posts/feature-detail/`| `@app/posts/feature-detail`| `feature`    |
+| `libs/posts/feature-form/`  | `@app/posts/feature-form` | `feature`     |
 
-**Import Rules (Import Aliases):**
-* A `feature` can ONLY import from `data-access`, `ui`, or `core`.
-* A `feature` can NEVER import another `feature`.
-* Always use aliases: `@app/core`, `@app/shared/ui`, `@app/posts/data-access`, etc.
+**Import Rules (strictly enforced by `@nx/enforce-module-boundaries`):**
+* `feature` → can ONLY import from `data-access`, `ui`, or `core`.
+* `feature` → can NEVER import another `feature`.
+* `data-access` → can ONLY import from `core` (`util`).
+* Always use path aliases (`@app/...`), never relative cross-lib imports.
 
 **Feature Component Structure:**
-* **Container (Page):** Injects services, manages state with signals, passes data down.
+* **Container (Page):** Injects **facades** (never raw services), manages UI-local state with signals, passes data down.
 * **Presentational:** Receives `input()`, emits `output()`. Zero service injections.
-* **Files:** `my-component.ts` (logic) + `my-component.html` (mandatory separated template) + `.css` (if applicable). (Note: `shared/ui` uses inline templates, but you must not modify them).
+* **Files:** `my-component.ts` (logic) + `my-component.html` (mandatory separated template) + `.css` (if applicable). (`shared/ui` uses inline templates — do not modify them).
 
 ---
 
 ## 🗄️ 4. Data Model & Mock API (db.json)
+> Full API endpoint table and architectural decisions are in [`ARCHITECTURE.md`](./ARCHITECTURE.md).
 
 ```typescript
+// libs/core/src/lib/auth/user.model.ts
 interface User {
-  id: number;
+  id: string;
   name: string;       // Used as username for login
   password: string;   // Plain text mock
   email: string;
   avatar: string;     // External URL (e.g., dicebear)
 }
 
+// libs/posts/data-access/src/lib/models/post.model.ts
 interface Post {
-  id: number;
-  userId: number;     // FK -> User
+  id: string;
+  userId: string;     // FK -> User
   title: string;
   body: string;
   tags: string[];
   createdAt: string;  // ISO 8601
 }
 
+// libs/posts/data-access/src/lib/models/comment.model.ts
 interface Comment {
-  id: number;
-  postId: number;     // FK -> Post
-  userId: number;     // FK -> User
+  id: string;
+  postId: string;     // FK -> Post
+  userId: string;     // FK -> User
   body: string;
   createdAt: string;  // ISO 8601
 }
 ```
+
+> **Note:** All IDs and FKs are `string` in TypeScript. The seed `db.json` stores some FKs as numbers, but `json-server` handles loose comparison. **Never convert IDs to `Number()`** — json-server generates alphanumeric IDs (e.g., `"kAX1g0K"`) for new resources, and `Number()` would produce `NaN`.
 
 * **Mock Login:** GET `/users?name={user}&password={pass}`. Valid credentials: `alice/alice123`, `bruno/bruno123`, `carla/carla123`, `diego/diego123`.
 * **Auth:** Generate a static base64 token (`btoa`). Persist in `localStorage`. Use a functional `authInterceptor` to send `Authorization: Bearer <token>`.
