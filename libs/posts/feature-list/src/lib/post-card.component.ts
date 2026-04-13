@@ -22,6 +22,7 @@ function capitalizeName(name: string): string {
   imports: [RouterLink, AvatarComponent, BadgeComponent, CardComponent],
   templateUrl: './post-card.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'block h-full' },
 })
 export class PostCardComponent {
   readonly post = input.required<Post>();

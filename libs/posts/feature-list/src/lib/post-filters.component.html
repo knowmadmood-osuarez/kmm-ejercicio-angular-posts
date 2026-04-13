@@ -1,27 +1,50 @@
-<div class="flex flex-wrap items-center gap-2">
-  <app-select
-    id="filter-author"
-    name="author"
-    [value]="filters().author"
-    [ariaLabel]="'posts.list.filterAuthor' | transloco"
-    (valueChange)="onAuthorChange($event)"
+<div class="flex flex-col gap-2">
+  <!-- Toggle button — mobile only -->
+  <button
+    type="button"
+    class="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-alt hover:text-text sm:hidden"
+    (click)="toggleFilters()"
+    [attr.aria-expanded]="filtersOpen()"
+    [attr.aria-label]="'posts.list.toggleFilters' | transloco"
   >
-    <option value="">{{ 'posts.list.allAuthors' | transloco }}</option>
-    @for (author of authors(); track author.id) {
-      <option [value]="author.id">{{ author.name }}</option>
-    }
-  </app-select>
+    <app-icon
+      name="chevron-down"
+      class="h-3.5 w-3.5 transition-transform"
+      [class.rotate-180]="filtersOpen()"
+    />
+    {{ 'posts.list.toggleFilters' | transloco }}
+  </button>
 
-  <app-select
-    id="filter-tag"
-    name="tag"
-    [value]="filters().tag"
-    [ariaLabel]="'posts.list.filterTag' | transloco"
-    (valueChange)="onTagChange($event)"
+  <!-- Selects — hidden on mobile unless toggled, always visible on sm+ -->
+  <div
+    class="flex-wrap items-center gap-2 sm:flex"
+    [class.hidden]="!filtersOpen()"
+    [class.flex]="filtersOpen()"
   >
-    <option value="">{{ 'posts.list.allTags' | transloco }}</option>
-    @for (tag of tags(); track tag) {
-      <option [value]="tag">{{ tag }}</option>
-    }
-  </app-select>
+    <app-select
+      id="filter-author"
+      name="author"
+      [value]="filters().author"
+      [ariaLabel]="'posts.list.filterAuthor' | transloco"
+      (valueChange)="onAuthorChange($event)"
+    >
+      <option value="">{{ 'posts.list.allAuthors' | transloco }}</option>
+      @for (author of authors(); track author.id) {
+        <option [value]="author.id">{{ author.name }}</option>
+      }
+    </app-select>
+
+    <app-select
+      id="filter-tag"
+      name="tag"
+      [value]="filters().tag"
+      [ariaLabel]="'posts.list.filterTag' | transloco"
+      (valueChange)="onTagChange($event)"
+    >
+      <option value="">{{ 'posts.list.allTags' | transloco }}</option>
+      @for (tag of tags(); track tag) {
+        <option [value]="tag">{{ tag }}</option>
+      }
+    </app-select>
+  </div>
 </div>

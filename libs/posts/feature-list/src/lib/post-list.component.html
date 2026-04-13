@@ -1,12 +1,18 @@
-<div class="flex flex-col gap-4">
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
   @for (pa of postsWithAuthors(); track pa.post.id) {
-    <app-post-card
-      [post]="pa.post"
-      [author]="pa.author"
-      [isCurrentUser]="pa.isCurrentUser"
-      [variant]="pa.index % 2 === 1 ? 'tonal' : 'white'"
-      [lang]="lang()"
-      (hovered)="postHovered.emit($event)"
-    />
+    @defer (on viewport) {
+      <div class="animate-card-in h-full">
+        <app-post-card
+          [post]="pa.post"
+          [author]="pa.author"
+          [isCurrentUser]="pa.isCurrentUser"
+          [variant]="pa.index % 2 === 1 ? 'tonal' : 'white'"
+          [lang]="lang()"
+          (hovered)="postHovered.emit($event)"
+        />
+      </div>
+    } @placeholder {
+      <div class="min-h-40 rounded-xl bg-surface-alt animate-pulse" aria-hidden="true"></div>
+    }
   }
 </div>

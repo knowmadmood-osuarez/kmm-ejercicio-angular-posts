@@ -38,7 +38,8 @@
 
 <!-- List -->
 @if (!isLoading() && !error() && posts().length) {
-  <app-post-list
+  <div class="animate-fade-in">
+    <app-post-list
     [posts]="posts()"
     [users]="users()"
     [currentUser]="currentUser()"
@@ -58,6 +59,7 @@
       {{ 'posts.list.noMore' | transloco }}
     </p>
   }
+  </div>
 }
 
 <!-- FAB: Nuevo post -->
