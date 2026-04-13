@@ -2,7 +2,6 @@ import {
   afterNextRender,
   ChangeDetectionStrategy,
   Component,
-  computed,
   DestroyRef,
   effect,
   ElementRef,
@@ -15,8 +14,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { EmptyStateComponent, ErrorStateComponent, LoadingComponent } from '@app/shared/ui';
-import { type PostFilters, PostDetailService, PostsService } from '@app/posts/data-access';
-import { AuthService } from '@app/core';
+import { type PostFilters, PostsFacade } from '@app/posts/data-access';
+import { AuthFacade } from '@app/core';
 
 import { PostFiltersComponent } from './post-filters.component';
 import { PostListComponent } from './post-list.component';
@@ -41,40 +40,37 @@ export class PostListPageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly transloco = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly authService = inject(AuthService);
-  protected readonly postsService = inject(PostsService);
-  private readonly postDetailService = inject(PostDetailService);
+
+  protected readonly postsFacade = inject(PostsFacade);
+  private readonly authFacade = inject(AuthFacade);
 
   private readonly queryParams = toSignal(this.route.queryParamMap);
 
   readonly sentinel = viewChild<ElementRef<HTMLElement>>('sentinel');
 
-  readonly isLoading = computed(() => this.postsService.isLoading());
-  readonly error = computed(() => this.postsService.error());
-  readonly posts = computed(() => this.postsService.visiblePosts());
-  readonly totalItems = computed(() => this.postsService.totalItems());
-  readonly isEmpty = computed(
-    () => !this.isLoading() && !this.error() && this.posts().length === 0,
-  );
-
-  readonly users = computed(() => this.postsService.users());
-  readonly tags = computed(() => this.postsService.uniqueTags());
-  readonly filters = computed(() => this.postsService.filters());
+  readonly isLoading = this.postsFacade.isLoading;
+  readonly error = this.postsFacade.error;
+  readonly posts = this.postsFacade.posts;
+  readonly totalItems = this.postsFacade.totalItems;
+  readonly isEmpty = this.postsFacade.isEmpty;
+  readonly users = this.postsFacade.users;
+  readonly tags = this.postsFacade.uniqueTags;
+  readonly filters = this.postsFacade.filters;
+  readonly hasMore = this.postsFacade.hasMore;
+  readonly isLoadingMore = this.postsFacade.isLoadingMore;
+  readonly currentUser = this.authFacade.currentUser;
   readonly lang = toSignal(this.transloco.langChanges$, {
     initialValue: this.transloco.getActiveLang(),
   });
-  readonly currentUser = this.authService.currentUser;
-  readonly hasMore = computed(() => this.postsService.hasMore());
-  readonly isLoadingMore = computed(() => this.postsService.isLoadingMore());
 
   private readonly observer = signal<IntersectionObserver | undefined>(undefined);
 
   constructor() {
-    // Sync query params → service filters
+    // Sync route query params → facade (linkedSignal source)
     effect(() => {
       const params = this.queryParams();
       if (!params) return;
-      this.postsService.filters.set({
+      this.postsFacade.syncFiltersFromRoute({
         q: params.get('q') ?? '',
         author: params.get('author') ?? '',
         tag: params.get('tag') ?? '',
@@ -86,7 +82,7 @@ export class PostListPageComponent {
       const obs = new IntersectionObserver(
         (entries) => {
           if (entries[0]?.isIntersecting) {
-            this.postsService.loadNextPage();
+            this.postsFacade.loadNextPage();
           }
         },
         { rootMargin: '200px' },
@@ -107,6 +103,7 @@ export class PostListPageComponent {
   }
 
   onFiltersChange(filters: PostFilters): void {
+    this.postsFacade.filters.set(filters);
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
@@ -119,10 +116,10 @@ export class PostListPageComponent {
   }
 
   onRetry(): void {
-    this.postsService.reload();
+    this.postsFacade.reload();
   }
 
   onPostHovered(id: string): void {
-    this.postDetailService.prefetch(id);
+    this.postsFacade.prefetch(id);
   }
 }

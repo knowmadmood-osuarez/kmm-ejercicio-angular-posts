@@ -5,7 +5,7 @@ import { provideRouter, Router, withComponentInputBinding } from '@angular/route
 import { provideTransloco } from '@jsverse/transloco';
 import { signal } from '@angular/core';
 
-import { AuthService, ToastService } from '@app/core';
+import { AuthFacade, ToastService } from '@app/core';
 import { PostDetailService, PostsService } from '@app/posts/data-access';
 
 import { PostFormPageComponent } from './post-form-page.component';
@@ -53,7 +53,7 @@ function setup(postId?: string) {
     component: fixture.componentInstance,
     postsService: TestBed.inject(PostsService),
     postDetailService: TestBed.inject(PostDetailService),
-    authService: TestBed.inject(AuthService),
+    authFacade: TestBed.inject(AuthFacade),
     router: TestBed.inject(Router),
     toast: TestBed.inject(ToastService),
   };
@@ -131,10 +131,9 @@ describe('PostFormPageComponent', () => {
   });
 
   it('onSubmit in new mode calls createPost', async () => {
-    const { component, postDetailService, postsService, authService, router, toast } = setup();
-    Object.defineProperty(authService, 'currentUser', { value: signal(MOCK_USER) });
+    const { component, postDetailService, router, toast } = setup();
+    Object.defineProperty(component, 'currentUser', { value: signal(MOCK_USER) });
     vi.spyOn(postDetailService, 'createPost').mockResolvedValue(MOCK_POST as never);
-    vi.spyOn(postsService, 'reload');
     vi.spyOn(router, 'navigate').mockResolvedValue(true);
     const toastSpy = vi.spyOn(toast, 'success');
 
@@ -142,16 +141,16 @@ describe('PostFormPageComponent', () => {
     await component.onSubmit(data);
 
     expect(postDetailService.createPost).toHaveBeenCalled();
+    // Toast is now triggered inside PostsFacade.createPost
     expect(toastSpy).toHaveBeenCalledWith('toast.postCreated');
     expect(router.navigate).toHaveBeenCalledWith(['/posts']);
     expect(component.isSaving()).toBe(false);
   });
 
   it('onSubmit in edit mode calls updatePost', async () => {
-    const { component, postDetailService, postsService, authService, router, toast } = setup('1');
-    Object.defineProperty(authService, 'currentUser', { value: signal(MOCK_USER) });
+    const { component, postDetailService, router, toast } = setup('1');
+    Object.defineProperty(component, 'currentUser', { value: signal(MOCK_USER) });
     vi.spyOn(postDetailService, 'updatePost').mockResolvedValue(MOCK_POST as never);
-    vi.spyOn(postsService, 'reload');
     vi.spyOn(router, 'navigate').mockResolvedValue(true);
     const toastSpy = vi.spyOn(toast, 'success');
 
@@ -163,19 +162,18 @@ describe('PostFormPageComponent', () => {
       body: 'Body',
       tags: [],
     });
+    // Toast is now triggered inside PostsFacade.updatePost
     expect(toastSpy).toHaveBeenCalledWith('toast.postUpdated');
   });
 
   it('onSubmit sets saveError on failure', async () => {
-    const { component, postDetailService, authService, toast } = setup();
-    Object.defineProperty(authService, 'currentUser', { value: signal(MOCK_USER) });
+    const { component, postDetailService } = setup();
+    Object.defineProperty(component, 'currentUser', { value: signal(MOCK_USER) });
     vi.spyOn(postDetailService, 'createPost').mockRejectedValue(new Error('fail'));
-    const errorSpy = vi.spyOn(toast, 'error');
 
     await component.onSubmit({ title: 'T', body: 'B', tags: [] });
 
     expect(component.saveError()).toBe('shared.error');
-    expect(errorSpy).toHaveBeenCalledWith('shared.error');
     expect(component.isSaving()).toBe(false);
   });
 });

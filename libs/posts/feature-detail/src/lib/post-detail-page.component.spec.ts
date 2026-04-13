@@ -190,6 +190,7 @@ describe('PostDetailPageComponent', () => {
     component.onDeleteRequest();
     await component.onDeleteConfirmed();
 
+    // Toast is triggered inside PostsFacade.deletePost
     expect(toastSpy).toHaveBeenCalledWith('toast.postDeleted');
     expect(navSpy).toHaveBeenCalledWith(['/posts']);
     expect(component.isDeleting()).toBe(false);

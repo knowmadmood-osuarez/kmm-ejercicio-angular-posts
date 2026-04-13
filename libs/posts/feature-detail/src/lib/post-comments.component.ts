@@ -1,12 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
@@ -17,9 +9,9 @@ import {
   LoadingComponent,
   SectionHeaderComponent,
 } from '@app/shared/ui';
-import { AuthService, ToastService } from '@app/core';
-import { CommentsService, PostsService, sortByNewest } from '@app/posts/data-access';
+import { AuthFacade } from '@app/core';
 import type { Comment } from '@app/posts/data-access';
+import { CommentsFacade, PostsFacade } from '@app/posts/data-access';
 
 import { CommentCardComponent } from './comment-card.component';
 import { CommentFormComponent } from './comment-form.component';
@@ -43,27 +35,18 @@ import { CommentFormComponent } from './comment-form.component';
 export class PostCommentsComponent {
   readonly postId = input.required<string>();
 
-  private readonly commentsService = inject(CommentsService);
-  private readonly postsService = inject(PostsService);
-  private readonly authService = inject(AuthService);
+  private readonly commentsFacade = inject(CommentsFacade);
+  private readonly postsFacade = inject(PostsFacade);
+  private readonly authFacade = inject(AuthFacade);
   private readonly transloco = inject(TranslocoService);
-  private readonly toast = inject(ToastService);
 
-  readonly isLoading = computed(() => this.commentsService.commentsResource.isLoading());
-  readonly error = computed(() => this.commentsService.commentsResource.error());
+  readonly isLoading = this.commentsFacade.isLoading;
+  readonly error = this.commentsFacade.error;
+  readonly comments = this.commentsFacade.comments;
+  readonly isEmpty = this.commentsFacade.isEmpty;
 
-  /** Merge optimistic (pending) comments on top of server comments, sorted newest-first. */
-  readonly comments = computed(() => {
-    const server = this.commentsService.commentsResource.value() ?? [];
-    const optimistic = this.commentsService.optimistic();
-    return [...optimistic, ...sortByNewest(server)];
-  });
-
-  readonly isEmpty = computed(
-    () => !this.isLoading() && !this.error() && this.comments().length === 0,
-  );
-  readonly currentUser = this.authService.currentUser;
-  readonly users = computed(() => this.postsService.users());
+  readonly currentUser = this.authFacade.currentUser;
+  readonly users = this.postsFacade.users;
   readonly lang = toSignal(this.transloco.langChanges$, {
     initialValue: this.transloco.getActiveLang(),
   });
@@ -74,7 +57,7 @@ export class PostCommentsComponent {
 
   constructor() {
     effect(() => {
-      this.commentsService.loadForPost(this.postId());
+      this.commentsFacade.loadForPost(this.postId());
     });
   }
 
@@ -83,7 +66,8 @@ export class PostCommentsComponent {
   }
 
   isCommentOwner(userId: string): boolean {
-    return String(this.currentUser()?.id) === String(userId);
+    const user = this.currentUser();
+    return user ? String(user.id) === String(userId) : false;
   }
 
   async onAddComment(body: string): Promise<void> {
@@ -91,13 +75,12 @@ export class PostCommentsComponent {
     if (!user) return;
     this.isSubmitting.set(true);
     try {
-      await this.commentsService.createComment({
+      await this.commentsFacade.createComment({
         postId: String(this.postId()),
         userId: String(user.id),
         body,
         createdAt: new Date().toISOString(),
       });
-      this.toast.success('toast.commentCreated');
     } finally {
       this.isSubmitting.set(false);
     }
@@ -116,10 +99,8 @@ export class PostCommentsComponent {
     if (!editing) return;
     this.isSubmitting.set(true);
     try {
-      await this.commentsService.updateComment(editing.id, { body });
+      await this.commentsFacade.updateComment(editing.id, { body });
       this.editingComment.set(null);
-      this.toast.success('toast.commentUpdated');
-      this.commentsService.commentsResource.reload();
     } finally {
       this.isSubmitting.set(false);
     }
@@ -138,16 +119,14 @@ export class PostCommentsComponent {
     if (!id) return;
     this.isSubmitting.set(true);
     try {
-      await this.commentsService.deleteComment(id);
+      await this.commentsFacade.deleteComment(id);
       this.confirmDeleteId.set(null);
-      this.toast.success('toast.commentDeleted');
-      this.commentsService.commentsResource.reload();
     } finally {
       this.isSubmitting.set(false);
     }
   }
 
   onRetry(): void {
-    this.commentsService.commentsResource.reload();
+    this.commentsFacade.reload();
   }
 }

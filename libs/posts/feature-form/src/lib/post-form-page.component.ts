@@ -18,8 +18,8 @@ import {
   LoadingComponent,
   PageHeaderComponent,
 } from '@app/shared/ui';
-import { AuthService, ToastService } from '@app/core';
-import { PostDetailService, PostsService } from '@app/posts/data-access';
+import { AuthFacade } from '@app/core';
+import { PostsFacade } from '@app/posts/data-access';
 import type { PostCreate, PostUpdate } from '@app/posts/data-access';
 
 import { PostFormComponent } from './post-form.component';
@@ -45,29 +45,25 @@ export class PostFormPageComponent {
   readonly id = input<string | undefined>(undefined);
 
   private readonly router = inject(Router);
-  private readonly authService = inject(AuthService);
-  private readonly postsService = inject(PostsService);
-  private readonly postDetailService = inject(PostDetailService);
-  private readonly toast = inject(ToastService);
+  private readonly authFacade = inject(AuthFacade);
+  private readonly postsFacade = inject(PostsFacade);
+
+  private readonly currentUser = this.authFacade.currentUser;
 
   readonly isEditMode = computed(() => !!this.id());
   readonly pageTitle = computed(() =>
     this.isEditMode() ? 'posts.form.titleEdit' : 'posts.form.titleNew',
   );
 
-  readonly isLoading = computed(
-    () => this.isEditMode() && this.postDetailService.postDetailResource.isLoading(),
-  );
+  readonly isLoading = computed(() => this.isEditMode() && this.postsFacade.selectedPostLoading());
   readonly error = computed(() =>
-    this.isEditMode() ? this.postDetailService.postDetailResource.error() : null,
+    this.isEditMode() ? this.postsFacade.selectedPostError() : null,
   );
-  readonly post = computed(() =>
-    this.isEditMode() ? this.postDetailService.postDetailResource.value() : undefined,
-  );
+  readonly post = computed(() => (this.isEditMode() ? this.postsFacade.selectedPost() : undefined));
 
   readonly isForbidden = computed(() => {
     const post = this.post();
-    const user = this.authService.currentUser();
+    const user = this.currentUser();
     if (!this.isEditMode() || !post || !user) return false;
     return String(post.userId) !== String(user.id);
   });
@@ -78,12 +74,12 @@ export class PostFormPageComponent {
   constructor() {
     effect(() => {
       const id = this.id();
-      if (id) this.postDetailService.loadDetail(id);
+      if (id) this.postsFacade.loadDetail(id);
     });
   }
 
   async onSubmit(data: PostFormData): Promise<void> {
-    const user = this.authService.currentUser();
+    const user = this.currentUser();
     if (!user) return;
 
     this.isSaving.set(true);
@@ -92,8 +88,7 @@ export class PostFormPageComponent {
     try {
       if (this.isEditMode()) {
         const changes: PostUpdate = { title: data.title, body: data.body, tags: data.tags };
-        await this.postDetailService.updatePost(this.id()!, changes);
-        this.toast.success('toast.postUpdated');
+        await this.postsFacade.updatePost(this.id()!, changes);
       } else {
         const payload: PostCreate = {
           userId: String(user.id),
@@ -102,14 +97,11 @@ export class PostFormPageComponent {
           tags: data.tags,
           createdAt: new Date().toISOString(),
         };
-        await this.postDetailService.createPost(payload);
-        this.toast.success('toast.postCreated');
+        await this.postsFacade.createPost(payload);
       }
-      this.postsService.reload();
       void this.router.navigate(['/posts']);
     } catch {
       this.saveError.set('shared.error');
-      this.toast.error('shared.error');
     } finally {
       this.isSaving.set(false);
     }
@@ -125,6 +117,6 @@ export class PostFormPageComponent {
   }
 
   onRetry(): void {
-    this.postDetailService.postDetailResource.reload();
+    this.postsFacade.reloadDetail();
   }
 }

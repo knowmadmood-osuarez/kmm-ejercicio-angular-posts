@@ -5,7 +5,7 @@ import { map } from 'rxjs';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 import { IconComponent, LanguageSwitcherComponent } from '@app/shared/ui';
-import { AuthService } from '@app/core';
+import { AuthFacade } from '@app/core';
 
 @Component({
   selector: 'app-layout',
@@ -15,16 +15,15 @@ import { AuthService } from '@app/core';
   templateUrl: './app-layout.component.html',
 })
 export class AppLayoutComponent {
-  private readonly authService = inject(AuthService);
+  private readonly authFacade = inject(AuthFacade);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
   readonly menuOpen = signal(false);
 
-  readonly searchValue = toSignal(
-    this.route.queryParamMap.pipe(map((p) => p.get('q') ?? '')),
-    { initialValue: '' },
-  );
+  readonly searchValue = toSignal(this.route.queryParamMap.pipe(map((p) => p.get('q') ?? '')), {
+    initialValue: '',
+  });
 
   toggleMenu(): void {
     this.menuOpen.update((v) => !v);
@@ -39,7 +38,6 @@ export class AppLayoutComponent {
   }
 
   onLogout(): void {
-    this.authService.logout();
+    this.authFacade.logout();
   }
 }
-

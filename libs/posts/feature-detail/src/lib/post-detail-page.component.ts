@@ -18,8 +18,8 @@ import {
   IconComponent,
   LoadingComponent,
 } from '@app/shared/ui';
-import { AuthService, ToastService } from '@app/core';
-import { PostDetailService, PostsService } from '@app/posts/data-access';
+import { AuthFacade } from '@app/core';
+import { PostsFacade } from '@app/posts/data-access';
 
 import { PostDetailComponent } from './post-detail.component';
 import { PostCommentsComponent } from './post-comments.component';
@@ -45,23 +45,21 @@ export class PostDetailPageComponent {
   readonly id = input<string>('');
 
   private readonly router = inject(Router);
-  private readonly authService = inject(AuthService);
-  private readonly postsService = inject(PostsService);
-  private readonly postDetailService = inject(PostDetailService);
+  private readonly authFacade = inject(AuthFacade);
+  private readonly postsFacade = inject(PostsFacade);
   private readonly transloco = inject(TranslocoService);
-  private readonly toast = inject(ToastService);
 
   readonly postId = computed(() => {
     const raw = this.id();
     return raw || null;
   });
 
-  readonly isLoading = computed(() => this.postDetailService.postDetailResource.isLoading());
-  readonly error = computed(() => this.postDetailService.postDetailResource.error());
-  readonly post = computed(() => this.postDetailService.postDetailResource.value());
+  readonly isLoading = this.postsFacade.selectedPostLoading;
+  readonly error = this.postsFacade.selectedPostError;
+  readonly post = this.postsFacade.selectedPost;
 
-  readonly currentUser = this.authService.currentUser;
-  readonly users = computed(() => this.postsService.users());
+  readonly currentUser = this.authFacade.currentUser;
+  readonly users = this.postsFacade.users;
 
   readonly author = computed(() => {
     const post = this.post();
@@ -86,7 +84,7 @@ export class PostDetailPageComponent {
   constructor() {
     effect(() => {
       const id = this.postId();
-      if (id) this.postDetailService.loadDetail(id);
+      if (id) this.postsFacade.loadDetail(id);
     });
   }
 
@@ -108,9 +106,7 @@ export class PostDetailPageComponent {
     if (!id) return;
     this.isDeleting.set(true);
     try {
-      await this.postDetailService.deletePost(id);
-      this.postsService.reload();
-      this.toast.success('toast.postDeleted');
+      await this.postsFacade.deletePost(id);
       void this.router.navigate(['/posts']);
     } finally {
       this.isDeleting.set(false);
@@ -119,7 +115,7 @@ export class PostDetailPageComponent {
   }
 
   onRetry(): void {
-    this.postDetailService.postDetailResource.reload();
+    this.postsFacade.reloadDetail();
   }
 
   onBack(): void {

@@ -6,7 +6,7 @@ import { provideTransloco } from '@jsverse/transloco';
 import { signal } from '@angular/core';
 
 import type { User } from '@app/core';
-import { AuthService, ToastService } from '@app/core';
+import { AuthFacade, ToastService } from '@app/core';
 import type { Comment } from '@app/posts/data-access';
 import { CommentsService, PostsService } from '@app/posts/data-access';
 
@@ -52,7 +52,7 @@ function setup() {
     fixture,
     component: fixture.componentInstance,
     commentsService: TestBed.inject(CommentsService),
-    authService: TestBed.inject(AuthService),
+    authFacade: TestBed.inject(AuthFacade),
     toast: TestBed.inject(ToastService),
   };
 }
@@ -130,6 +130,7 @@ describe('PostCommentsComponent', () => {
     await component.onAddComment('new comment');
 
     expect(commentsService.createComment).toHaveBeenCalled();
+    // Toast is now triggered inside CommentsFacade.createComment
     expect(toastSpy).toHaveBeenCalledWith('toast.commentCreated');
     expect(component.isSubmitting()).toBe(false);
   });

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { Router } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 
-import { AuthService } from '@app/core';
+import { AuthFacade } from '@app/core';
 import { LanguageSwitcherComponent } from '@app/shared/ui';
 
 import { LoginFormComponent, type LoginCredentials } from './login-form.component';
@@ -19,7 +19,7 @@ import { LoginFormComponent, type LoginCredentials } from './login-form.componen
   `,
 })
 export class LoginPageComponent {
-  private readonly authService = inject(AuthService);
+  private readonly authFacade = inject(AuthFacade);
   private readonly router = inject(Router);
 
   readonly loading = signal(false);
@@ -30,7 +30,7 @@ export class LoginPageComponent {
     this.error.set(null);
 
     try {
-      await this.authService.login(credentials.name, credentials.password);
+      await this.authFacade.login(credentials.name, credentials.password);
       await this.router.navigate(['/posts']);
     } catch (err: unknown) {
       this.error.set(err instanceof Error ? err : new Error('Login failed'));
