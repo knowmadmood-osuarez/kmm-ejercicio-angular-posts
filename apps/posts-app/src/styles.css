@@ -82,7 +82,7 @@
 
 /* ── Utility: fade-in animation ── */
 @utility animate-fade-in {
-  animation: fadeIn 0.25s ease-out both;
+  animation: fadeIn 0.25s ease-out backwards;
 }
 
 @keyframes fadeIn {
@@ -90,15 +90,11 @@
     opacity: 0;
     translate: 0 8px;
   }
-  to {
-    opacity: 1;
-    translate: 0 0;
-  }
 }
 
 /* ── Utility: slide-down animation (mobile menu) ── */
 @utility animate-slide-down {
-  animation: slideDown 0.2s ease-out both;
+  animation: slideDown 0.2s ease-out backwards;
 }
 
 @keyframes slideDown {
@@ -106,15 +102,11 @@
     opacity: 0;
     translate: 0 -8px;
   }
-  to {
-    opacity: 1;
-    translate: 0 0;
-  }
 }
 
 /* ── Utility: card reveal on scroll ── */
 @utility animate-card-in {
-  animation: cardIn 0.35s ease-out both;
+  animation: cardIn 0.35s ease-out backwards;
 }
 
 @keyframes cardIn {
@@ -122,15 +114,11 @@
     opacity: 0;
     translate: 0 12px;
   }
-  to {
-    opacity: 1;
-    translate: 0 0;
-  }
 }
 
 /* ── Utility: toast slide-in ── */
 @utility animate-toast-in {
-  animation: toastIn 0.3s ease-out both;
+  animation: toastIn 0.3s ease-out backwards;
 }
 
 @keyframes toastIn {
@@ -138,9 +126,4 @@
     opacity: 0;
     translate: 100% 0;
   }
-  to {
-    opacity: 1;
-    translate: 0 0;
-  }
 }
-
