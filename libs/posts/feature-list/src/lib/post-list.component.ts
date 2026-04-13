@@ -16,17 +16,17 @@ export class PostListComponent {
   readonly users = input<SafeUser[]>([]);
   readonly lang = input<string>('es');
 
-  readonly postHovered = output<number>();
+  readonly postHovered = output<string>();
   readonly currentUser = input<SafeUser | null>(null);
 
   /** Join posts with their authors in a single computed — reactive to both signals. */
   readonly postsWithAuthors = computed(() => {
-    const usersMap = new Map(this.users().map((u) => [Number(u.id), u]));
-    const currentUserId = Number(this.currentUser()?.id);
+    const usersMap = new Map(this.users().map((u) => [String(u.id), u]));
+    const currentUserId = String(this.currentUser()?.id ?? '');
     return this.posts().map((post, index) => ({
       post,
-      author: usersMap.get(Number(post.userId)),
-      isCurrentUser: Number(post.userId) === currentUserId,
+      author: usersMap.get(String(post.userId)),
+      isCurrentUser: String(post.userId) === currentUserId,
       index,
     }));
   });

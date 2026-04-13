@@ -30,7 +30,7 @@ export class PostCardComponent {
   readonly variant = input<'white' | 'tonal'>('white');
   readonly lang = input<string>('es');
 
-  readonly hovered = output<number>();
+  readonly hovered = output<string>();
 
   readonly bodyExcerpt = computed(() => excerpt(this.post().body));
   readonly formattedDate = computed(() => formatDate(this.post().createdAt, this.lang()));

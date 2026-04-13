@@ -91,7 +91,7 @@ export class PostListPageComponent {
     this.postsService.postsResource.reload();
   }
 
-  onPostHovered(id: number): void {
+  onPostHovered(id: string): void {
     this.postsService.prefetch(id);
   }
 }
