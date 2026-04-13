@@ -24,7 +24,8 @@
 
 <!-- Content -->
 @if (post() && !isLoading() && !error()) {
-  <app-post-detail
+  <div class="animate-fade-in">
+    <app-post-detail
     [post]="post()!"
     [author]="author()"
     [isOwner]="isOwner()"
@@ -42,6 +43,7 @@
     } @placeholder {
       <div class="h-24 rounded-lg bg-surface-alt animate-pulse" aria-hidden="true"></div>
     }
+  </div>
   </div>
 }
 

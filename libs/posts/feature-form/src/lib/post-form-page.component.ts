@@ -18,7 +18,7 @@ import {
   LoadingComponent,
   PageHeaderComponent,
 } from '@app/shared/ui';
-import { AuthService } from '@app/core';
+import { AuthService, ToastService } from '@app/core';
 import { PostsService } from '@app/posts/data-access';
 import type { PostCreate, PostUpdate } from '@app/posts/data-access';
 
@@ -47,6 +47,7 @@ export class PostFormPageComponent {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly postsService = inject(PostsService);
+  private readonly toast = inject(ToastService);
 
   readonly isEditMode = computed(() => !!this.id());
   readonly pageTitle = computed(() =>
@@ -91,7 +92,7 @@ export class PostFormPageComponent {
       if (this.isEditMode()) {
         const changes: PostUpdate = { title: data.title, body: data.body, tags: data.tags };
         await this.postsService.updatePost(this.id()!, changes);
-        void this.router.navigate(['/posts', this.id()]);
+        this.toast.success('toast.postUpdated');
       } else {
         const payload: PostCreate = {
           userId: String(user.id),
@@ -100,11 +101,14 @@ export class PostFormPageComponent {
           tags: data.tags,
           createdAt: new Date().toISOString(),
         };
-        const created = await this.postsService.createPost(payload);
-        void this.router.navigate(['/posts', created.id]);
+        await this.postsService.createPost(payload);
+        this.toast.success('toast.postCreated');
       }
+      this.postsService.reload();
+      void this.router.navigate(['/posts']);
     } catch {
       this.saveError.set('shared.error');
+      this.toast.error('shared.error');
     } finally {
       this.isSaving.set(false);
     }

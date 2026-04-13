@@ -18,7 +18,7 @@ import {
   IconComponent,
   LoadingComponent,
 } from '@app/shared/ui';
-import { AuthService } from '@app/core';
+import { AuthService, ToastService } from '@app/core';
 import { PostsService } from '@app/posts/data-access';
 
 import { PostDetailComponent } from './post-detail.component';
@@ -48,6 +48,7 @@ export class PostDetailPageComponent {
   private readonly authService = inject(AuthService);
   private readonly postsService = inject(PostsService);
   private readonly transloco = inject(TranslocoService);
+  private readonly toast = inject(ToastService);
 
   readonly postId = computed(() => {
     const raw = this.id();
@@ -107,6 +108,7 @@ export class PostDetailPageComponent {
     this.isDeleting.set(true);
     try {
       await this.postsService.deletePost(id);
+      this.toast.success('toast.postDeleted');
       void this.router.navigate(['/posts']);
     } finally {
       this.isDeleting.set(false);
