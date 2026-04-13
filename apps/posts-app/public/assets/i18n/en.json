@@ -32,7 +32,9 @@
       "username": "Username",
       "password": "Password",
       "submit": "Sign in",
-      "error": "Invalid credentials"
+      "error": "Invalid credentials",
+      "nameRequired": "Username is required",
+      "passwordRequired": "Password is required"
     }
   },
   "posts": {
@@ -79,7 +81,8 @@
     "placeholder": "Write a comment...",
     "submit": "Publish comment",
     "update": "Update comment",
-    "bodyRequired": "Comment is required"
+    "bodyRequired": "Comment is required",
+    "bodyMinLength": "Comment must be at least 3 characters"
   },
   "pagination": {
     "previous": "Previous",

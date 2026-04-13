@@ -16,14 +16,11 @@
       (blurred)="postForm.title().markAsTouched()"
     />
     @if (postForm.title().touched() && postForm.title().invalid()) {
-      <p class="text-xs text-danger" role="alert" aria-live="polite">
-        {{ 'posts.form.titleRequired' | transloco }}
-      </p>
-    }
-    @if (postForm.title().touched() && titleTooShort()) {
-      <p class="text-xs text-danger" role="alert" aria-live="polite">
-        {{ 'posts.form.titleMinLength' | transloco }}
-      </p>
+      @for (error of postForm.title().errors(); track error.kind) {
+        <p class="text-xs text-danger" role="alert" aria-live="polite">
+          {{ error.message! | transloco }}
+        </p>
+      }
     }
   </div>
 
@@ -44,14 +41,11 @@
       (blurred)="postForm.body().markAsTouched()"
     />
     @if (postForm.body().touched() && postForm.body().invalid()) {
-      <p class="text-xs text-danger" role="alert" aria-live="polite">
-        {{ 'posts.form.bodyRequired' | transloco }}
-      </p>
-    }
-    @if (postForm.body().touched() && bodyTooShort()) {
-      <p class="text-xs text-danger" role="alert" aria-live="polite">
-        {{ 'posts.form.bodyMinLength' | transloco }}
-      </p>
+      @for (error of postForm.body().errors(); track error.kind) {
+        <p class="text-xs text-danger" role="alert" aria-live="polite">
+          {{ error.message! | transloco }}
+        </p>
+      }
     }
   </div>
 
@@ -77,7 +71,12 @@
     <app-button type="button" variant="secondary" size="md" (click)="onCancel()">
       {{ 'posts.form.cancel' | transloco }}
     </app-button>
-    <app-button type="submit" variant="primary" size="md" [disabled]="!canSubmit()">
+    <app-button
+      type="submit"
+      variant="primary"
+      size="md"
+      [disabled]="postForm().invalid() || loading()"
+    >
       @if (loading()) {
         <app-icon name="spinner" class="h-4 w-4 animate-spin" />
       }

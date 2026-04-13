@@ -12,11 +12,14 @@
       [rows]="5"
       [ariaLabel]="'comments.add' | transloco"
       (valueChange)="commentForm.body().value.set($event)"
+      (blurred)="commentForm.body().markAsTouched()"
     />
-    @if (commentForm.body().invalid() && commentForm.body().touched()) {
-      <p class="text-xs text-danger" role="alert" aria-live="polite">
-        {{ 'comments.bodyRequired' | transloco }}
-      </p>
+    @if (commentForm.body().touched() && commentForm.body().invalid()) {
+      @for (error of commentForm.body().errors(); track error.kind) {
+        <p class="text-xs text-danger" role="alert" aria-live="polite">
+          {{ error.message! | transloco }}
+        </p>
+      }
     }
   </div>
 

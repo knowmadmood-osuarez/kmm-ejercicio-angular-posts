@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, effect, input, output, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { form, required, submit } from '@angular/forms/signals';
+import { form, required, minLength, submit } from '@angular/forms/signals';
 
 import { ButtonComponent, IconComponent, LabelComponent, TextareaComponent } from '@app/shared/ui';
 
@@ -25,7 +25,8 @@ export class CommentFormComponent {
   readonly commentModel = signal<CommentModel>({ body: '' });
 
   readonly commentForm = form(this.commentModel, (schema) => {
-    required(schema.body);
+    required(schema.body, { message: 'comments.bodyRequired' });
+    minLength(schema.body, 3, { message: 'comments.bodyMinLength' });
   });
 
   constructor() {

@@ -1,14 +1,6 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  input,
-  output,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, input, output, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { form, required, submit } from '@angular/forms/signals';
+import { form, minLength, required, submit } from '@angular/forms/signals';
 
 import {
   ButtonComponent,
@@ -67,29 +59,11 @@ export class PostFormComponent {
 
   readonly postModel = signal<PostFormModel>({ title: '', body: '', tags: '' });
 
-  readonly postForm = form(this.postModel, (schema) => {
-    required(schema.title);
-    required(schema.body);
-  });
-
-  readonly titleTooShort = computed(() => {
-    const val = this.postModel().title;
-    return val.length > 0 && val.length < 3;
-  });
-
-  readonly bodyTooShort = computed(() => {
-    const val = this.postModel().body;
-    return val.length > 0 && val.length < 10;
-  });
-
-  readonly canSubmit = computed(() => {
-    const model = this.postModel();
-    return (
-      !this.loading() &&
-      !this.postForm().invalid() &&
-      model.title.length >= 3 &&
-      model.body.length >= 10
-    );
+  readonly postForm = form(this.postModel, (schemaPath) => {
+    required(schemaPath.title, { message: 'posts.form.titleRequired' });
+    minLength(schemaPath.title, 3, { message: 'posts.form.titleMinLength' });
+    required(schemaPath.body, { message: 'posts.form.bodyRequired' });
+    minLength(schemaPath.body, 10, { message: 'posts.form.bodyMinLength' });
   });
 
   constructor() {
@@ -107,7 +81,6 @@ export class PostFormComponent {
 
   onSubmit(event?: Event): void {
     event?.preventDefault();
-    if (!this.canSubmit()) return;
     submit(this.postForm, async () => {
       const model = this.postModel();
       this.submitted.emit({

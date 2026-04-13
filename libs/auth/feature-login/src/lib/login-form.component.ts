@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { form, required, submit } from '@angular/forms/signals';
 
@@ -47,13 +47,11 @@ export class LoginFormComponent {
   readonly loginModel = signal<LoginModel>({ name: '', password: '' });
 
   readonly loginForm = form(this.loginModel, (schema) => {
-    required(schema.name);
-    required(schema.password);
+    required(schema.name, { message: 'auth.login.nameRequired' });
+    required(schema.password, { message: 'auth.login.passwordRequired' });
   });
 
-  isValid(): boolean {
-    return !this.loginForm().invalid();
-  }
+  readonly isValid = computed(() => !this.loginForm().invalid());
 
   onSubmit(event?: Event): void {
     event?.preventDefault();

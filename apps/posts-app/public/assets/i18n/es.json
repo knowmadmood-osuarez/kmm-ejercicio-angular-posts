@@ -32,7 +32,9 @@
       "username": "Usuario",
       "password": "Contraseña",
       "submit": "Acceder",
-      "error": "Credenciales inválidas"
+      "error": "Credenciales inválidas",
+      "nameRequired": "El usuario es obligatorio",
+      "passwordRequired": "La contraseña es obligatoria"
     }
   },
   "posts": {
@@ -79,7 +81,8 @@
     "placeholder": "Escribe un comentario...",
     "submit": "Publicar comentario",
     "update": "Actualizar comentario",
-    "bodyRequired": "El comentario es obligatorio"
+    "bodyRequired": "El comentario es obligatorio",
+    "bodyMinLength": "El comentario debe tener al menos 3 caracteres"
   },
   "pagination": {
     "previous": "Anterior",
