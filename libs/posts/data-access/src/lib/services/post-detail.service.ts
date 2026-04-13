@@ -43,8 +43,7 @@ export class PostDetailService {
   // --- Mutations ---
 
   async createPost(post: PostCreate): Promise<Post> {
-    const payload = { ...post, userId: Number(post.userId) };
-    return firstValueFrom(this.http.post<Post>(`${this.apiUrl}/posts`, payload));
+    return firstValueFrom(this.http.post<Post>(`${this.apiUrl}/posts`, post));
   }
 
   async updatePost(id: string, changes: PostUpdate): Promise<Post> {

@@ -11,9 +11,9 @@ function sortByNewest(comments: Comment[]): Comment[] {
   return [...comments].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
-/** Converts FK fields to numbers so json-server stores them consistently with seed data. */
-function toApiPayload(comment: CommentCreate): Record<string, unknown> {
-  return { ...comment, postId: Number(comment.postId), userId: Number(comment.userId) };
+/** Builds the API payload. FKs stay as strings — json-server handles loose comparison. */
+function toApiPayload(comment: CommentCreate): CommentCreate {
+  return comment;
 }
 
 @Injectable({ providedIn: 'root' })

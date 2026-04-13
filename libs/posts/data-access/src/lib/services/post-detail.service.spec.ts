@@ -95,7 +95,7 @@ describe('PostDetailService', () => {
 
       const req = httpTesting.expectOne('http://localhost:3000/posts');
       expect(req.request.method).toBe('POST');
-      expect(req.request.body).toEqual({ ...newPost, userId: 1 });
+      expect(req.request.body).toEqual(newPost);
       req.flush(mockPost);
 
       expect(await promise).toEqual(mockPost);
