@@ -1,1 +1,1 @@
-export * from './lib/posts-feature-form/posts-feature-form';
+export { FORM_ROUTES } from './lib/form.routes';

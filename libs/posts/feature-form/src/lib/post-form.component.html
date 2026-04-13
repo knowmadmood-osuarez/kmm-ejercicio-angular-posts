@@ -1,0 +1,87 @@
+<form (submit)="onSubmit($event)" class="mx-auto max-w-2xl space-y-6">
+  <!-- Title field -->
+  <div class="flex flex-col gap-2">
+    <app-label for="post-title">
+      {{ 'posts.form.title' | transloco }}
+    </app-label>
+    <app-input
+      id="post-title"
+      name="title"
+      variant="editor"
+      [placeholder]="'posts.form.title' | transloco"
+      [value]="postForm.title().value()"
+      [disabled]="loading()"
+      [ariaLabel]="'posts.form.title' | transloco"
+      (valueChange)="postForm.title().value.set($event)"
+      (blurred)="postForm.title().markAsTouched()"
+    />
+    @if (postForm.title().touched() && postForm.title().invalid()) {
+      <p class="text-xs text-danger" role="alert" aria-live="polite">
+        {{ 'posts.form.titleRequired' | transloco }}
+      </p>
+    }
+    @if (postForm.title().touched() && titleTooShort()) {
+      <p class="text-xs text-danger" role="alert" aria-live="polite">
+        {{ 'posts.form.titleMinLength' | transloco }}
+      </p>
+    }
+  </div>
+
+  <!-- Body field -->
+  <div class="flex flex-col gap-2">
+    <app-label for="post-body">
+      {{ 'posts.form.body' | transloco }}
+    </app-label>
+    <app-textarea
+      id="post-body"
+      name="body"
+      [placeholder]="'posts.form.body' | transloco"
+      [value]="postForm.body().value()"
+      [disabled]="loading()"
+      [rows]="10"
+      [ariaLabel]="'posts.form.body' | transloco"
+      (valueChange)="postForm.body().value.set($event)"
+      (blurred)="postForm.body().markAsTouched()"
+    />
+    @if (postForm.body().touched() && postForm.body().invalid()) {
+      <p class="text-xs text-danger" role="alert" aria-live="polite">
+        {{ 'posts.form.bodyRequired' | transloco }}
+      </p>
+    }
+    @if (postForm.body().touched() && bodyTooShort()) {
+      <p class="text-xs text-danger" role="alert" aria-live="polite">
+        {{ 'posts.form.bodyMinLength' | transloco }}
+      </p>
+    }
+  </div>
+
+  <!-- Tags field -->
+  <div class="flex flex-col gap-2">
+    <app-label for="post-tags">
+      {{ 'posts.form.tags' | transloco }}
+    </app-label>
+    <app-input
+      id="post-tags"
+      name="tags"
+      variant="editor"
+      [placeholder]="'posts.form.tags' | transloco"
+      [value]="postForm.tags().value()"
+      [disabled]="loading()"
+      [ariaLabel]="'posts.form.tags' | transloco"
+      (valueChange)="postForm.tags().value.set($event)"
+    />
+  </div>
+
+  <!-- Action buttons -->
+  <div class="flex items-center justify-end gap-3 pt-4">
+    <app-button type="button" variant="secondary" size="md" (click)="onCancel()">
+      {{ 'posts.form.cancel' | transloco }}
+    </app-button>
+    <app-button type="submit" variant="primary" size="md" [disabled]="!canSubmit()">
+      @if (loading()) {
+        <app-icon name="spinner" class="h-4 w-4 animate-spin" />
+      }
+      {{ 'posts.form.submit' | transloco }}
+    </app-button>
+  </div>
+</form>
