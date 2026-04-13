@@ -1,4 +1,4 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { EMPTY, tap } from 'rxjs';
@@ -32,19 +32,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(cloned).pipe(
     tap({
       error: (err: unknown) => {
-        if (isHttpError(err, 401)) {
+        if (err instanceof HttpErrorResponse && err.status === 401) {
           authService.logout();
         }
       },
     }),
   );
 };
-
-function isHttpError(err: unknown, status: number): boolean {
-  return (
-    typeof err === 'object' &&
-    err !== null &&
-    'status' in err &&
-    (err as { status: number }).status === status
-  );
-}

@@ -83,7 +83,7 @@ export class AuthService {
     const users = this.loginResource.value();
     if (!users?.length) return this.rejectLogin(new Error('Invalid credentials'));
 
-    this.completeLogin({ ...users[0], id: String(users[0].id) });
+    this.completeLogin(users[0]);
   }
 
   private completeLogin(user: User): void {
