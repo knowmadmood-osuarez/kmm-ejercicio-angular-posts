@@ -17,7 +17,7 @@ import {
   LoadingComponent,
   SectionHeaderComponent,
 } from '@app/shared/ui';
-import { AuthService } from '@app/core';
+import { AuthService, ToastService } from '@app/core';
 import { CommentsService, PostsService, sortByNewest } from '@app/posts/data-access';
 import type { Comment } from '@app/posts/data-access';
 
@@ -47,6 +47,7 @@ export class PostCommentsComponent {
   private readonly postsService = inject(PostsService);
   private readonly authService = inject(AuthService);
   private readonly transloco = inject(TranslocoService);
+  private readonly toast = inject(ToastService);
 
   readonly isLoading = computed(() => this.commentsService.commentsResource.isLoading());
   readonly error = computed(() => this.commentsService.commentsResource.error());
@@ -62,7 +63,7 @@ export class PostCommentsComponent {
     () => !this.isLoading() && !this.error() && this.comments().length === 0,
   );
   readonly currentUser = this.authService.currentUser;
-  readonly users = computed(() => this.postsService.safeUsers());
+  readonly users = computed(() => this.postsService.users());
   readonly lang = toSignal(this.transloco.langChanges$, {
     initialValue: this.transloco.getActiveLang(),
   });
@@ -96,6 +97,7 @@ export class PostCommentsComponent {
         body,
         createdAt: new Date().toISOString(),
       });
+      this.toast.success('toast.commentCreated');
     } finally {
       this.isSubmitting.set(false);
     }
@@ -116,6 +118,7 @@ export class PostCommentsComponent {
     try {
       await this.commentsService.updateComment(editing.id, { body });
       this.editingComment.set(null);
+      this.toast.success('toast.commentUpdated');
       this.commentsService.commentsResource.reload();
     } finally {
       this.isSubmitting.set(false);
@@ -137,6 +140,7 @@ export class PostCommentsComponent {
     try {
       await this.commentsService.deleteComment(id);
       this.confirmDeleteId.set(null);
+      this.toast.success('toast.commentDeleted');
       this.commentsService.commentsResource.reload();
     } finally {
       this.isSubmitting.set(false);

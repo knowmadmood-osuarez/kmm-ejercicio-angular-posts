@@ -6,6 +6,17 @@ const translocoProviders = provideTransloco({
   config: { availableLangs: ['en', 'es'], defaultLang: 'en', prodMode: true },
 });
 
+const objectLangProviders = provideTransloco({
+  config: {
+    availableLangs: [
+      { id: 'en', label: 'English' },
+      { id: 'es', label: 'Español' },
+    ],
+    defaultLang: 'en',
+    prodMode: true,
+  },
+});
+
 describe('LanguageSwitcherComponent', () => {
   it('renders with role="radiogroup"', async () => {
     const { container } = await render(LanguageSwitcherComponent, {
@@ -41,5 +52,14 @@ describe('LanguageSwitcherComponent', () => {
 
     const transloco = debugElement.injector.get(TranslocoService);
     expect(transloco.getActiveLang()).toBe('es');
+  });
+
+  it('normalizes object-format available langs', async () => {
+    const { container } = await render(LanguageSwitcherComponent, {
+      providers: [objectLangProviders],
+    });
+    const buttons = container.querySelectorAll('button[role="radio"]');
+    expect(buttons.length).toBe(2);
+    expect(buttons[0].textContent?.trim()).toBe('en');
   });
 });

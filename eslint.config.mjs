@@ -32,6 +32,7 @@ export default [
           enforceBuildableLibDependency: true,
           allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$'],
           depConstraints: [
+            // ── Type constraints ──
             {
               sourceTag: 'type:app',
               onlyDependOnLibsWithTags: ['type:feature', 'type:ui', 'type:util'],
@@ -51,6 +52,27 @@ export default [
             {
               sourceTag: 'type:util',
               onlyDependOnLibsWithTags: [],
+            },
+            // ── Scope constraints (prevent cross-domain imports) ──
+            {
+              sourceTag: 'scope:app',
+              onlyDependOnLibsWithTags: ['scope:app', 'scope:auth', 'scope:posts', 'scope:core', 'scope:shared'],
+            },
+            {
+              sourceTag: 'scope:auth',
+              onlyDependOnLibsWithTags: ['scope:auth', 'scope:core', 'scope:shared'],
+            },
+            {
+              sourceTag: 'scope:posts',
+              onlyDependOnLibsWithTags: ['scope:posts', 'scope:core', 'scope:shared'],
+            },
+            {
+              sourceTag: 'scope:core',
+              onlyDependOnLibsWithTags: ['scope:core'],
+            },
+            {
+              sourceTag: 'scope:shared',
+              onlyDependOnLibsWithTags: ['scope:shared'],
             },
           ],
         },

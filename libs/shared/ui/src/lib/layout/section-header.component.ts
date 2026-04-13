@@ -9,6 +9,7 @@ function formatCount(count: number | undefined): string {
   selector: 'app-section-header',
   imports: [TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '[attr.title]': 'null' },
   template: `
     <div
       class="flex items-center gap-3"

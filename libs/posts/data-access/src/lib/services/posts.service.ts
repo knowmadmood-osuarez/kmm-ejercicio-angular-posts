@@ -2,21 +2,12 @@ import { computed, effect, inject, Injectable, signal, untracked } from '@angula
 import { HttpClient, httpResource, HttpResourceRef } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
-import type { SafeUser, User } from '@app/core';
+import type { User } from '@app/core';
 import { API_URL } from '@app/core';
-import { PaginatedPosts, Post, PostCreate, PostUpdate } from '../models/post.model';
+import { PaginatedPosts, Post } from '../models/post.model';
+import { applyClientFilters, filtersEqual, PAGE_SIZE, PostFilters } from './post-filters.utils';
 
-export interface PostFilters {
-  q: string;
-  author: string;
-  tag: string;
-}
-
-function filtersEqual(a: PostFilters, b: PostFilters): boolean {
-  return a.q === b.q && a.author === b.author && a.tag === b.tag;
-}
-
-const PAGE_SIZE = 6;
+export type { PostFilters } from './post-filters.utils';
 
 @Injectable({ providedIn: 'root' })
 export class PostsService {
@@ -66,9 +57,7 @@ export class PostsService {
     () => `${this.apiUrl}/users`,
   );
 
-  readonly safeUsers = computed<SafeUser[]>(() =>
-    (this.usersResource.value() ?? []).map(({ password: _p, ...safe }) => safe),
-  );
+  readonly users = computed<User[]>(() => this.usersResource.value() ?? []);
 
   constructor() {
     effect(() => {
@@ -154,16 +143,7 @@ export class PostsService {
     firstValueFrom(this.http.get<Post[]>(`${this.apiUrl}/posts`, { params }))
       .then((posts) => {
         if (!filtersEqual(snap, this.filters())) return;
-        let filtered = posts;
-        if (snap.tag) {
-          filtered = filtered.filter((p) => p.tags.includes(snap.tag));
-        }
-        if (snap.q) {
-          const query = snap.q.toLowerCase();
-          filtered = filtered.filter(
-            (p) => p.title.toLowerCase().includes(query) || p.body.toLowerCase().includes(query),
-          );
-        }
+        const filtered = applyClientFilters(posts, snap);
         this._posts.set(filtered);
         this.totalItems.set(filtered.length);
       })
@@ -172,46 +152,5 @@ export class PostsService {
         this.error.set(err);
       })
       .finally(() => this.isLoading.set(false));
-  }
-
-  // --- Detail ---
-
-  private readonly _detailId = signal<string | undefined>(undefined);
-
-  readonly postDetailResource: HttpResourceRef<Post | undefined> = httpResource<Post>(() => {
-    const id = this._detailId();
-    if (!id) return undefined;
-    return `${this.apiUrl}/posts/${id}`;
-  });
-
-  loadDetail(id: string): void {
-    this._detailId.set(id);
-  }
-
-  // --- Prefetch ---
-
-  private readonly _prefetchedIds = new Set<string>();
-
-  prefetch(id: string): void {
-    if (this._prefetchedIds.has(id)) return;
-    this._prefetchedIds.add(id);
-    firstValueFrom(this.http.get<Post>(`${this.apiUrl}/posts/${id}`)).catch(() => {
-      this._prefetchedIds.delete(id);
-    });
-  }
-
-  // --- Mutations ---
-
-  async createPost(post: PostCreate): Promise<Post> {
-    const payload = { ...post, userId: Number(post.userId) };
-    return firstValueFrom(this.http.post<Post>(`${this.apiUrl}/posts`, payload));
-  }
-
-  async updatePost(id: string, changes: PostUpdate): Promise<Post> {
-    return firstValueFrom(this.http.patch<Post>(`${this.apiUrl}/posts/${id}`, changes));
-  }
-
-  async deletePost(id: string): Promise<void> {
-    await firstValueFrom(this.http.delete<void>(`${this.apiUrl}/posts/${id}`));
   }
 }

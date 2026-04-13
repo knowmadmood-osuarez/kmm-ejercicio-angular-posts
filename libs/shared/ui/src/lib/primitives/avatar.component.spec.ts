@@ -26,6 +26,13 @@ describe('AvatarComponent', () => {
     expect(img?.getAttribute('alt')).toBe('bob');
   });
 
+  it('shows initials from multi-word name', async () => {
+    const { getByText } = await render(AvatarComponent, {
+      inputs: { name: 'Alice Cooper' },
+    });
+    expect(getByText('AC')).toBeTruthy();
+  });
+
   it('has role="img" and aria-label', async () => {
     const { container } = await render(AvatarComponent, {
       inputs: { name: 'carla' },

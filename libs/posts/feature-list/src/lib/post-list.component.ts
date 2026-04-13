@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 
 import { PostCardComponent } from './post-card.component';
 import type { Post } from '@app/posts/data-access';
-import type { SafeUser } from '@app/core';
+import type { User } from '@app/core';
 
 @Component({
   selector: 'app-post-list',
@@ -13,11 +13,11 @@ import type { SafeUser } from '@app/core';
 })
 export class PostListComponent {
   readonly posts = input.required<Post[]>();
-  readonly users = input<SafeUser[]>([]);
+  readonly users = input<User[]>([]);
   readonly lang = input<string>('es');
 
   readonly postHovered = output<string>();
-  readonly currentUser = input<SafeUser | null>(null);
+  readonly currentUser = input<User | null>(null);
 
   /** Join posts with their authors in a single computed — reactive to both signals. */
   readonly postsWithAuthors = computed(() => {

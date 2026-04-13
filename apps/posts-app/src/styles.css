@@ -51,6 +51,13 @@
   --font-mono: 'Liberation Mono', ui-monospace, monospace;
 }
 
+/* ── Utility: force full height on card article child ── */
+@utility card-stretch {
+  & > article {
+    height: 100%;
+  }
+}
+
 /* ── Utility: primary gradient background ── */
 @utility bg-primary-gradient {
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
@@ -71,4 +78,66 @@
 
 @utility shadow-btn {
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* ── View Transitions (route navigation) ── */
+::view-transition-old(root) {
+  animation: 150ms ease-out both fadeOut;
+}
+
+::view-transition-new(root) {
+  animation: 200ms 100ms ease-out both fadeIn;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+  }
+}
+
+/* ── Utility: fade-in animation (element-level, not pages) ── */
+@utility animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+/* ── Utility: slide-down animation (mobile menu) ── */
+@utility animate-slide-down {
+  animation: slideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    translate: 0 -6px;
+  }
+}
+
+/* ── Utility: card reveal on scroll ── */
+@utility animate-card-in {
+  animation: cardIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+
+/* ── Utility: toast slide-in ── */
+@utility animate-toast-in {
+  animation: toastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    translate: 100% 0;
+  }
 }

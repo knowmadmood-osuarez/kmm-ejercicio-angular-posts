@@ -25,6 +25,14 @@ describe('IconComponent', () => {
     expect(host.getAttribute('aria-hidden')).toBe('false');
   });
 
+  it('renders empty for unknown icon name', async () => {
+    const { container } = await render(IconComponent, {
+      inputs: { name: 'nonexistent' as never },
+    });
+    const svg = container.querySelector('svg');
+    expect(svg).toBeNull();
+  });
+
   it('includes aria-label on svg when label is set', async () => {
     const { container } = await render(IconComponent, {
       inputs: { name: 'delete', label: 'Delete' },

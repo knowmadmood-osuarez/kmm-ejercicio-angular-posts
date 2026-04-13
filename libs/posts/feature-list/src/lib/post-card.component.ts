@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 
 import { AvatarComponent, BadgeComponent, CardComponent } from '@app/shared/ui';
 import type { Post } from '@app/posts/data-access';
-import type { SafeUser } from '@app/core';
+import type { User } from '@app/core';
 
 function excerpt(text: string): string {
   return text.length <= 130 ? text : text.slice(0, 130).trimEnd() + '…';
@@ -22,10 +22,11 @@ function capitalizeName(name: string): string {
   imports: [RouterLink, AvatarComponent, BadgeComponent, CardComponent],
   templateUrl: './post-card.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'block h-full' },
 })
 export class PostCardComponent {
   readonly post = input.required<Post>();
-  readonly author = input<SafeUser | undefined>(undefined);
+  readonly author = input<User | undefined>(undefined);
   readonly isCurrentUser = input<boolean>(false);
   readonly variant = input<'white' | 'tonal'>('white');
   readonly lang = input<string>('es');

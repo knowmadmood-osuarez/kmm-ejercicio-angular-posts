@@ -13,6 +13,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
   selector: 'app-page-header',
   imports: [TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '[attr.title]': 'null' },
   template: `
     <div class="flex flex-col gap-2">
       <h1 class="text-4xl font-extrabold leading-10 tracking-[-0.9px] text-text">

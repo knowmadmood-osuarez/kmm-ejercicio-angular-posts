@@ -3,7 +3,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 
 import { BadgeComponent, ButtonComponent } from '@app/shared/ui';
 import type { Post } from '@app/posts/data-access';
-import type { SafeUser } from '@app/core';
+import type { User } from '@app/core';
 
 /** Split body text into paragraphs by double newline or single newline. */
 function toParagraphs(body: string): string[] {
@@ -22,7 +22,7 @@ function toParagraphs(body: string): string[] {
 })
 export class PostDetailComponent {
   readonly post = input.required<Post>();
-  readonly author = input<SafeUser | undefined>(undefined);
+  readonly author = input<User | undefined>(undefined);
   readonly isOwner = input(false);
   readonly lang = input<string>('es');
 

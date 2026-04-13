@@ -40,11 +40,13 @@
 <!-- Form -->
 @if (!isLoading() && !error() && !isForbidden()) {
   @if (!isEditMode() || post()) {
-    <app-post-form
-      [post]="post()"
-      [loading]="isSaving()"
-      (submitted)="onSubmit($event)"
-      (cancelled)="onCancel()"
-    />
+    <div>
+      <app-post-form
+        [post]="post()"
+        [loading]="isSaving()"
+        (submitted)="onSubmit($event)"
+        (cancelled)="onCancel()"
+      />
+    </div>
   }
 }

@@ -6,7 +6,7 @@ import { provideRouter, Router } from '@angular/router';
 
 import { AuthService, generateToken } from './auth.service';
 import { API_URL } from '../http/api.config';
-import { SafeUser, User } from './user.model';
+import { User } from './user.model';
 
 const mockUser: User = {
   id: '1',
@@ -16,14 +16,7 @@ const mockUser: User = {
   avatar: 'https://api.dicebear.com/9.x/thumbs/svg?seed=alice',
 };
 
-const mockSafeUser: SafeUser = {
-  id: '1',
-  name: 'alice',
-  email: 'alice@example.com',
-  avatar: 'https://api.dicebear.com/9.x/thumbs/svg?seed=alice',
-};
-
-function makeToken(user: SafeUser): string {
+function makeToken(user: User): string {
   const payload = { ...user, iat: Date.now() };
   return btoa(JSON.stringify(payload));
 }
@@ -33,7 +26,7 @@ function makeToken(user: SafeUser): string {
 // ---------------------------------------------------------------------------
 describe('generateToken', () => {
   it('returns a base64 JSON token with user fields and iat', () => {
-    const token = generateToken(mockSafeUser);
+    const token = generateToken(mockUser);
     const decoded = JSON.parse(atob(token)) as { id: string; name: string; iat: number };
     expect(decoded.id).toBe('1');
     expect(decoded.name).toBe('alice');
@@ -72,10 +65,10 @@ describe('AuthService', () => {
   });
 
   it('restores session from localStorage', () => {
-    const token = makeToken(mockSafeUser);
+    const token = makeToken(mockUser);
     localStorage.setItem('auth_token', token);
     const { service } = setup();
-    expect(service.currentUser()).toEqual(mockSafeUser);
+    expect(service.currentUser()).toEqual(mockUser);
     expect(service.token()).toBe(token);
     expect(service.isAuthenticated()).toBe(true);
   });
@@ -94,7 +87,7 @@ describe('AuthService', () => {
     appRef.tick();
 
     const user = await promise;
-    expect(user).toEqual(mockSafeUser);
+    expect(user).toEqual(mockUser);
     expect(service.isAuthenticated()).toBe(true);
     expect(localStorage.getItem('auth_token')).toBeTruthy();
 
@@ -134,7 +127,7 @@ describe('AuthService', () => {
   });
 
   it('logout clears state and navigates', async () => {
-    const token = makeToken(mockSafeUser);
+    const token = makeToken(mockUser);
     localStorage.setItem('auth_token', token);
     const { service, router } = setup();
     const spy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
@@ -149,7 +142,7 @@ describe('AuthService', () => {
   });
 
   it('ignores localStorage on server platform without cookie', () => {
-    const token = makeToken(mockSafeUser);
+    const token = makeToken(mockUser);
     localStorage.setItem('auth_token', token);
     const { service } = setup('server');
     expect(service.currentUser()).toBeNull();
@@ -157,12 +150,32 @@ describe('AuthService', () => {
   });
 
   it('restores session from request cookie on server platform', () => {
-    const token = makeToken(mockSafeUser);
+    const token = makeToken(mockUser);
     const request = new Request('http://localhost:4000/posts', {
       headers: { cookie: `auth_token=${encodeURIComponent(token)}` },
     });
     const { service } = setup('server', request);
-    expect(service.currentUser()).toEqual(mockSafeUser);
+    expect(service.currentUser()).toEqual(mockUser);
     expect(service.isAuthenticated()).toBe(true);
+  });
+
+  it('returns null user when token in localStorage is invalid base64', () => {
+    localStorage.setItem('auth_token', '%%%invalid%%%');
+    const { service } = setup();
+    expect(service.currentUser()).toBeNull();
+  });
+
+  it('returns null on server when request has no cookie header', () => {
+    const request = new Request('http://localhost:4000/posts');
+    const { service } = setup('server', request);
+    expect(service.currentUser()).toBeNull();
+  });
+
+  it('returns null on server when cookie header has no auth_token', () => {
+    const request = new Request('http://localhost:4000/posts', {
+      headers: { cookie: 'other_cookie=value' },
+    });
+    const { service } = setup('server', request);
+    expect(service.currentUser()).toBeNull();
   });
 });

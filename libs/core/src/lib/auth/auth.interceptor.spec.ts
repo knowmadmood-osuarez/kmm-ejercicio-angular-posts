@@ -6,18 +6,19 @@ import { PLATFORM_ID } from '@angular/core';
 
 import { authInterceptor } from './auth.interceptor';
 import { API_URL } from '../http/api.config';
-import type { SafeUser } from './user.model';
+import type { User } from './user.model';
 
 const STORAGE_TOKEN_KEY = 'auth_token';
 
-const mockSafeUser: SafeUser = {
+const mockUser: User = {
   id: '1',
   name: 'alice',
+  password: 'alice123',
   email: 'alice@example.com',
   avatar: 'https://api.dicebear.com/9.x/thumbs/svg?seed=alice',
 };
 
-function makeToken(user: SafeUser): string {
+function makeToken(user: User): string {
   return btoa(JSON.stringify({ ...user, iat: Date.now() }));
 }
 
@@ -25,7 +26,7 @@ function setup(opts: { authenticated?: boolean } = {}) {
   localStorage.clear();
 
   if (opts.authenticated) {
-    const token = makeToken(mockSafeUser);
+    const token = makeToken(mockUser);
     localStorage.setItem(STORAGE_TOKEN_KEY, token);
   }
 
@@ -121,5 +122,27 @@ describe('authInterceptor', () => {
     req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
 
     expect(localStorage.getItem(STORAGE_TOKEN_KEY)).toBeNull();
+  });
+
+  it('skips Authorization header for asset requests', () => {
+    const { http, httpTesting } = setup({ authenticated: true });
+
+    http.get('http://localhost:3000/assets/i18n/en.json').subscribe();
+
+    const req = httpTesting.expectOne('http://localhost:3000/assets/i18n/en.json');
+    expect(req.request.headers.has('Authorization')).toBe(false);
+    req.flush({});
+  });
+
+  it('does not logout on non-401 server error', () => {
+    const { http, httpTesting } = setup({ authenticated: true });
+
+    http.get('http://localhost:3000/posts').subscribe({ error: () => undefined });
+
+    const req = httpTesting.expectOne('http://localhost:3000/posts');
+    req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
+
+    // Token should still be present (not logged out)
+    expect(localStorage.getItem(STORAGE_TOKEN_KEY)).toBeTruthy();
   });
 });

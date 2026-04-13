@@ -48,7 +48,8 @@
       "allAuthors": "All authors",
       "allTags": "All tags",
       "showing": "Showing {{count}} of {{total}} results",
-      "noMore": "You've seen all posts"
+      "noMore": "You've seen all posts",
+      "toggleFilters": "Filters"
     },
     "detail": {
       "title": "Post detail",
@@ -84,6 +85,14 @@
     "update": "Update comment",
     "bodyRequired": "Comment is required",
     "bodyMinLength": "Comment must be at least 3 characters"
+  },
+  "toast": {
+    "postCreated": "Post created successfully",
+    "postUpdated": "Post updated successfully",
+    "postDeleted": "Post deleted successfully",
+    "commentCreated": "Comment published",
+    "commentUpdated": "Comment updated",
+    "commentDeleted": "Comment deleted"
   },
   "pagination": {
     "previous": "Previous",

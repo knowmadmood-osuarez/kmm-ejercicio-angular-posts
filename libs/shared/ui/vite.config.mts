@@ -3,15 +3,12 @@ import { defineConfig } from 'vite';
 import angular from '@analogjs/vite-plugin-angular';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
+import { sharedCoverage } from '../../../vitest.shared';
 
 export default defineConfig(() => ({
   root: __dirname,
   cacheDir: '../../../node_modules/.vite/libs/shared/ui',
   plugins: [angular(), nxViteTsPaths(), nxCopyAssetsPlugin(['*.md'])],
-  // Uncomment this if you are using workers.
-  // worker: {
-  //   plugins: () => [ nxViteTsPaths() ],
-  // },
   test: {
     name: 'shared-ui',
     watch: false,
@@ -20,18 +17,8 @@ export default defineConfig(() => ({
     include: ['{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     setupFiles: ['src/test-setup.ts'],
     reporters: ['default'],
-    coverage: {
+    coverage: sharedCoverage({
       reportsDirectory: '../../../coverage/libs/shared/ui',
-      provider: 'v8' as const,
-      reporter: ['text', 'lcov', 'html'],
-      include: ['src/lib/**/*.ts'],
-      exclude: ['src/lib/**/*.spec.ts', 'src/test-setup.ts', 'src/index.ts'],
-      thresholds: {
-        branches: 50,
-        functions: 60,
-        lines: 60,
-        statements: 60,
-      },
-    },
+    }),
   },
 }));

@@ -11,7 +11,7 @@
     "start": "nx serve posts-app",
     "start:api": "nx serve api",
     "dev": "nx run-many --targets=serve --projects=posts-app,api",
-    "dev:ssr": "concurrently --kill-others --names api,app \"pnpm start:api\" \"nx serve posts-app\"",
+    "dev:ssr": "nx sync && concurrently --kill-others --names api,app \"pnpm start:api\" \"nx serve posts-app\"",
     "build": "nx build posts-app",
     "build:prod": "nx build posts-app --configuration=production",
     "serve:ssr": "node dist/posts-app/server/server.mjs",

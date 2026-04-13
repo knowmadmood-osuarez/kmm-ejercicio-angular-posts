@@ -17,7 +17,7 @@ export const postOwnerGuard: CanActivateFn = async (route) => {
   const apiUrl = inject(API_URL);
   const router = inject(Router);
 
-  const postId = route.paramMap.get('id');
+  const postId = route.paramMap.get('id') ?? route.parent?.paramMap.get('id');
   const currentUser = authService.currentUser();
 
   if (!postId || !currentUser) {

@@ -1,6 +1,6 @@
 ﻿import { Routes } from '@angular/router';
 import { authGuard } from '@app/core';
-import { LayoutComponent } from '@app/shared/ui';
+import { AppLayoutComponent } from './layout/app-layout.component';
 
 export const appRoutes: Routes = [
   {
@@ -10,7 +10,7 @@ export const appRoutes: Routes = [
   {
     path: 'posts',
     canActivate: [authGuard],
-    component: LayoutComponent,
+    component: AppLayoutComponent,
     children: [
       {
         path: '',
@@ -22,7 +22,7 @@ export const appRoutes: Routes = [
       },
       {
         path: ':id/edit',
-        loadChildren: () => import('@app/posts/feature-form').then((m) => m.FORM_ROUTES),
+        loadChildren: () => import('@app/posts/feature-form').then((m) => m.EDIT_FORM_ROUTES),
       },
       {
         path: ':id',
