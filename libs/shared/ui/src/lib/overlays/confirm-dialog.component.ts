@@ -13,6 +13,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
   selector: 'app-confirm-dialog',
   imports: [TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '[attr.title]': 'null' },
   template: `
     @if (open()) {
       <!-- Backdrop -->
