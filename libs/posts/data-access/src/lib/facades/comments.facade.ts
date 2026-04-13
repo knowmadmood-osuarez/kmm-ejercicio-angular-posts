@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, signal, Signal } from '@angular/core';
+import { computed, inject, Injectable, Signal } from '@angular/core';
 
 import { ToastService } from '@app/core';
 import { CommentsService, sortByNewest } from '../services/comments.service';

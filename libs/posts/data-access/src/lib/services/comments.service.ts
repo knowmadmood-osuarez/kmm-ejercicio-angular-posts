@@ -1,6 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { httpResource, HttpResourceRef } from '@angular/common/http';
+import { HttpClient, httpResource, HttpResourceRef } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
 import { API_URL } from '@app/core';
@@ -9,11 +8,6 @@ import { Comment, CommentCreate, CommentUpdate } from '../models/comment.model';
 /** Pure: sort comments newest-first by createdAt (ISO string comparison). */
 function sortByNewest(comments: Comment[]): Comment[] {
   return [...comments].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-}
-
-/** Builds the API payload. FKs stay as strings — json-server handles loose comparison. */
-function toApiPayload(comment: CommentCreate): CommentCreate {
-  return comment;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -49,7 +43,7 @@ export class CommentsService {
 
     try {
       const created = await firstValueFrom(
-        this.http.post<Comment>(`${this.apiUrl}/comments`, toApiPayload(comment)),
+        this.http.post<Comment>(`${this.apiUrl}/comments`, comment),
       );
       this.optimistic.update((list) => list.filter((c) => c.id !== tempId));
       this.commentsResource.reload();

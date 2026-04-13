@@ -87,8 +87,10 @@ export class PostFormPageComponent {
 
     try {
       if (this.isEditMode()) {
+        const editId = this.id();
+        if (!editId) return;
         const changes: PostUpdate = { title: data.title, body: data.body, tags: data.tags };
-        await this.postsFacade.updatePost(this.id()!, changes);
+        await this.postsFacade.updatePost(editId, changes);
       } else {
         const payload: PostCreate = {
           userId: String(user.id),
