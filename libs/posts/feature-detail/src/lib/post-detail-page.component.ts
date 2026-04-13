@@ -109,6 +109,7 @@ export class PostDetailPageComponent {
     this.isDeleting.set(true);
     try {
       await this.postDetailService.deletePost(id);
+      this.postsService.reload();
       this.toast.success('toast.postDeleted');
       void this.router.navigate(['/posts']);
     } finally {

@@ -21,7 +21,11 @@ export class PostDetailService {
   });
 
   loadDetail(id: string): void {
-    this._detailId.set(id);
+    if (this._detailId() === id) {
+      this.postDetailResource.reload();
+    } else {
+      this._detailId.set(id);
+    }
   }
 
   // --- Prefetch ---
