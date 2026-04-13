@@ -22,7 +22,7 @@ export const appRoutes: Routes = [
       },
       {
         path: ':id/edit',
-        loadChildren: () => import('@app/posts/feature-form').then((m) => m.FORM_ROUTES),
+        loadChildren: () => import('@app/posts/feature-form').then((m) => m.EDIT_FORM_ROUTES),
       },
       {
         path: ':id',

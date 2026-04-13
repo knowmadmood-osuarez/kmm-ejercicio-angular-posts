@@ -12,7 +12,6 @@ export {
 export { CardComponent, type CardVariant } from './lib/primitives/card.component';
 export { BadgeComponent } from './lib/primitives/badge.component';
 export { AvatarComponent } from './lib/primitives/avatar.component';
-export { DividerComponent } from './lib/primitives/divider.component';
 
 // ── Forms ──
 export { LabelComponent } from './lib/forms/label.component';
@@ -28,14 +27,9 @@ export { ForbiddenStateComponent } from './lib/feedback/forbidden-state.componen
 export { LinearProgressComponent } from './lib/feedback/linear-progress.component';
 
 // ── Layout ──
-export { LayoutComponent } from './lib/layout/layout.component';
-export { HeaderComponent } from './lib/layout/header.component';
 export { PageHeaderComponent } from './lib/layout/page-header.component';
 export { SectionHeaderComponent } from './lib/layout/section-header.component';
 export { LanguageSwitcherComponent } from './lib/layout/language-switcher.component';
-
-// ── Navigation ──
-export { PaginationComponent } from './lib/navigation/pagination.component';
 
 // ── Overlays ──
 export { ConfirmDialogComponent } from './lib/overlays/confirm-dialog.component';

@@ -1,4 +1,3 @@
-export * from './lib/core/core';
 export { AuthService } from './lib/auth/auth.service';
 export { authGuard } from './lib/auth/auth.guard';
 export { authInterceptor } from './lib/auth/auth.interceptor';
