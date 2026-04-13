@@ -58,9 +58,8 @@ describe('LoginPageComponent', () => {
   it('should call authService.login on form submit', async () => {
     const { component, authService, router } = setup();
     const loginSpy = vi.spyOn(authService, 'login').mockResolvedValue({
-      id: 1,
+      id: '1',
       name: 'alice',
-      password: 'alice123',
       email: 'alice@example.com',
       avatar: 'https://api.dicebear.com/9.x/thumbs/svg?seed=alice',
     });
@@ -95,7 +94,7 @@ describe('LoginPageComponent', () => {
     expect(component.loading()).toBe(true);
 
     resolveLogin({
-      id: 1,
+      id: '1',
       name: 'alice',
       password: 'alice123',
       email: 'alice@example.com',
